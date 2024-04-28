@@ -3,7 +3,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 interface MouseEvents{
     objectClicked: objectClicked
 }
-type objectClicked = "Gate" | "Input" | "Wire" | null;
+export type objectClicked = "Gate" | "Input" | "Wire" | null;
 const initialState = {objectClicked: null} satisfies MouseEvents as MouseEvents;
 
 const mouseEventsSlice = createSlice({

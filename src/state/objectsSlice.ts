@@ -3,21 +3,30 @@ import { Wire } from "../Interfaces/Wire";
 import { Gate } from "../Interfaces/Gate";
 
 interface objects{
-    wires?: Wire[] | null,
+    wires: Wire[],
     gates?: Gate[] | null,
 }
 
-const initialState = {wires: null, gates: null} as objects;
+const initialState = {wires: [], gates: null} as objects;
 
 const objectsSlice = createSlice({
     name: 'objectsSlice',
     initialState: initialState,
     reducers: {
-        setWires: (state, action: PayloadAction<Wire[]>) => {
-            state.wires = action.payload;
+        addWire: (state, action: PayloadAction<Wire>) => {
+            state.wires.push(action.payload);
+        },
+        changeWire: (state, action: PayloadAction<Wire>) => {
+            const foundIndex = state.wires.findIndex(w => w.id === action.payload.id);
+            console.log(`foundIndex: ${foundIndex}`);
+            if(foundIndex !== -1){
+                state.wires[foundIndex] = action.payload;
+            }else{
+                state.wires.push(action.payload);
+            }
         }
     }
 })
 
 export default objectsSlice.reducer;
-export const {setWires} = objectsSlice.actions;
+export const {addWire, changeWire} = objectsSlice.actions;
