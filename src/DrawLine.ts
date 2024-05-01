@@ -1,13 +1,9 @@
 import { Dispatch, UnknownAction } from "redux";
-import { MINIMAL_BLOCKSIZE } from "./Constants/defaultDimensions";
 import { Line } from "./Interfaces/Line";
 import { objectClicked, setObjectClicked } from "./state/mouseEventsSlice";
-import { store } from "./state/store";
 import { Wire } from "./Interfaces/Wire";
-import { addWire, changeWire } from "./state/objectsSlice";
-import { drawLine } from "./drawingFunctions/drawLine";
-import { current } from "@reduxjs/toolkit";
-
+import { changeWire } from "./state/objectsSlice";
+import { getClosestBlock } from "./drawingFunctions/getClosestBlock";
 
 export default function startDrawingLine(
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
@@ -28,28 +24,6 @@ export default function startDrawingLine(
     const lastPosition = {x: 0, y: 0};
     let currentWire: Wire = {linearLine: {...line} as Line, diagonalLine: {...line} as Line, id: crypto.randomUUID()}; 
 
-    const isBiggerThanMovementBlock = (currentMousePos: {x:number, y:number}) => {
-      const distanceX = currentMousePos.x % MINIMAL_BLOCKSIZE;
-      const distanceY = currentMousePos.y % MINIMAL_BLOCKSIZE;
-
-      //console.log(`distanceX: ${distanceX} distanceY: ${distanceY}`);
-
-      if(distanceX >= (MINIMAL_BLOCKSIZE / 2)){
-        currentMousePos.x += MINIMAL_BLOCKSIZE - distanceX;
-      }
-      else if(distanceX < (MINIMAL_BLOCKSIZE/2)){
-        currentMousePos.x -= distanceX;
-      }
-      if(distanceY >= (MINIMAL_BLOCKSIZE/2)){
-        currentMousePos.y += MINIMAL_BLOCKSIZE - distanceY;
-      }
-      else if(distanceY < (MINIMAL_BLOCKSIZE/2)){
-        currentMousePos.y -= distanceY;
-      }
-      return {roundedX: currentMousePos.x, roundedY: currentMousePos.y};
-    }
-
-
     const getClientOffset = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
       let { pageX, pageY } = event;
       let x = pageX - canvasEle.offsetLeft;
@@ -65,7 +39,7 @@ export default function startDrawingLine(
 
       dispatch(setObjectClicked("Wire"));
       const {x, y} = getClientOffset(event);
-      const {roundedX, roundedY} = isBiggerThanMovementBlock({x,y});
+      const {roundedX, roundedY} = getClosestBlock(x,y);
       line.startX = roundedX;
       line.startY = roundedY;
       lastPosition.x = roundedX;
@@ -113,7 +87,7 @@ export default function startDrawingLine(
     const mouseMoveListener = (event: MouseEvent) => {
       
       const {x, y} = getClientOffset((event as unknown) as React.MouseEvent<HTMLCanvasElement, MouseEvent>);
-      const {roundedX, roundedY} = isBiggerThanMovementBlock({x,y});
+      const {roundedX, roundedY} = getClosestBlock(x,y);
       
       //console.log(`X: ${x} roundedX: ${roundedX} lastPosY: ${lastPosition.y} roundedY: ${roundedY}`);
       if(lastPosition.x !== roundedX || lastPosition.y !== roundedY){

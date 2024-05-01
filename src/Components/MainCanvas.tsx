@@ -3,6 +3,8 @@ import startDrawingLine from '../DrawLine';
 import { useDispatch, useSelector } from 'react-redux';
 import useRedrawCanvas from '../hooks/useRedrawCanvas';
 import { RootState } from '../state/store';
+import { MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { AndGate } from './AndGate';
 
 export default function MainCanvas(){
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -27,10 +29,9 @@ export default function MainCanvas(){
         onMouseDown={(e) => {startDrawingLine(e, dispatch, currentlyClicked)}}
         style={{
           backgroundColor: "rgb(100 100 100 / 30%)",
-          marginLeft: "10%",
         }}
       >
-        alt text
+        asd
       </canvas>
       
         </>
