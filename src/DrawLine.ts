@@ -5,6 +5,7 @@ import { changeWire } from "./state/objectsSlice";
 import { getClosestBlock } from "./drawingFunctions/getClosestBlock";
 import { BinaryOutput } from "./Interfaces/BinaryOutput";
 import { BinaryInput } from "./Interfaces/BinaryInput";
+import { setObjectClicked } from "./state/mouseEventsSlice";
 
 export default function startDrawingLine(
 	e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
@@ -19,7 +20,7 @@ export default function startDrawingLine(
 	if (!context) {
 		return;
 	}
-
+	console.log('drawline from: ', from);
 	const line: Line = {startX: 0, startY: 0, endX: 0, endY: 0};
 	const lastPosition = {x: 0, y: 0};
 	const currentWire: Wire = {
@@ -27,7 +28,7 @@ export default function startDrawingLine(
 		diagonalLine: {...line} as Line, 
 		id: crypto.randomUUID(), 
 		from: from}; 
-
+	dispatch(setObjectClicked('Wire'));
 	const getClientOffset = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 		const { pageX, pageY } = event;
 		const x = pageX - canvasEle.offsetLeft;
@@ -101,7 +102,7 @@ export default function startDrawingLine(
 			calculateLineBreak({startX:line.startX, startY: line.startY, endX: lastPosition.x, endY: lastPosition.y} as Line);
 			//console.log(`REAL LINE: startY: ${line.startY} - ${line.endY}  startX: ${line.startX} - ${line.endX}`);
 			//drawLine(line, context);
-			const newWire:Wire = {linearLine: {...currentWire.linearLine}, diagonalLine: {...currentWire.diagonalLine}, id: currentWire.id};
+			const newWire:Wire = {linearLine: {...currentWire.linearLine}, diagonalLine: {...currentWire.diagonalLine}, id: currentWire.id, from: currentWire.from};
 			dispatch(changeWire(newWire));
 		}
 	};
@@ -110,6 +111,7 @@ export default function startDrawingLine(
 		console.log("mouse up listener called");
 		document.removeEventListener("mousemove", mouseMoveListener);
 		document.removeEventListener("mouseup", mouseupListener);
+		dispatch(setObjectClicked(null));
 	};
     
 	document.addEventListener("mousemove", mouseMoveListener);

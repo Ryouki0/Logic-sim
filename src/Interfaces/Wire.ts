@@ -7,5 +7,6 @@ export interface Wire{
     diagonalLine: Line,
     connectedTo?: BinaryInput[] | null,
     from?: BinaryOutput | Wire | null,
+    state?: 0 | 1,
     id: string,
 }

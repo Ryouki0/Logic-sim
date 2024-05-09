@@ -2,6 +2,7 @@ import { Dispatch, UnknownAction } from "redux";
 import { setObjectClicked } from "./state/mouseEventsSlice";
 import { getClosestBlock } from "./drawingFunctions/getClosestBlock";
 import { transform } from "typescript";
+import { changeGate } from "./state/objectsSlice";
 
 const handleMouseDown = (
 	e: React.MouseEvent, 
@@ -13,13 +14,10 @@ const handleMouseDown = (
         dx: number;
         dy: number;
     }>>,
-	setPosition: React.Dispatch<React.SetStateAction<{
-        x: number;
-        y: number;
-    }>>) => {
+	setPosition: (x: number, y: number) => void) => {
     
 	const className = (e.target as HTMLDivElement).classList;
-    if(!className.contains('Gate-container')){
+	if(!className.contains('Gate-container')){
 		return;
 	}
 	const startPos = {
@@ -36,14 +34,16 @@ const handleMouseDown = (
 		// How far the mouse has been moved
 		const dx = e.clientX - startPos.x;
 		const dy = e.clientY - startPos.y;
+		//console.log("dx, dy", dx, dy);
 		const {x,y} = ele.getBoundingClientRect();
 		const {roundedX, roundedY} = getClosestBlock(dx, dy);
 		// console.log(`x: ${x} roundedX ${roundedX} y: ${y} ${roundedY}`);
 		// Set the position of element
-		if(roundedX !== x || roundedY !== y){
-			setPosition({x: roundedX, y:roundedY});
+		if(roundedX !== dx || roundedY !== dy){
+			setPosition(roundedX, roundedY);
+			//console.log(`Real rounded pos: ${roundedX} ${roundedY}`);
 		}
-		setOffset({dx, dy});
+ 		setOffset({dx, dy});
 
 	};
 

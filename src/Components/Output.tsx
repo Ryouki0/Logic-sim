@@ -20,7 +20,7 @@ export function Output({style = null,state}: BinaryInput) {
 	}
 
 	function handleMouseDown(e:React.MouseEvent<any>){
-		startDrawingLine(e, dispatch)
+		startDrawingLine(e, dispatch);
 	}
 
 	return (

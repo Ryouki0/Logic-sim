@@ -3,6 +3,7 @@ import "./App.css";
 import MainCanvas from "./Components/MainCanvas";
 import DisplayAllGates from "./Components/DisplayAllGates";
 import CurrentInput from "./Components/CurrentInputs";
+import MovableGates from "./Components/MovableGates";
 function App() {
 
 	return (
@@ -11,6 +12,7 @@ function App() {
 			<CurrentInput></CurrentInput>
 			<MainCanvas></MainCanvas>
 			<DisplayAllGates></DisplayAllGates>
+			<MovableGates></MovableGates>
 		</>
 	);
 }

@@ -21,19 +21,23 @@ export default function useRedrawCanvas(){
 
 		context.strokeStyle = 'black';
 		context.lineWidth = 1;
-		console.time('drawing dots');
 		for(var i = 0;i<canvasEle.width;i+=MINIMAL_BLOCKSIZE){
 			for(let j = 0; j<canvasEle.height; j+= MINIMAL_BLOCKSIZE){
 				context.strokeRect(i,j,1,1);
 				context.fillRect(i,j,1,1);
 			}
 		}
-		console.timeEnd('drawing dots');
 		if(!wires) return;
-		  for (var i = 0; i < wires.length; i++) {
+		context.strokeStyle = 'rgb(255 165 0 / 100%)';
+
+		for (var i = 0; i < wires.length; i++) {
+			console.log(`from: ${wires[i].from?.state} id: ${wires[i].from?.id}`);
+			if(wires[i].from?.state === 1){
+				context.strokeStyle = 'red';
+			}
 			drawLine(wires[i].linearLine, context);
 			drawLine(wires[i].diagonalLine, context);
-		  }
+		}
 
 		
 

@@ -1,13 +1,16 @@
 import { PayloadAction, createActionCreatorInvariantMiddleware, createSlice } from "@reduxjs/toolkit";
 import { Wire } from "../Interfaces/Wire";
 import { Gate } from "../Interfaces/Gate";
+import { BinaryInput } from "../Interfaces/BinaryInput";
+import { getAllByTestId } from "@testing-library/react";
 
 interface objects{
     wires: Wire[],
-    gates?: Gate[] | null,
+    gates: Gate[],
+	currentInputs: BinaryInput[];
 }
 
-const initialState = {wires: [], gates: null} as objects;
+const initialState = {wires: [], gates: [], currentInputs: []} as objects;
 
 const objectsSlice = createSlice({
 	name: 'objectsSlice',
@@ -23,9 +26,25 @@ const objectsSlice = createSlice({
 			}else{
 				state.wires.push(action.payload);
 			}
+		},
+		addGate: (state, action: PayloadAction<Gate>) => {
+			if(!state.gates){
+				state.gates = [action.payload];
+			}else{
+				state.gates.push(action.payload);
+			}
+		},
+		changeGate: (state, action: PayloadAction<{gate: Gate, newPos: {x:number, y:number}}>) => {
+			const foundIndex = state.gates.findIndex(g => g.id === action.payload.gate.id);
+			if(foundIndex !== -1){
+				state.gates[foundIndex].position = action.payload.newPos;
+			}
+		},
+		addCurrentInput: (state, action: PayloadAction<BinaryInput>) => {
+			state.currentInputs.push(action.payload);
 		}
 	}
 });
 
 export default objectsSlice.reducer;
-export const {addWire, changeWire} = objectsSlice.actions;
+export const {addWire, changeWire, addGate, addCurrentInput, changeGate} = objectsSlice.actions;
