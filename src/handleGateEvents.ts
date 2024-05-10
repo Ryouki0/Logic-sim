@@ -10,21 +10,22 @@ const handleMouseDown = (
 	dispatch:Dispatch<UnknownAction>,
 	dx: number,
 	dy: number,
-	setOffset: React.Dispatch<React.SetStateAction<{
-        dx: number;
-        dy: number;
-    }>>,
+	setOffset:(dx: number, dy: number) => void,
 	setPosition: (x: number, y: number) => void) => {
     
 	const className = (e.target as HTMLDivElement).classList;
 	if(!className.contains('Gate-container')){
 		return;
 	}
+	const ele = eleRef.current;
+	if(!ele){
+		return;
+	}
+	const {x,y} = ele.getBoundingClientRect();
 	const startPos = {
 		x: e.clientX - dx,
 		y: e.clientY - dy,
 	};
-
 	const handleMouseMove = (e: MouseEvent) => {
 		const ele = eleRef.current;
 		if (!ele) {
@@ -34,16 +35,14 @@ const handleMouseDown = (
 		// How far the mouse has been moved
 		const dx = e.clientX - startPos.x;
 		const dy = e.clientY - startPos.y;
-		//console.log("dx, dy", dx, dy);
-		const {x,y} = ele.getBoundingClientRect();
 		const {roundedX, roundedY} = getClosestBlock(dx, dy);
-		// console.log(`x: ${x} roundedX ${roundedX} y: ${y} ${roundedY}`);
+		
 		// Set the position of element
 		if(roundedX !== dx || roundedY !== dy){
 			setPosition(roundedX, roundedY);
 			//console.log(`Real rounded pos: ${roundedX} ${roundedY}`);
 		}
- 		setOffset({dx, dy});
+ 		setOffset(dx, dy);
 
 	};
 

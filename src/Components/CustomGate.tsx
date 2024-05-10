@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import handleMouseDown from '../handleGateEvents';
 import { Input } from './Input';
@@ -6,7 +6,7 @@ import { DEFAULT_INPUT_DIM, DEFAULT_INPUT_OFFSET_TOP, LINE_WIDTH, MINIMAL_BLOCKS
 import { BinaryInput } from '../Interfaces/BinaryInput';
 import { Output } from './Output';
 import { Gate } from '../Interfaces/Gate';
-import { addGate, changeGate } from '../state/objectsSlice';
+import { addGate, changeGate, removeGate } from '../state/objectsSlice';
 import { RootState } from '../state/store';
 interface CustomGateProps{
     gateProps: Gate,
@@ -26,21 +26,24 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 		}
 		return state.objectsSlice.gates[i];}, shallowEqual);
     
-	const [{dx, dy}, setOffset] = useState({dx: 
+	const offsetRef = useRef({dx: 
 		thisGate?.position ? thisGate.position.x : 0, 
 	dy: thisGate?.position ? thisGate.position.y : 0});
+
+	const setOffset = (dx:number, dy:number) => {
+		offsetRef.current = {...offsetRef.current, dx: dx, dy: dy};
+	}
 
 	const [inputs, setInputs] = useState<BinaryInput[]>(gateProps.inputs);
 	const outputs = gateProps.outputs;
 
 
 	const setPositions = (x: number, y: number) => {
-		
 		//console.log(`gateProps.position changing: ${thisGate?.position?.x} ${thisGate?.position?.y}`);
 		dispatch(changeGate({gate: gateProps, newPos: {x: x,y: y}}));
 	};
 
-
+	
 	const calculateDivHeight = () => {
 		if(inputs.length <= 1 && outputs.length <= 1){
 			return 2*MINIMAL_BLOCKSIZE + LINE_WIDTH;
@@ -66,15 +69,15 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 			x: eleRef.current?.getBoundingClientRect().x ? eleRef.current.getBoundingClientRect().x : 0, 
 			y: eleRef.current?.getBoundingClientRect().y ? eleRef.current.getBoundingClientRect().y : 0
 		}}));
+		console.log('created gate');
 	};
 
 	return	(
 		<>
 		{/*console.log(`inside render: ${thisGate?.position?.y} ${thisGate?.position?.x} thisGate: ${thisGate} dx: ${dx} dy: ${dy}`)*/}
-		{console.time('customGate')}
 		<div ref={eleRef} 
 			className='Gate-container' 
-			style={{width: preview ? 3*MINIMAL_BLOCKSIZE : 4*MINIMAL_BLOCKSIZE, 
+			style={{width: preview ? 3*MINIMAL_BLOCKSIZE : 3*MINIMAL_BLOCKSIZE, 
 				height: calculateDivHeight(),
 				position: position ? position : 'relative',
 				top: thisGate?.position ? thisGate.position.y : 0,
@@ -85,11 +88,16 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 				justifySelf: 'center',
 				backgroundColor: "rgb(100 100 100)"}} 
 			id={gateProps.id}
-			onMouseDown={e => {if(preview){ 
+			onContextMenu={e => {e.stopPropagation(); e.preventDefault();dispatch(removeGate(gateProps.id))}}
+			onMouseEnter={e => {if(preview){
 				e.stopPropagation(); 
-				handlePreviewMouseDown();}
+				handlePreviewMouseDown();
+			}}}
+			
+			//onMouseOver={handleMouseOver}
+			onMouseDown={e => {if(preview){ }
 			else{
-				handleMouseDown(e, eleRef, dispatch, dx, dy, setOffset, setPositions);
+				handleMouseDown(e, eleRef, dispatch, offsetRef.current.dx, offsetRef.current.dy, setOffset, setPositions);
 			}}}
 		>
 			{inputs.map((input, idx, array) => {
@@ -102,7 +110,7 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 					style={{color: 'white', cursor: "default", userSelect: 'none', fontSize: 22, fontWeight: 500}} 
 					onMouseDown={e => { e.stopPropagation();
 						preview ? handlePreviewMouseDown()
-							: handleMouseDown(e, eleRef, dispatch, dx, dy, setOffset, setPositions);
+							: handleMouseDown(e, eleRef, dispatch, offsetRef.current.dx, offsetRef.current.dy, setOffset, setPositions);
 					}}
 				>{gateProps.name}</span>
 			</div>
@@ -112,7 +120,6 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 				top:calculateInputTop(idx, array) }} state={0} id="1232" key={output.id}></Output>;
 			})}
 		</div>
-		{console.timeEnd('customGate')}
 		</>
 	);
 }

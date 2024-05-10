@@ -5,7 +5,7 @@ import DisplayAllGates from "./Components/DisplayAllGates";
 import CurrentInput from "./Components/CurrentInputs";
 import MovableGates from "./Components/MovableGates";
 function App() {
-
+	
 	return (
 		<>
 			{console.log("rendering whole App...")}

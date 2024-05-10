@@ -40,6 +40,12 @@ const objectsSlice = createSlice({
 				state.gates[foundIndex].position = action.payload.newPos;
 			}
 		},
+		removeGate: (state, action: PayloadAction<string>) => {
+			const foundIndex = state.gates.findIndex(g => g.id === action.payload);
+			if(foundIndex !== -1){
+				state.gates.splice(foundIndex, 1);
+			}
+		},
 		addCurrentInput: (state, action: PayloadAction<BinaryInput>) => {
 			state.currentInputs.push(action.payload);
 		}
@@ -47,4 +53,4 @@ const objectsSlice = createSlice({
 });
 
 export default objectsSlice.reducer;
-export const {addWire, changeWire, addGate, addCurrentInput, changeGate} = objectsSlice.actions;
+export const {addWire, changeWire, addGate, addCurrentInput, changeGate, removeGate} = objectsSlice.actions;
