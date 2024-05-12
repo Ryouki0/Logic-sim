@@ -34,7 +34,7 @@ export default function CurrentInput(){
 			width: MINIMAL_BLOCKSIZE, 
 			height: '80%', 
 			position: 'absolute', 
-			marginLeft: MINIMAL_BLOCKSIZE}}
+			marginLeft: 3*MINIMAL_BLOCKSIZE}}
 		ref = {currentInputsRef}>
 		{inputs?.map((input, idx) => {
 			return <Input binaryInput={{

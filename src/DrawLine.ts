@@ -20,7 +20,7 @@ export default function startDrawingLine(
 	if (!context) {
 		return;
 	}
-	console.log('drawline from: ', from);
+	//console.log('drawline from: ', from);
 	const line: Line = {startX: 0, startY: 0, endX: 0, endY: 0};
 	const lastPosition = {x: 0, y: 0};
 	const currentWire: Wire = {
@@ -108,7 +108,7 @@ export default function startDrawingLine(
 	};
 
 	const mouseupListener = (event: MouseEvent) => {
-		console.log("mouse up listener called");
+		//console.log("mouse up listener called");
 		document.removeEventListener("mousemove", mouseMoveListener);
 		document.removeEventListener("mouseup", mouseupListener);
 		dispatch(setObjectClicked(null));
