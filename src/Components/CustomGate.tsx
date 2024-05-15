@@ -2,29 +2,37 @@ import React, { useEffect, useRef, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import handleMouseDown from '../handleGateEvents';
 import { Input } from './Input';
-import { DEFAULT_INPUT_DIM, DEFAULT_INPUT_OFFSET_TOP, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { DEFAULT_INPUT_DIM, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { BinaryInput } from '../Interfaces/BinaryInput';
 import { Output } from './Output';
 import { Gate } from '../Interfaces/Gate';
 import { addGate, changeGate, removeGate } from '../state/objectsSlice';
 import { RootState } from '../state/store';
+import {v4 as uuidv4} from 'uuid';
+import './../gate.css';
 interface CustomGateProps{
     gateProps: Gate,
 	preview: boolean,
 	position?: 'absolute' | 'relative'
 }
 
+function checkGateEquality(prev: Gate, next: Gate){
+	if(!prev || !next){
+		return true;
+	}
+	//console.log(`render?: ${!(prev.position?.x === next.position?.x && prev.position?.y === next.position?.y)}`);
+	
+	return prev.position?.x === next.position?.x && prev.position?.y === next.position?.y;
+}
+
 function CustomGate({gateProps, preview, position}:CustomGateProps){
 	const eleRef = React.useRef<HTMLDivElement>(null);
 	const dispatch = useDispatch();
 	
-
+	const renderNumber = useRef(0);
 	const thisGate = useSelector((state: RootState) => {
 		const i = state.objectsSlice.gates.findIndex(g => g.id === gateProps.id);
-		if(i === -1){
-			return;
-		}
-		return state.objectsSlice.gates[i];}, shallowEqual);
+		return state.objectsSlice.gates[i];}, checkGateEquality);
     
 	const offsetRef = useRef({dx: 
 		thisGate?.position ? thisGate.position.x : 0, 
@@ -65,7 +73,7 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 	};
 
 	const handlePreviewMouseDown = () => {
-		dispatch(addGate({...gateProps, id: crypto.randomUUID(), position: {
+		dispatch(addGate({...gateProps, id: uuidv4(), position: {
 			x: eleRef.current?.getBoundingClientRect().x ? eleRef.current.getBoundingClientRect().x : 0, 
 			y: eleRef.current?.getBoundingClientRect().y ? eleRef.current.getBoundingClientRect().y : 0
 		}}));
@@ -74,10 +82,10 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 
 	return	(
 		<>
-		{/*console.log(`inside render: ${thisGate?.position?.y} ${thisGate?.position?.x} thisGate: ${thisGate} dx: ${dx} dy: ${dy}`)*/}
+		{/*console.log(`inside render: ${thisGate?.position?.y} ${thisGate?.position?.x} renderNumber: ${renderNumber.current} ${renderNumber.current++}`)*/}
 		<div ref={eleRef} 
 			className='Gate-container' 
-			style={{width: preview ? 3*MINIMAL_BLOCKSIZE : 3*MINIMAL_BLOCKSIZE, 
+			style={{width: 3*MINIMAL_BLOCKSIZE, 
 				height: calculateDivHeight(),
 				position: position ? position : 'relative',
 				top: thisGate?.position ? thisGate.position.y : 0,
@@ -86,6 +94,7 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 				borderBottomRightRadius: 30,
 				display: 'inline-block',
 				justifySelf: 'center',
+				cursor: 'pointer',
 				backgroundColor: "rgb(100 100 100)"}} 
 			id={gateProps.id}
 			onContextMenu={e => {e.stopPropagation(); e.preventDefault();dispatch(removeGate(gateProps.id))}}
@@ -95,19 +104,22 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 			}}}
 			
 			//onMouseOver={handleMouseOver}
+			
 			onMouseDown={e => {if(preview){ }
 			else{
 				handleMouseDown(e, eleRef, dispatch, offsetRef.current.dx, offsetRef.current.dy, setOffset, setPositions);
 			}}}
 		>
 			{inputs.map((input, idx, array) => {
-				return <Input binaryInput={{style: {top: calculateInputTop(idx, array)}, state: input.state, id: crypto.randomUUID()}} key={input.id}></Input>;
+				return <Input binaryInput={{style: {
+					top: calculateInputTop(idx, array),
+					cursor: 'default'},
+					state: input.state, id: uuidv4()}} key={input.id}></Input>;
 			})}
 			<div style={{position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)"}}> 
-				<span 
-					className='Gate-container'
+				<span
 					key={gateProps.id}
-					style={{color: 'white', cursor: "default", userSelect: 'none', fontSize: 22, fontWeight: 500}} 
+					style={{color: 'white', cursor: "drag", userSelect: 'none', fontSize: 22, fontWeight: 500}} 
 					onMouseDown={e => { e.stopPropagation();
 						preview ? handlePreviewMouseDown()
 							: handleMouseDown(e, eleRef, dispatch, offsetRef.current.dx, offsetRef.current.dy, setOffset, setPositions);
@@ -117,7 +129,8 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 			{outputs.map((output, idx, array) => {
 				return <Output style={{position: 'absolute', left:
                         (3*MINIMAL_BLOCKSIZE)-DEFAULT_INPUT_DIM.width/2,
-				top:calculateInputTop(idx, array) }} state={0} id="1232" key={output.id}></Output>;
+				top:calculateInputTop(idx, array),
+				cursor: 'default'}} state={0} id="1232" key={output.id}></Output>;
 			})}
 		</div>
 		</>

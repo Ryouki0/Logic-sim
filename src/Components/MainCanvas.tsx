@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import startDrawingLine from '../DrawLine';
 import useRedrawCanvas from '../hooks/useRedrawCanvas';
-import { MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { CANVAS_OFFSET_LEFT, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import useIsWireClicked from '../hooks/useIsWireClicked';
 
 export default function MainCanvas(){
@@ -14,16 +14,17 @@ export default function MainCanvas(){
 			<canvas
 				id="main-canvas"
 				ref={canvasRef}
-				onContextMenu={e => {e.preventDefault(); checkWire(e.clientX, e.clientY);}}
-				onMouseDown={e => startDrawingLine(e, dispatch)}
+				onContextMenu={e => {e.preventDefault(); checkWire(e.pageX, e.pageY);}}
+				onMouseDown={e => {if(e.button !== 0) return; startDrawingLine(e, dispatch)}}
 				style={{
-					backgroundColor: "rgb(100 100 100 / 30%)",
-					marginLeft: 3*MINIMAL_BLOCKSIZE,
+					backgroundColor: 'rgb(100 100 100 / 30%) ',
+					marginLeft: CANVAS_OFFSET_LEFT,
+					position: 'absolute',
+					zIndex: 0,
 				}}
 			>
         asd
 			</canvas>
-      
 		</>
 	);
 }

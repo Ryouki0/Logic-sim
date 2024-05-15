@@ -1,17 +1,20 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
-import { LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { CANVAS_OFFSET_LEFT, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { Line } from '../Interfaces/Line';
+import { removeWire } from '../state/objectsSlice';
+import { Wire } from '../Interfaces/Wire';
+
 
 export default function useIsWireClicked(){
     const wires = useSelector((state: RootState) => {return state.objectsSlice.wires});
-    
-    function calculateLinePoints(line:Line, offset: number = 3){
+    const dispatch = useDispatch();
+    function calculateLinePoints(line:Line){
             let { startX, endX, startY, endY } = line;
             
-            const newStartX = (Math.min(startX, endX)) + offset*MINIMAL_BLOCKSIZE;
-            const newEndX = Math.max(startX, endX) + offset*MINIMAL_BLOCKSIZE;
+            const newStartX = (Math.min(startX, endX)) + CANVAS_OFFSET_LEFT;
+            const newEndX = Math.max(startX, endX) + CANVAS_OFFSET_LEFT;
 
             const newStartY = Math.min(startY, endY);
             const newEndY = Math.max(startY, endY);
@@ -36,8 +39,8 @@ export default function useIsWireClicked(){
 
     function isPointOnDiagonalLine(startX: number, startY: number, endX: number, endY: number, x: number, y: number) {
         const m = (endY - startY) / (endX - startX);
-        const startPointX = startX + 3*MINIMAL_BLOCKSIZE;
-        const endPointX = endX + 3*MINIMAL_BLOCKSIZE;
+        const startPointX = startX + CANVAS_OFFSET_LEFT;
+        const endPointX = endX + CANVAS_OFFSET_LEFT;
 
         const b = startY - m * startPointX;
 
@@ -55,12 +58,17 @@ export default function useIsWireClicked(){
         }
         wires.forEach(w => {
             let {startX, startY, endX, endY} = calculateLinePoints(w.linearLine);
-            isPointOnLine(startX, startY, endX, endY, x, y);
+            if(isPointOnLine(startX, startY, endX, endY, x, y)){
+                dispatch(removeWire(w));
+                return;
+            }
             
             ({startX, startY, endX, endY} = w.diagonalLine);
             
 
-            console.log(isPointOnDiagonalLine(startX, startY, endX, endY, x, y));
+            if(isPointOnDiagonalLine(startX, startY, endX, endY, x, y)){
+                dispatch(removeWire(w));
+            }
         })
     }
     return checkWire;

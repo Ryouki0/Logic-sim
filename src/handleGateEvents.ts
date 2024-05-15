@@ -14,17 +14,17 @@ const handleMouseDown = (
 	setPosition: (x: number, y: number) => void) => {
     
 	const className = (e.target as HTMLDivElement).classList;
-	if(!className.contains('Gate-container')){
-		return;
-	}
+	// if(!className.contains('Gate-container')){
+	// 	return;
+	// }
 	const ele = eleRef.current;
 	if(!ele){
 		return;
 	}
 	const {x,y} = ele.getBoundingClientRect();
 	const startPos = {
-		x: e.clientX - dx,
-		y: e.clientY - dy,
+		x: e.pageX - dx,
+		y: e.pageY - dy,
 	};
 	const handleMouseMove = (e: MouseEvent) => {
 		const ele = eleRef.current;
@@ -33,8 +33,8 @@ const handleMouseDown = (
 		}
 
 		// How far the mouse has been moved
-		const dx = e.clientX - startPos.x;
-		const dy = e.clientY - startPos.y;
+		const dx = e.pageX - startPos.x;
+		const dy = e.pageY - startPos.y;
 		const {roundedX, roundedY} = getClosestBlock(dx, dy);
 		
 		// Set the position of element

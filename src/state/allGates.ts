@@ -2,18 +2,19 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { Gate } from "../Interfaces/Gate";
 import { BinaryInput } from "../Interfaces/BinaryInput";
 import { BinaryOutput } from "../Interfaces/BinaryOutput";
+import {v4 as uuidv4} from 'uuid';
 
 const initialState: Gate[] = [
 	{
 		name: 'AND',
-		inputs: [{state: 0, id: crypto.randomUUID(), style: {}}, {state: 0, id: crypto.randomUUID(), style: {}}] as BinaryInput[],
+		inputs: [{state: 0, id: uuidv4(), style: {}}, {state: 0, id: uuidv4(), style: {}}] as BinaryInput[],
 		outputs: [{state: 0, id: '16sdf4'}] as BinaryOutput[],
-		id: crypto.randomUUID()},
+		id: uuidv4()},
 	{
 		name: 'NO',
 		inputs: [{state: 0, id: '1234234234', style: {}}] as BinaryInput[],
-		outputs: [{state: 0, id: crypto.randomUUID(), style: {}}] as BinaryOutput[],
-		id: crypto.randomUUID()
+		outputs: [{state: 0, id: uuidv4(), style: {}}] as BinaryOutput[],
+		id: uuidv4()
 	}];
 
 const allGatesSlice = createSlice({

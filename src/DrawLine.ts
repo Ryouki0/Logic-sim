@@ -6,7 +6,7 @@ import { getClosestBlock } from "./drawingFunctions/getClosestBlock";
 import { BinaryOutput } from "./Interfaces/BinaryOutput";
 import { BinaryInput } from "./Interfaces/BinaryInput";
 import { setObjectClicked } from "./state/mouseEventsSlice";
-
+import { v4 as uuidv4 } from 'uuid';
 export default function startDrawingLine(
 	e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
 	dispatch:Dispatch<UnknownAction>,
@@ -26,7 +26,7 @@ export default function startDrawingLine(
 	const currentWire: Wire = {
 		linearLine: {...line} as Line, 
 		diagonalLine: {...line} as Line, 
-		id: crypto.randomUUID(), 
+		id: uuidv4(), 
 		from: from}; 
 	dispatch(setObjectClicked('Wire'));
 	const getClientOffset = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
