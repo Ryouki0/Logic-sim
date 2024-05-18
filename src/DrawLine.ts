@@ -7,6 +7,7 @@ import { BinaryOutput } from "./Interfaces/BinaryOutput";
 import { BinaryInput } from "./Interfaces/BinaryInput";
 import { setObjectClicked } from "./state/mouseEventsSlice";
 import { v4 as uuidv4 } from 'uuid';
+import checkIfPointInRect from "./hooks/useConnecting";
 export default function startDrawingLine(
 	e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
 	dispatch:Dispatch<UnknownAction>,
@@ -26,7 +27,7 @@ export default function startDrawingLine(
 	const currentWire: Wire = {
 		linearLine: {...line} as Line, 
 		diagonalLine: {...line} as Line, 
-		id: uuidv4(), 
+		id: uuidv4(),
 		from: from}; 
 	dispatch(setObjectClicked('Wire'));
 	const getClientOffset = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
@@ -109,6 +110,7 @@ export default function startDrawingLine(
 
 	const mouseupListener = (event: MouseEvent) => {
 		//console.log("mouse up listener called");
+		//checkIfPointInRect({x: lastPosition.x, y: lastPosition.y}, {})
 		document.removeEventListener("mousemove", mouseMoveListener);
 		document.removeEventListener("mouseup", mouseupListener);
 		dispatch(setObjectClicked(null));

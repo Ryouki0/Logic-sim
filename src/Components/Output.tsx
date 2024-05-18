@@ -2,7 +2,6 @@ import React from "react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import {
-	DEFAULT_CANVAS_DIM,
 	DEFAULT_INPUT_DIM,
 } from "../Constants/defaultDimensions";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,15 +12,10 @@ export function Output({style = null,state}: BinaryInput) {
 
 	const objectClicked = useSelector((state: RootState) => {return state.mouseEventsSlice.objectClicked;});
 	const dispatch = useDispatch();
-	function handleMouseUp(e:React.MouseEvent<HTMLDivElement, MouseEvent>) {
-		if(objectClicked == 'Wire'){
-			console.log(`connected ${objectClicked}`);
-		}
-	}
 
 	function handleMouseDown(e:React.MouseEvent<any>){
 		e.stopPropagation();
-		startDrawingLine(e, dispatch);
+		startDrawingLine(e, dispatch, );
 	}
 
 	return (
@@ -30,8 +24,7 @@ export function Output({style = null,state}: BinaryInput) {
 				width: DEFAULT_INPUT_DIM.width,
 				height: DEFAULT_INPUT_DIM.height,
 			}}
-			onMouseDown={handleMouseDown}
-			onMouseUp={(e) => {handleMouseUp(e);}}>
+			onMouseDown={handleMouseDown}>
 				<CircularProgressbar
 					value={100}
 					background={true}

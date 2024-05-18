@@ -8,11 +8,11 @@ const initialState: Gate[] = [
 	{
 		name: 'AND',
 		inputs: [{state: 0, id: uuidv4(), style: {}}, {state: 0, id: uuidv4(), style: {}}] as BinaryInput[],
-		outputs: [{state: 0, id: '16sdf4'}] as BinaryOutput[],
+		outputs: [{state: 0, id: uuidv4()}] as BinaryOutput[],
 		id: uuidv4()},
 	{
 		name: 'NO',
-		inputs: [{state: 0, id: '1234234234', style: {}}] as BinaryInput[],
+		inputs: [{state: 0, id: uuidv4(), style: {}}] as BinaryInput[],
 		outputs: [{state: 0, id: uuidv4(), style: {}}] as BinaryOutput[],
 		id: uuidv4()
 	}];

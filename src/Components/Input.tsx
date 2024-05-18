@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import {
-	DEFAULT_CANVAS_DIM,
 	DEFAULT_INPUT_DIM,
 } from "../Constants/defaultDimensions";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,15 +10,17 @@ import { BinaryInput } from "../Interfaces/BinaryInput";
 import startDrawingLine from "../DrawLine";
 import { stat } from "fs";
 import { AMBER, SEA_MID_GREEN } from "../Constants/colors";
+import { changeInputPosition } from "../state/objectsSlice";
 
 interface InputProps{
 	binaryInput: BinaryInput,
+	gateId?: string,
 	onClick?(e: React.MouseEvent<HTMLDivElement, MouseEvent>): void,
 	onRightClick?(e: React.MouseEvent<HTMLDivElement, MouseEvent>): void,
 }
 
 function checkInputEquality(prev:BinaryInput, next: BinaryInput){
-	console.log(`input should render? ${prev?.state}!==${next?.state} ${prev?.state !== next?.state}`);
+	//console.log(`input should render? ${prev?.state}!==${next?.state} ${prev?.state !== next?.state}`);
 	
 	if(prev?.state !== next?.state){
 		return false;
@@ -28,21 +29,11 @@ function checkInputEquality(prev:BinaryInput, next: BinaryInput){
 	}
 }
 
-export function Input({binaryInput, onClick, onRightClick}: InputProps) {
-
-	//const objectClicked = useSelector((state: RootState) => {return state.mouseEventsSlice.objectClicked;});
-	const currentInput = useSelector((state: RootState) => {
-		const foundIndex = state.objectsSlice.currentInputs.findIndex(input => input.id === binaryInput.id);
-		return state.objectsSlice.currentInputs[foundIndex];
-	},checkInputEquality);
-		if(onClick){
-		console.log('rendering input with state: ',binaryInput.state);
-		console.log(`currentInput in state: `, currentInput?.id);
-	}
+export function Input({binaryInput,gateId, onClick, onRightClick}: InputProps) {
 	const dispatch = useDispatch();
-	function handleMouseUp(e:React.MouseEvent<HTMLDivElement, MouseEvent>) {
-		
-	}
+	const eleRef = useRef<HTMLDivElement>(null);
+	//const objectClicked = useSelector((state: RootState) => {return state.mouseEventsSlice.objectClicked;});
+	const currentInput = useSelector((state: RootState) => {return state.objectsSlice.currentInputs[binaryInput.id]},checkInputEquality);
 
 	function handleMouseDown(e: React.MouseEvent<any>){
 		e.stopPropagation();
@@ -55,7 +46,8 @@ export function Input({binaryInput, onClick, onRightClick}: InputProps) {
 	return (
 		<>
 		{/*console.log('rendering input...')*/}
-			<div style={{
+			<div ref={eleRef}
+			style={{
 				width: DEFAULT_INPUT_DIM.width,
 				height: DEFAULT_INPUT_DIM.height,
 				position: 'relative',
@@ -63,7 +55,6 @@ export function Input({binaryInput, onClick, onRightClick}: InputProps) {
 				...binaryInput.style,
 			}}
 			onMouseDown={handleMouseDown}
-			onMouseUp={handleMouseUp}
 			onContextMenu={onRightClick ? onRightClick : () => {console.log('undefined')}}>
 				<CircularProgressbar
 					value={100}

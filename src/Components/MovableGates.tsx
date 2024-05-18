@@ -15,6 +15,7 @@ const checkEquality = (prev:Gate[], next: Gate[]) => {
 export default function MovableGates(){
 	const movableGates = useSelector((state: RootState) => {return state.objectsSlice.gates;}, checkEquality);
 	return <>
+		{console.log('RENDER MOVABLE GATES')}
 		{movableGates?.map((g) => {
 			return <CustomGate gateProps={g} preview={false} key={g.id} position='absolute'></CustomGate>;
 		})}

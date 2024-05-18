@@ -3,14 +3,16 @@ import { Wire } from "../Interfaces/Wire";
 import { Gate } from "../Interfaces/Gate";
 import { BinaryInput } from "../Interfaces/BinaryInput";
 import { getAllByTestId } from "@testing-library/react";
+import { Input } from "../Components/Input";
+import { calculateInputTop } from "../utils/calculateInputTop";
 
 interface objects{
     wires: Wire[],
     gates: Gate[],
-	currentInputs: BinaryInput[];
+	currentInputs: {[key: string]: BinaryInput};
 }
 
-const initialState = {wires: [], gates: [], currentInputs: []} as objects;
+const initialState = {wires: [], gates: [], currentInputs: {}} as objects;
 
 const objectsSlice = createSlice({
 	name: 'objectsSlice',
@@ -53,12 +55,28 @@ const objectsSlice = createSlice({
 			}
 		},
 		addCurrentInput: (state, action: PayloadAction<BinaryInput>) => {
-			state.currentInputs.push(action.payload);
+			state.currentInputs[action.payload.id] = action.payload;
 		},
 		changeInputState: (state, action: PayloadAction<BinaryInput>) => {
-			const foundIndex = state.currentInputs.findIndex(i => i.id === action.payload.id);
+			state.currentInputs[action.payload.id] = {...action.payload, state: action.payload.state === 1 ? 0 : 1};
+		},
+		changeInputPosition: (state, action: PayloadAction<{x:number,y:number, gateId: string}>) => {
+			const foundIndex = state.gates.findIndex(g => g.id === action.payload.gateId);
 			if(foundIndex !== -1){
-				state.currentInputs[foundIndex].state = state.currentInputs[foundIndex].state === 0 ? 1 : 0;
+				state.gates[foundIndex].inputs.forEach((input, idx, array) => {
+					const newY = state.gates[foundIndex].position?.y ??- calculateInputTop(idx, array);
+					const newX = state.gates[foundIndex].position?.x ?? 0;
+					//console.log(`newX: ${newX} Y: ${newY}`);
+					
+					state.gates[foundIndex].inputs[idx].position = {x:newX,y:newY};
+				})
+			}
+		},
+		addWireToGateInput: (state, action: PayloadAction<{gate:Gate, inputIdx: number, wire:Wire | null}>) => {
+			const foundIndex = state.gates.findIndex(g => g.id === action.payload.gate.id);
+			if(foundIndex !== -1){
+				//console.log(`changing wires in ${state.gates[foundIndex].inputs[action.payload.inputIdx].id} to ${action.payload.wire}`);
+				state.gates[foundIndex].inputs[action.payload.inputIdx].wires = action.payload.wire ? [action.payload.wire] : [];
 			}
 		}
 	}
@@ -72,4 +90,6 @@ export const {addWire,
 	changeGate, 
 	removeGate,
 	removeWire,
-	changeInputState} = objectsSlice.actions;
+	changeInputState,
+	changeInputPosition,
+	addWireToGateInput} = objectsSlice.actions;

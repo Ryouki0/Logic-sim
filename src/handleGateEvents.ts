@@ -2,7 +2,7 @@ import { Dispatch, UnknownAction } from "redux";
 import { setObjectClicked } from "./state/mouseEventsSlice";
 import { getClosestBlock } from "./drawingFunctions/getClosestBlock";
 import { transform } from "typescript";
-import { changeGate } from "./state/objectsSlice";
+import { changeGate, changeInputPosition } from "./state/objectsSlice";
 
 const handleMouseDown = (
 	e: React.MouseEvent, 
@@ -21,6 +21,7 @@ const handleMouseDown = (
 	if(!ele){
 		return;
 	}
+	
 	const {x,y} = ele.getBoundingClientRect();
 	const startPos = {
 		x: e.pageX - dx,
@@ -36,11 +37,12 @@ const handleMouseDown = (
 		const dx = e.pageX - startPos.x;
 		const dy = e.pageY - startPos.y;
 		const {roundedX, roundedY} = getClosestBlock(dx, dy);
-		
+		const currentPos = ele.getBoundingClientRect();
 		// Set the position of element
-		if(roundedX !== dx || roundedY !== dy){
+		if(roundedX !== currentPos.x || roundedY !== currentPos.y){
 			setPosition(roundedX, roundedY);
 			//console.log(`Real rounded pos: ${roundedX} ${roundedY}`);
+			//console.log(`currentPos: ${currentPos.x} ${currentPos.y}`);
 		}
  		setOffset(dx, dy);
 
@@ -50,6 +52,7 @@ const handleMouseDown = (
 		document.removeEventListener('mousemove', handleMouseMove);
 		document.removeEventListener('mouseup', handleMouseUp);
 		dispatch(setObjectClicked(null));
+		
 	};
 
 	document.addEventListener('mousemove', handleMouseMove);

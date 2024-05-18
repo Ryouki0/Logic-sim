@@ -7,5 +7,4 @@ export interface Gate{
     position?: {x: number, y: number},
     inputs: BinaryInput[],
     outputs: BinaryInput[],
-    innerLogic?(inputs?:BinaryInput[], outputs?: BinaryOutput[]):void;
 }

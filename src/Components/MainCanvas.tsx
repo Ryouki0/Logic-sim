@@ -9,13 +9,13 @@ export default function MainCanvas(){
 	const dispatch = useDispatch();
 	const canvasRef = useRedrawCanvas();
     const checkWire = useIsWireClicked();
+	
 	return (
 		<>
 			<canvas
 				id="main-canvas"
 				ref={canvasRef}
 				onContextMenu={e => {e.preventDefault(); checkWire(e.pageX, e.pageY);}}
-				onMouseDown={e => {if(e.button !== 0) return; startDrawingLine(e, dispatch)}}
 				style={{
 					backgroundColor: 'rgb(100 100 100 / 30%) ',
 					marginLeft: CANVAS_OFFSET_LEFT,

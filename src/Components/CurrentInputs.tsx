@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CANVAS_OFFSET_LEFT, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { CANVAS_OFFSET_LEFT, CANVAS_WIDTH_MULTIPLIER, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { BinaryInput } from '../Interfaces/BinaryInput';
 import { Input } from './Input';
 import { getClosestBlock } from '../drawingFunctions/getClosestBlock';
@@ -10,7 +10,6 @@ import {v4 as uuidv4} from 'uuid';
 export default function CurrentInput(){
 	const currentInputsRef = useRef<HTMLDivElement | null>(null);
 	const inputs = useSelector((state: RootState) => {return state.objectsSlice.currentInputs;});
-	const inputPositions = useRef<[{x:number, y: number}] | []>([]);
 	const dispatch = useDispatch();
 	const handleRightClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		e.preventDefault();
@@ -25,25 +24,29 @@ export default function CurrentInput(){
 
 	return <div id='current-inputs'
 		style={{backgroundColor: 'rgb(80 80 80)', 
-			width: MINIMAL_BLOCKSIZE, 
-			height: '80%', 
+			width: 2*MINIMAL_BLOCKSIZE, 
+			height: window.innerHeight * CANVAS_WIDTH_MULTIPLIER, 
 			position: 'absolute',
 			zIndex: 1,
 			marginLeft: CANVAS_OFFSET_LEFT}}
 			onContextMenu={handleRightClick}
 		ref = {currentInputsRef}>
-		{inputs?.map((input, idx) => {
-			return <Input binaryInput={{
-				style: {top: input.style?.top, position: 'absolute'}, 
-				state: input.state, 
+		{Object.entries(inputs).map(([key, input], idx) => {
+			return (
+				<div key={uuidv4()} style={{alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
+			<Input binaryInput={{
+				style: {top: input.style?.top, position: 'absolute', left: 2*MINIMAL_BLOCKSIZE - (DEFAULT_INPUT_DIM.width/2)}, 
+				state: input.state,
 				id: input.id}}
 				onClick={(e:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-					console.log('called rightClick');
+					//console.log('called rightClick');
 					e.stopPropagation();
 					e.preventDefault();
-					dispatch(changeInputState(input));
 				}}
-				key={uuidv4()}></Input>;
+				></Input>
+				<button style={{top: input.style?.top, marginTop:3,position: 'absolute',alignSelf:'center', borderRadius: 10, borderWidth: 0}} onClick={e => dispatch(changeInputState(input))}>ON</button>
+				</div>
+			);
 		})}
 	</div>;
 }

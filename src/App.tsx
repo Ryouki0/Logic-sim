@@ -5,6 +5,7 @@ import DisplayAllGates from "./Components/DisplayAllGates";
 import CurrentInput from "./Components/CurrentInputs";
 import MovableGates from "./Components/MovableGates";
 import BottomCanvas from "./Components/BottomCanvas";
+import EmptyComponent from "./Components/EmptyComponent";
 function App() {
 	
 	return (
@@ -15,6 +16,7 @@ function App() {
 			<BottomCanvas></BottomCanvas>
 			<DisplayAllGates></DisplayAllGates>
 			<MovableGates></MovableGates>
+			<EmptyComponent></EmptyComponent>
 		</>
 	);
 }

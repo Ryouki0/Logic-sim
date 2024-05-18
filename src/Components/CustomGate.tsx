@@ -6,10 +6,11 @@ import { DEFAULT_INPUT_DIM, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/d
 import { BinaryInput } from '../Interfaces/BinaryInput';
 import { Output } from './Output';
 import { Gate } from '../Interfaces/Gate';
-import { addGate, changeGate, removeGate } from '../state/objectsSlice';
+import { addGate, changeGate, changeInputPosition, removeGate } from '../state/objectsSlice';
 import { RootState } from '../state/store';
 import {v4 as uuidv4} from 'uuid';
 import './../gate.css';
+import { calculateInputTop } from '../utils/calculateInputTop';
 interface CustomGateProps{
     gateProps: Gate,
 	preview: boolean,
@@ -29,7 +30,6 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 	const eleRef = React.useRef<HTMLDivElement>(null);
 	const dispatch = useDispatch();
 	
-	const renderNumber = useRef(0);
 	const thisGate = useSelector((state: RootState) => {
 		const i = state.objectsSlice.gates.findIndex(g => g.id === gateProps.id);
 		return state.objectsSlice.gates[i];}, checkGateEquality);
@@ -45,10 +45,19 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 	const [inputs, setInputs] = useState<BinaryInput[]>(gateProps.inputs);
 	const outputs = gateProps.outputs;
 
+	useEffect(() => {
+		if(!thisGate?.position){
+			return;
+		}
+		const lastPosX = thisGate.position?.x;
+		const lastPosY = thisGate.position?.y;
+		//console.log(`lastX: ${lastPosX} lastY: ${lastPosY}`);
+	  }, [thisGate?.position]);
 
-	const setPositions = (x: number, y: number) => {
+	function setPositions(x: number, y: number){
 		//console.log(`gateProps.position changing: ${thisGate?.position?.x} ${thisGate?.position?.y}`);
-		dispatch(changeGate({gate: gateProps, newPos: {x: x,y: y}}));
+		dispatch(changeInputPosition({x: x,y:y, gateId: thisGate.id}));
+		dispatch(changeGate({gate: thisGate, newPos: {x: x,y: y}}));
 	};
 
 	
@@ -59,18 +68,6 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 		return inputs.length % 2 === 0 ? (inputs.length * MINIMAL_BLOCKSIZE) + LINE_WIDTH : ((inputs.length-1) * MINIMAL_BLOCKSIZE) +LINE_WIDTH;
 	};
 
-	const calculateInputTop = (idx: number, array: BinaryInput[]) => {
-		if(array.length == 1){
-			return MINIMAL_BLOCKSIZE -DEFAULT_INPUT_DIM.height/2;
-		}
-		const defaultExpression = -((DEFAULT_INPUT_DIM.height/2)) + (idx*(MINIMAL_BLOCKSIZE - DEFAULT_INPUT_DIM.height));
-		if(array.length % 2 === 0){
-			if(idx >= (array.length / 2)){
-				return -((DEFAULT_INPUT_DIM.height/2)) + ((idx+1)*(MINIMAL_BLOCKSIZE - DEFAULT_INPUT_DIM.height)) + DEFAULT_INPUT_DIM.height;
-			}
-		}
-		return defaultExpression; 
-	};
 
 	const handlePreviewMouseDown = () => {
 		dispatch(addGate({...gateProps, id: uuidv4(), position: {
@@ -82,9 +79,9 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 
 	return	(
 		<>
-		{/*console.log(`inside render: ${thisGate?.position?.y} ${thisGate?.position?.x} renderNumber: ${renderNumber.current} ${renderNumber.current++}`)*/}
+		{/*console.log('RENDER CUSTOMGATE ')*/}
 		<div ref={eleRef} 
-			className='Gate-container' 
+			className='Gate-container'
 			style={{width: 3*MINIMAL_BLOCKSIZE, 
 				height: calculateDivHeight(),
 				position: position ? position : 'relative',
@@ -114,7 +111,7 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 				return <Input binaryInput={{style: {
 					top: calculateInputTop(idx, array),
 					cursor: 'default'},
-					state: input.state, id: uuidv4()}} key={input.id}></Input>;
+					state: input.state, id: input.id}} gateId={gateProps.id} key={input.id}></Input>;
 			})}
 			<div style={{position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)"}}> 
 				<span

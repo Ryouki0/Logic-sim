@@ -4,5 +4,6 @@ export interface BinaryInput{
     state: 0 | 1,
     style?: React.CSSProperties | null,
     wires?: Wire[] | null,
-    id: string 
+    id: string,
+    position?: {x:number,y:number}
 }
