@@ -1,18 +1,29 @@
 import { Dispatch, UnknownAction } from "redux";
-import { Line } from "./Interfaces/Line";
-import { Wire } from "./Interfaces/Wire";
-import { changeWire } from "./state/objectsSlice";
-import { getClosestBlock } from "./drawingFunctions/getClosestBlock";
-import { BinaryOutput } from "./Interfaces/BinaryOutput";
-import { BinaryInput } from "./Interfaces/BinaryInput";
-import { setObjectClicked } from "./state/mouseEventsSlice";
+import { Line } from "../Interfaces/Line";
+import { Wire } from "../Interfaces/Wire";
+import { addWire, changeWire } from "../state/objectsSlice";
+import { getClosestBlock } from "../drawingFunctions/getClosestBlock";
+import { BinaryOutput } from "../Interfaces/BinaryOutput";
+import { BinaryInput } from "../Interfaces/BinaryInput";
+import { setObjectClicked } from "../state/mouseEventsSlice";
 import { v4 as uuidv4 } from 'uuid';
-import checkIfPointInRect from "./hooks/useConnecting";
-export default function startDrawingLine(
-	e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
-	dispatch:Dispatch<UnknownAction>,
-	from: null | BinaryOutput | BinaryInput = null,
-) {
+import checkIfPointInRect from "./useConnecting";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../state/store";
+
+const checkWireLenghtEquality = (prev: Wire[], next: Wire[]) => {
+	return prev.length === next.length;
+}
+
+
+export default function useDrawWire() {
+	const dispatch = useDispatch();
+	//const wires = useSelector((state: RootState) => {return state.objectsSlice.wires}, checkWireLenghtEquality)
+	function startDrawing(
+		e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
+		from: null | BinaryOutput | BinaryInput = null,
+	){
+
 	const canvasEle = document.getElementById("main-canvas") as HTMLCanvasElement;
 	if (!canvasEle) {
 		return;
@@ -24,11 +35,14 @@ export default function startDrawingLine(
 	//console.log('drawline from: ', from);
 	const line: Line = {startX: 0, startY: 0, endX: 0, endY: 0};
 	const lastPosition = {x: 0, y: 0};
-	const currentWire: Wire = {
-		linearLine: {...line} as Line, 
-		diagonalLine: {...line} as Line, 
+	const currentWire:Wire = {
+		linearLine: {...line},
+		diagonalLine: {...line},
 		id: uuidv4(),
-		from: from}; 
+		from: from,
+		connectedTo: [],
+	}
+	//dispatch(addWire(currentWire));
 	dispatch(setObjectClicked('Wire'));
 	const getClientOffset = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 		const { pageX, pageY } = event;
@@ -48,8 +62,8 @@ export default function startDrawingLine(
 		lastPosition.x = roundedX;
 
 		lastPosition.y = roundedY;
-		currentWire.linearLine.startX = roundedX;
-		currentWire.linearLine.startY = roundedY;
+		//currentWire.linearLine.startX = roundedX;
+		//currentWire.linearLine.startY = roundedY;
 	};
     
 	mouseDownListener(e);
@@ -103,14 +117,13 @@ export default function startDrawingLine(
 			calculateLineBreak({startX:line.startX, startY: line.startY, endX: lastPosition.x, endY: lastPosition.y} as Line);
 			//console.log(`REAL LINE: startY: ${line.startY} - ${line.endY}  startX: ${line.startX} - ${line.endX}`);
 			//drawLine(line, context);
-			const newWire:Wire = {...currentWire, linearLine: {...currentWire.linearLine}, diagonalLine: {...currentWire.diagonalLine}, id: currentWire.id, from: currentWire.from, };
+			const newWire:Wire = {linearLine: {...currentWire.linearLine}, diagonalLine: {...currentWire.diagonalLine}, id: currentWire.id,from: currentWire.from };
 			dispatch(changeWire(newWire));
 		}
 	};
 
 	const mouseupListener = (event: MouseEvent) => {
-		//console.log("mouse up listener called");
-		//checkIfPointInRect({x: lastPosition.x, y: lastPosition.y}, {})
+		
 		document.removeEventListener("mousemove", mouseMoveListener);
 		document.removeEventListener("mouseup", mouseupListener);
 		dispatch(setObjectClicked(null));
@@ -118,4 +131,7 @@ export default function startDrawingLine(
     
 	document.addEventListener("mousemove", mouseMoveListener);
 	document.addEventListener("mouseup", mouseupListener);
+
+	}
+	return startDrawing;
 }

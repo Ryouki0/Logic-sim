@@ -25,7 +25,7 @@ const objectsSlice = createSlice({
 		changeWire: (state, action: PayloadAction<Wire>) => {
 			const foundIndex = state.wires.findIndex(w => w.id === action.payload.id);
 			if(foundIndex !== -1){
-				state.wires[foundIndex] = action.payload;
+				state.wires[foundIndex] = {...state.wires[foundIndex], ...action.payload};
 			}else{
 				state.wires.push(action.payload);
 			}

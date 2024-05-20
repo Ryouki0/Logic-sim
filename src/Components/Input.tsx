@@ -7,10 +7,11 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
 import { BinaryInput } from "../Interfaces/BinaryInput";
-import startDrawingLine from "../DrawLine";
+import startDrawingLine from "../hooks/useDrawWire";
 import { stat } from "fs";
 import { AMBER, RED_ORANGE, SEA_MID_GREEN } from "../Constants/colors";
 import { changeInputPosition } from "../state/objectsSlice";
+import useDrawWire from "../hooks/useDrawWire";
 
 interface InputProps{
 	binaryInput: BinaryInput,
@@ -31,10 +32,9 @@ function checkInputEquality(prev:BinaryInput, next: BinaryInput){
 }
 
 export function Input({binaryInput,gateId,inputIdx, onClick, onRightClick}: InputProps) {
-	const dispatch = useDispatch();
 	const eleRef = useRef<HTMLDivElement>(null);
 	//const objectClicked = useSelector((state: RootState) => {return state.mouseEventsSlice.objectClicked;});
-	
+	const startDrawing = useDrawWire();
 	const currentInput = useSelector((state: RootState) => {
 		if(!gateId){
 			return state.objectsSlice.currentInputs[binaryInput.id]
@@ -65,7 +65,7 @@ export function Input({binaryInput,gateId,inputIdx, onClick, onRightClick}: Inpu
 			console.log(`connected To: ${connectedTo?.id} state: ${connectedTo?.state}`);
 			console.log(`this inputs id: ${currentInput.id}`)
 		}
-		startDrawingLine(e, dispatch, binaryInput);
+		startDrawing(e, binaryInput);
 	}
 
 	return (

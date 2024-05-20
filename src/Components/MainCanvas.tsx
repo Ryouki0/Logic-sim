@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import startDrawingLine from '../DrawLine';
+import startDrawingLine from '../hooks/useDrawWire';
 import useRedrawCanvas from '../hooks/useRedrawCanvas';
 import { CANVAS_OFFSET_LEFT, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import useIsWireClicked from '../hooks/useIsWireClicked';

@@ -7,15 +7,12 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
 import { BinaryInput } from "../Interfaces/BinaryInput";
-import startDrawingLine from "../DrawLine";
 export function Output({style = null,state}: BinaryInput) {
 
-	const objectClicked = useSelector((state: RootState) => {return state.mouseEventsSlice.objectClicked;});
-	const dispatch = useDispatch();
 
 	function handleMouseDown(e:React.MouseEvent<any>){
 		e.stopPropagation();
-		startDrawingLine(e, dispatch, );
+		
 	}
 
 	return (
