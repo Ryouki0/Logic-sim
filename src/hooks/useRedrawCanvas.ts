@@ -4,6 +4,7 @@ import { RootState } from '../state/store';
 import { drawLine } from '../drawingFunctions/drawLine';
 import { CANVAS_WIDTH_MULTIPLIER, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { Root } from 'react-dom/client';
+import { ORANGE, RED_ORANGE } from '../Constants/colors';
 
 export default function useRedrawCanvas(){
 
@@ -22,13 +23,13 @@ export default function useRedrawCanvas(){
 
 		
 		if(!wires) return;
-		context.strokeStyle = 'rgb(255 165 0 / 100%)';
+		context.strokeStyle = ORANGE;
 		//console.time('drawing');
 		for (var i = 0; i < wires.length; i++) {
 			if(inputs[wires[i].from?.id??0]?.state === 1){
-				context.strokeStyle = 'rgb(255 0 0)'; //60 179 113
+				context.strokeStyle = RED_ORANGE;
 			}else{
-				context.strokeStyle = 'rgb(255 165 0 / 100%)';
+				context.strokeStyle = ORANGE;
 			}
 			drawLine(wires[i].linearLine, context);
 			drawLine(wires[i].diagonalLine, context);

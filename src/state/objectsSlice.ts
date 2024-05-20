@@ -5,6 +5,7 @@ import { BinaryInput } from "../Interfaces/BinaryInput";
 import { getAllByTestId } from "@testing-library/react";
 import { Input } from "../Components/Input";
 import { calculateInputTop } from "../utils/calculateInputTop";
+import { write } from "fs";
 
 interface objects{
     wires: Wire[],
@@ -72,11 +73,52 @@ const objectsSlice = createSlice({
 				})
 			}
 		},
-		addWireToGateInput: (state, action: PayloadAction<{gate:Gate, inputIdx: number, wire:Wire | null}>) => {
+		addWireToGateInput: (state, action: PayloadAction<{gate:Gate, inputIdx: number, wire:Wire}>) => {
 			const foundIndex = state.gates.findIndex(g => g.id === action.payload.gate.id);
 			if(foundIndex !== -1){
 				//console.log(`changing wires in ${state.gates[foundIndex].inputs[action.payload.inputIdx].id} to ${action.payload.wire}`);
-				state.gates[foundIndex].inputs[action.payload.inputIdx].wires = action.payload.wire ? [action.payload.wire] : [];
+				const inputWires = state.gates[foundIndex].inputs[action.payload.inputIdx].wires
+				if(Array.isArray(inputWires)){
+					console.log(`pushing into wires`);
+					inputWires.push(action.payload.wire);
+				}else{
+					state.gates[foundIndex].inputs[action.payload.inputIdx].wires = [action.payload.wire];
+				}
+				//console.log(`changing state in ${state.gates[foundIndex].inputs[action.payload.inputIdx].state} to ${action.payload.wire?.from?.state}`)
+				//console.log(`from ID: ${action.payload.wire?.from?.id}`);
+				state.gates[foundIndex].inputs[action.payload.inputIdx].from = action.payload.wire.from;
+				
+				const wireIdx = state.wires.findIndex(w => w.id === action.payload.wire?.id);
+				if(wireIdx !== -1){
+					const wire = state.wires[wireIdx];
+					if(Array.isArray(wire.connectedTo)){
+						wire.connectedTo.push(action.payload.gate.inputs[action.payload.inputIdx]);
+					}else{
+						wire.connectedTo = [action.payload.gate.inputs[action.payload.inputIdx]];
+					}
+					
+				}
+			}
+		},
+		removeWireFromGateInput: (state, action: PayloadAction<{gate:Gate, inputIdx:number,wire: Wire}>) => {
+			const gateIdx = state.gates.findIndex(g => g.id === action.payload.gate.id);
+			const inputIdx = action.payload.inputIdx;
+			const wire = action.payload.wire;
+			const wireIdx = state.wires.findIndex(w => w.id === wire.id);
+			if(gateIdx !== -1){
+				state.gates[gateIdx].inputs[inputIdx].state = 0;
+				state.gates[gateIdx].inputs[inputIdx].from = null;
+				state.gates[gateIdx].inputs[inputIdx].wires = null;
+				if(wireIdx !== -1){
+					const wireConnections = state.wires[wireIdx].connectedTo;
+					//state.wires[wireIdx].connectedTo = null;
+					if(Array.isArray(wire) && wireConnections){
+						const idxToRemove = wireConnections.findIndex(connection => connection.id === state.gates[gateIdx].inputs[inputIdx].id);
+						state.wires[wireIdx].connectedTo?.splice(idxToRemove, 1);
+					}else{
+						state.wires[wireIdx].connectedTo = null;
+					}
+				}
 			}
 		}
 	}
@@ -92,4 +134,5 @@ export const {addWire,
 	removeWire,
 	changeInputState,
 	changeInputPosition,
-	addWireToGateInput} = objectsSlice.actions;
+	addWireToGateInput,
+	removeWireFromGateInput} = objectsSlice.actions;

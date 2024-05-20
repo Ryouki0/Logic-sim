@@ -42,7 +42,16 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 		offsetRef.current = {...offsetRef.current, dx: dx, dy: dy};
 	}
 
-	const [inputs, setInputs] = useState<BinaryInput[]>(gateProps.inputs);
+	const inputs = useSelector((state: RootState) => {
+		if(!preview){
+			const index = state.objectsSlice.gates.findIndex(g => g.id === gateProps.id);
+			return state.objectsSlice.gates[index]?.inputs;
+		}else{
+			const index = state.allGatesSlice.findIndex(g => g.id === gateProps.id);
+			return state.allGatesSlice[index]?.inputs;
+		}
+		
+	})
 	const outputs = gateProps.outputs;
 
 	useEffect(() => {
@@ -62,15 +71,26 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 
 	
 	const calculateDivHeight = () => {
-		if(inputs.length <= 1 && outputs.length <= 1){
+		if(inputs?.length <= 1 && outputs.length <= 1){
 			return 2*MINIMAL_BLOCKSIZE + LINE_WIDTH;
 		}
-		return inputs.length % 2 === 0 ? (inputs.length * MINIMAL_BLOCKSIZE) + LINE_WIDTH : ((inputs.length-1) * MINIMAL_BLOCKSIZE) +LINE_WIDTH;
+		return inputs?.length % 2 === 0 ? (inputs?.length * MINIMAL_BLOCKSIZE) + LINE_WIDTH : ((inputs?.length-1) * MINIMAL_BLOCKSIZE) +LINE_WIDTH;
 	};
 
 
 	const handlePreviewMouseDown = () => {
-		dispatch(addGate({...gateProps, id: uuidv4(), position: {
+		const inputAmount = gateProps.inputs.length;
+		const newInputs:BinaryInput[] = [];
+		for(var i=0;i<inputAmount;i++){
+			newInputs.push({state: 0, id: uuidv4()})
+		};
+		const newOutputs = [];
+		for(var i =0;i<gateProps.outputs.length;i++){
+			newOutputs.push({state: 0, id: uuidv4()});
+		}
+		dispatch(addGate({...gateProps,
+			inputs: newInputs,
+			id: uuidv4(), position: {
 			x: eleRef.current?.getBoundingClientRect().x ? eleRef.current.getBoundingClientRect().x : 0, 
 			y: eleRef.current?.getBoundingClientRect().y ? eleRef.current.getBoundingClientRect().y : 0
 		}}));
@@ -107,11 +127,11 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 				handleMouseDown(e, eleRef, dispatch, offsetRef.current.dx, offsetRef.current.dy, setOffset, setPositions);
 			}}}
 		>
-			{inputs.map((input, idx, array) => {
+			{inputs?.map((input, idx, array) => {
 				return <Input binaryInput={{style: {
 					top: calculateInputTop(idx, array),
 					cursor: 'default'},
-					state: input.state, id: input.id}} gateId={gateProps.id} key={input.id}></Input>;
+					state: input.state, id: input.id}} gateId={gateProps.id} inputIdx={idx} key={input.id}></Input>;
 			})}
 			<div style={{position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)"}}> 
 				<span

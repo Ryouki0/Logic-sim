@@ -14,12 +14,13 @@ export default function useClock(){
             gates.forEach((gate, idx) => {
                 if(gate.name === 'AND'){
                     //console.log(`AND = ${idx}---wires: ${gate.inputs[0].wires} ${gate.inputs[1].wires}`);
+                    
                 }else if(gate.name === 'NO'){
                     //console.log(`NO = ${idx}---wires: ${gate.inputs[0].wires}`);
                 }
             })
         }
-        const id = setInterval(gateLogic ,6000)
+        const id = setInterval(gateLogic ,60000)
         return () => {
             clearInterval(id);
         }

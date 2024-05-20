@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { CANVAS_OFFSET_LEFT, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { Line } from '../Interfaces/Line';
-import { removeWire } from '../state/objectsSlice';
+import { removeWire, removeWireFromGateInput } from '../state/objectsSlice';
 import { Wire } from '../Interfaces/Wire';
 
 
@@ -60,6 +60,9 @@ export default function useIsWireClicked(){
             let {startX, startY, endX, endY} = calculateLinePoints(w.linearLine);
             if(isPointOnLine(startX, startY, endX, endY, x, y)){
                 dispatch(removeWire(w));
+                if(w.connectedTo){
+                    //dispatch(removeWireFromGateInput())
+                }
                 return;
             }
             

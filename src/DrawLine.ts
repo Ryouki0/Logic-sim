@@ -103,7 +103,7 @@ export default function startDrawingLine(
 			calculateLineBreak({startX:line.startX, startY: line.startY, endX: lastPosition.x, endY: lastPosition.y} as Line);
 			//console.log(`REAL LINE: startY: ${line.startY} - ${line.endY}  startX: ${line.startX} - ${line.endX}`);
 			//drawLine(line, context);
-			const newWire:Wire = {linearLine: {...currentWire.linearLine}, diagonalLine: {...currentWire.diagonalLine}, id: currentWire.id, from: currentWire.from};
+			const newWire:Wire = {...currentWire, linearLine: {...currentWire.linearLine}, diagonalLine: {...currentWire.diagonalLine}, id: currentWire.id, from: currentWire.from, };
 			dispatch(changeWire(newWire));
 		}
 	};
