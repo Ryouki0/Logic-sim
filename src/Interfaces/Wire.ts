@@ -5,8 +5,10 @@ import { Line } from "./Line";
 export interface Wire{
     linearLine: Line,
     diagonalLine: Line,
-    connectedTo?: BinaryInput[] | null,
-    from?: BinaryOutput | BinaryInput | null,
-    state?: 0 | 1,
+    connectedToId?: {id:string, type: 'inputs' | 'outputs', gateId?: string | null}[] | null,
+    from?: {id: string, type:'inputs' | 'outputs', gateId?: string | null} | null,
     id: string,
+    state?: 0 | 1,
+    error?: boolean | null,
+    hoveringOver?: boolean | null,
 }

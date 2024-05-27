@@ -10,85 +10,77 @@ import { BinaryInput } from "../Interfaces/BinaryInput";
 import startDrawingLine from "../hooks/useDrawWire";
 import { stat } from "fs";
 import { AMBER, RED_ORANGE, SEA_MID_GREEN } from "../Constants/colors";
-import { changeInputPosition } from "../state/objectsSlice";
 import useDrawWire from "../hooks/useDrawWire";
+import { connect } from "http2";
 
 interface InputProps{
 	binaryInput: BinaryInput,
 	gateId?: string,
 	inputIdx?: number,
-	onClick?(e: React.MouseEvent<HTMLDivElement, MouseEvent>): void,
-	onRightClick?(e: React.MouseEvent<HTMLDivElement, MouseEvent>): void,
-}
-
-function checkInputEquality(prev:BinaryInput, next: BinaryInput){
-	//console.log(`input should render? ${prev?.state}!==${next?.state} ${prev?.state !== next?.state}`);
 	
-	if(prev?.state !== next?.state || prev?.from !== next?.from){
-		return false;
-	}else{
-		return true;
-	}
 }
 
-export function Input({binaryInput,gateId,inputIdx, onClick, onRightClick}: InputProps) {
+
+
+export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 	const eleRef = useRef<HTMLDivElement>(null);
 	//const objectClicked = useSelector((state: RootState) => {return state.mouseEventsSlice.objectClicked;});
 	const startDrawing = useDrawWire();
 	const currentInput = useSelector((state: RootState) => {
-		if(!gateId){
-			return state.objectsSlice.currentInputs[binaryInput.id]
+		if(!binaryInput.gateId){
+			return state.objectsSlice.globalInputs[binaryInput.id];
 		}else{
-			const foundIndex = state.objectsSlice.gates.findIndex(g => g.id === gateId);
-			return state.objectsSlice.gates[foundIndex]?.inputs[inputIdx??0];
+			return state.objectsSlice.gates[binaryInput.gateId]?.inputs[binaryInput.id];
 		}
-		},checkInputEquality
-	);
-
-	
-	const connectedTo = useSelector((state: RootState) => {
-		if(gateId){
-			if(currentInput?.from){
-				return state.objectsSlice.currentInputs[currentInput.from.id];
+	});
+	//const allInputs = useSelector((state:RootState) => {return state.objectsSlice.currentInputs});
+	const from = useSelector((state: RootState) => {
+		if(currentInput?.from){
+			const inputOrOutput = currentInput.from?.type;
+			if(currentInput.from.gateId){
+				return state.objectsSlice.gates[currentInput.from.gateId][inputOrOutput][currentInput.from.id];
+			}else{
+				return state.objectsSlice.globalInputs[currentInput.from?.id];
 			}
 		}
-		return null;
-	}) 
-	
+	})
 	
 	function handleMouseDown(e: React.MouseEvent<any>){
 		e.stopPropagation();
-		if(onClick){
-			onClick(e);
+		if(from){
+			console.log(`${from.id} ${from.state}`);
 		}
-		if(gateId){
-			console.log(`connected To: ${connectedTo?.id} state: ${connectedTo?.state}`);
-			console.log(`this inputs id: ${currentInput.id}`)
-		}
-		startDrawing(e, binaryInput);
+		console.log(`this inpot is TO: ${currentInput.to?.[0]?.id}`);
+		console.log(`this input is from: ${currentInput.from?.type} ${currentInput.from?.id}`);
+		startDrawing(e, {id: currentInput.id, type: 'inputs', gateId: binaryInput.gateId});
 	}
-
+	const getPathColor = () => {
+		if(currentInput?.gateId){
+			return currentInput?.from ? (currentInput?.state === 1 ? RED_ORANGE : AMBER) : 'black'
+		}else{
+			return currentInput?.state ? RED_ORANGE : AMBER;
+		}
+	}
 	return (
 		<>
-		{/*ateId ? console.log(`currentInput state: ${currentInput?.state}`) : null*/}
+			{/*gateId ? console.log(`currentInput state: ${currentInput?.state}`) : null*/}
 			<div ref={eleRef}
-			style={{
-				width: DEFAULT_INPUT_DIM.width,
-				height: DEFAULT_INPUT_DIM.height,
-				position: 'relative',
-				left: -(DEFAULT_INPUT_DIM.width / 2),
-				...binaryInput.style,
-			}}
-			onMouseDown={handleMouseDown}
-			onContextMenu={onRightClick ? onRightClick : () => {console.log('undefined')}}>
+				style={{
+					width: DEFAULT_INPUT_DIM.width,
+					height: DEFAULT_INPUT_DIM.height,
+					position: 'relative',
+					left: -(DEFAULT_INPUT_DIM.width / 2),
+					...binaryInput.style,
+				}}
+				onMouseDown={handleMouseDown}>
 				<CircularProgressbar
 					value={100}
 					background={true}
 					styles={buildStyles({
 						backgroundColor: "black",
-						pathColor: connectedTo ? (connectedTo?.state === 1 ? RED_ORANGE : AMBER) : 'black',
+						pathColor: getPathColor(),
 					})}
-					strokeWidth={14}
+					strokeWidth={currentInput?.from ? 12 : 100}
 				></CircularProgressbar>
 			</div>
 		</>

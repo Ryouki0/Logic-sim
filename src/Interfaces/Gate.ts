@@ -5,6 +5,6 @@ export interface Gate{
     name: string,
     id: string,
     position?: {x: number, y: number},
-    inputs: BinaryInput[],
-    outputs: BinaryInput[],
+    inputs: {[key: string]: BinaryInput},
+    outputs: { [key: string]: BinaryOutput },
 }

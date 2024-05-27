@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import "./App.css";
 import MainCanvas from "./Components/MainCanvas";
 import DisplayAllGates from "./Components/DisplayAllGates";
-import CurrentInput from "./Components/CurrentInputs";
+import CurrentInput from "./Components/GlobalInputs";
 import MovableGates from "./Components/MovableGates";
 import BottomCanvas from "./Components/BottomCanvas";
 import EmptyComponent from "./Components/EmptyComponent";

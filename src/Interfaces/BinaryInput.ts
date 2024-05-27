@@ -6,6 +6,8 @@ export interface BinaryInput{
     style?: React.CSSProperties | null,
     wires?: Wire[] | null,
     id: string,
+    gateId?: string,
     position?: {x:number,y:number},
-    from?: BinaryInput | BinaryOutput | null,
+    from?: {id: string, type: 'inputs' | 'outputs', gateId?: string | null } | null,
+    to?: [{id: string, type: 'inputs' | 'outputs', gateId?: string | null}] | null,
 }

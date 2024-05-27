@@ -9,7 +9,7 @@ import { addCurrentInput, changeInputState } from '../state/objectsSlice';
 import {v4 as uuidv4} from 'uuid';
 export default function CurrentInput(){
 	const currentInputsRef = useRef<HTMLDivElement | null>(null);
-	const inputs = useSelector((state: RootState) => {return state.objectsSlice.currentInputs;});
+	const inputs = useSelector((state: RootState) => {return state.objectsSlice.globalInputs;});
 	const dispatch = useDispatch();
 	const handleRightClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		e.preventDefault();
@@ -19,7 +19,7 @@ export default function CurrentInput(){
 			id: uuidv4(),
 			style: {top: roundedY - DEFAULT_INPUT_DIM.height/2}
 		} as BinaryInput));
-	}
+	};
 
 
 	return <div id='current-inputs'
@@ -29,22 +29,17 @@ export default function CurrentInput(){
 			position: 'absolute',
 			zIndex: 1,
 			marginLeft: CANVAS_OFFSET_LEFT}}
-			onContextMenu={handleRightClick}
+		onContextMenu={handleRightClick}
 		ref = {currentInputsRef}>
 		{Object.entries(inputs).map(([key, input], idx) => {
 			return (
 				<div key={uuidv4()} style={{alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
-			<Input binaryInput={{
-				style: {top: input.style?.top, position: 'absolute', left: 2*MINIMAL_BLOCKSIZE - (DEFAULT_INPUT_DIM.width/2)}, 
-				state: input.state,
-				id: input.id}}
-				onClick={(e:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-					//console.log('called rightClick');
-					e.stopPropagation();
-					e.preventDefault();
-				}}
-				></Input>
-				<button style={{top: input.style?.top, marginTop:3,position: 'absolute',alignSelf:'center', borderRadius: 10, borderWidth: 0}} onClick={e => dispatch(changeInputState(input))}>ON</button>
+					<Input binaryInput={{
+						style: {top: input.style?.top, position: 'absolute', left: 2*MINIMAL_BLOCKSIZE - (DEFAULT_INPUT_DIM.width/2)}, 
+						state: input.state,
+						id: input.id}}
+					></Input>
+					<button style={{top: input.style?.top, marginTop:3,position: 'absolute',alignSelf:'center', borderRadius: 10, borderWidth: 0}} onClick={e => dispatch(changeInputState(input))}>ON</button>
 				</div>
 			);
 		})}

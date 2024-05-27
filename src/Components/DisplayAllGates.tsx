@@ -10,13 +10,13 @@ export default function DisplayAllGates(){
 
 	return console.log('rendering allgates'),
 	<div style={{display: 'flex', top: window.innerHeight * CANVAS_WIDTH_MULTIPLIER,
-	position: 'absolute',
-	width: (window.innerWidth * CANVAS_WIDTH_MULTIPLIER) - 30,
-	backgroundColor: 'rgb(140 140 140)',
-	borderColor: 'rgb(60 60 60)',
-	borderWidth: 5,
-	padding: 10,
-	borderStyle: 'solid'}}>
+		position: 'absolute',
+		width: (window.innerWidth * CANVAS_WIDTH_MULTIPLIER) - 30,
+		backgroundColor: 'rgb(140 140 140)',
+		borderColor: 'rgb(60 60 60)',
+		borderWidth: 5,
+		padding: 10,
+		borderStyle: 'solid'}}>
 		{allGates?.map((gate) => {
 			return <CustomGate
 				key={gate.id}
