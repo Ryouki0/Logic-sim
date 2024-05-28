@@ -3,7 +3,6 @@ import { Line } from "../Interfaces/Line";
 import { Wire } from "../Interfaces/Wire";
 import { addWire, changeWirePosition } from "../state/objectsSlice";
 import { getClosestBlock } from "../drawingFunctions/getClosestBlock";
-import { setObjectClicked } from "../state/mouseEventsSlice";
 import { v4 as uuidv4 } from 'uuid';
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
@@ -15,11 +14,10 @@ const checkWireLenghtEquality = (prev: Wire[], next: Wire[]) => {
 
 export default function useDrawWire() {
 	const dispatch = useDispatch();
-	const currentInputs = useSelector((state: RootState) => {return state.objectsSlice.globalInputs});
-	//const wires = useSelector((state: RootState) => {return state.objectsSlice.wires}, checkWireLenghtEquality)
+
 	function startDrawing(
 		e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
-		fromId: {id: string, type: 'inputs' | 'outputs', gateId: string | null | undefined} | null = null,
+		fromId: {id: string, type: 'inputs' | 'outputs', gateId?: string | null | undefined} | null = null,
 	){
 		const canvasEle = document.getElementById("main-canvas") as HTMLCanvasElement;
 		if (!canvasEle) {
@@ -39,8 +37,6 @@ export default function useDrawWire() {
 			from: fromId,
 			connectedToId: null,
 		};
-		//dispatch(addWire(currentWire));
-		dispatch(setObjectClicked('Wire'));
 		const getClientOffset = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 			const { pageX, pageY } = event;
 			const x = pageX - canvasEle.offsetLeft;
@@ -112,9 +108,6 @@ export default function useDrawWire() {
 				currentWire.linearLine.endX = roundedX;
 				currentWire.linearLine.endY = roundedY;
 				calculateLineBreak({startX:line.startX, startY: line.startY, endX: lastPosition.x, endY: lastPosition.y} as Line);
-				//console.log(`REAL LINE: startY: ${line.startY} - ${line.endY}  startX: ${line.startX} - ${line.endX}`);
-				//drawLine(line, context);
-				//console.log(`currentWire.from? ${currentWire.from === from}`);
 				const newWire:Wire = {
 					linearLine: {...currentWire.linearLine}, 
 					diagonalLine: {...currentWire.diagonalLine}, 
@@ -122,8 +115,6 @@ export default function useDrawWire() {
 					from: currentWire.from,
 					
 				};
-				//console.log(`When drawing wire is from === currentWire.from? ${from === newWire.from}`);
-				//console.log(`Wire.from === currentInputs? ${from === currentInputs[from?.id??'']}`);
 				dispatch(changeWirePosition(newWire));
 			}
 		};
@@ -132,7 +123,6 @@ export default function useDrawWire() {
 		
 			document.removeEventListener("mousemove", mouseMoveListener);
 			document.removeEventListener("mouseup", mouseupListener);
-			dispatch(setObjectClicked(null));
 		};
     
 		document.addEventListener("mousemove", mouseMoveListener);

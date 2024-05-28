@@ -10,5 +10,4 @@ export interface Wire{
     id: string,
     state?: 0 | 1,
     error?: boolean | null,
-    hoveringOver?: boolean | null,
 }

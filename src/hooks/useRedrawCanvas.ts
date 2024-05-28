@@ -3,7 +3,7 @@ import { shallowEqual, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { drawLine } from '../drawingFunctions/drawLine';
 import { CANVAS_WIDTH_MULTIPLIER, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
-import { Root } from 'react-dom/client';
+import { Root, RootOptions } from 'react-dom/client';
 import { AMBER, DARK_RED, ORANGE, RED_ORANGE } from '../Constants/colors';
 import { BinaryInput } from '../Interfaces/BinaryInput';
 import { BinaryOutput } from '../Interfaces/BinaryOutput';
@@ -31,7 +31,7 @@ export default function useRedrawCanvas(){
 		
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const inputs = useSelector((state: RootState) => {return state.objectsSlice.globalInputs;}, shallowEqual);
-
+	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire});
 	//Create a hashmap with the wires' IDs as keys, and the input/output they are connected from as values
 	const wireFrom = useSelector((state: RootState) => {
 		const wireEntries = Object.entries(state.objectsSlice.wires);
@@ -67,15 +67,15 @@ export default function useRedrawCanvas(){
 				context.strokeStyle = ORANGE;
 			}if(wire.error){
 				context.strokeStyle = DARK_RED;
+			}if(hoveringOverWire?.id === wire.id){
+				line_width = LINE_WIDTH +2;
 			}
-			if(wire.hoveringOver){
-				line_width = LINE_WIDTH + 4;
-			}
+			
 			drawLine(wire.linearLine, context, line_width);
 			drawLine(wire.diagonalLine, context, line_width);
 		})
 		//console.timeEnd('drawing');
-	}, [wires, inputs]);
+	}, [wires, inputs, hoveringOverWire]);
 	
 	return canvasRef;
 

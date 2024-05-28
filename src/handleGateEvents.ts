@@ -1,5 +1,4 @@
 import { Dispatch, UnknownAction } from "redux";
-import { setObjectClicked } from "./state/mouseEventsSlice";
 import { getClosestBlock } from "./drawingFunctions/getClosestBlock";
 import { transform } from "typescript";
 import { changeGate, changeInputPosition } from "./state/objectsSlice";
@@ -13,10 +12,6 @@ const handleMouseDown = (
 	setOffset:(dx: number, dy: number) => void,
 	setPosition: (x: number, y: number) => void) => {
     
-	const className = (e.target as HTMLDivElement).classList;
-	// if(!className.contains('Gate-container')){
-	// 	return;
-	// }
 	const ele = eleRef.current;
 	if(!ele){
 		return;
@@ -38,11 +33,9 @@ const handleMouseDown = (
 		const dy = e.pageY - startPos.y;
 		const {roundedX, roundedY} = getClosestBlock(dx, dy);
 		const currentPos = ele.getBoundingClientRect();
-		// Set the position of element
+		// Set the position of element to the nearest block
 		if(roundedX !== currentPos.x || roundedY !== currentPos.y){
 			setPosition(roundedX, roundedY);
-			//console.log(`Real rounded pos: ${roundedX} ${roundedY}`);
-			//console.log(`currentPos: ${currentPos.x} ${currentPos.y}`);
 		}
  		setOffset(dx, dy);
 
@@ -51,7 +44,6 @@ const handleMouseDown = (
 	const handleMouseUp = () => {
 		document.removeEventListener('mousemove', handleMouseMove);
 		document.removeEventListener('mouseup', handleMouseUp);
-		dispatch(setObjectClicked(null));
 		
 	};
 

@@ -8,6 +8,7 @@ const ANDInputId2 = uuidv4();
 const ANDOutputId1 = uuidv4();
 const NOInputId1 = uuidv4();
 const NOOutputId1 = uuidv4();
+const NOOutputId2 = uuidv4();
 const initialState: Gate[] = [
 	{
 		name: 'AND',
@@ -25,7 +26,7 @@ const initialState: Gate[] = [
 			[NOInputId1]: {state: 0, id: NOInputId1, style: {}}
 		},
 		outputs: {
-			[NOOutputId1]: {state: 0, id: NOOutputId1, style: {}}
+			[NOOutputId1]: {state: 1, id: NOOutputId1, style: {}},
 		},
 		id: uuidv4()
 	}];

@@ -6,6 +6,8 @@ import { calculateInputTop } from "../utils/calculateInputTop";
 import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 import removeWireTo from "../utils/removeWiresTo";
 import removeWiresFrom from "../utils/removeWiresFrom";
+import { write } from "fs";
+import disconnectByWire from "../utils/disconnectByWire";
 
 interface objects{
     wires: {[key: string]: Wire};
@@ -31,14 +33,20 @@ const objectsSlice = createSlice({
 			}
 		},
 		removeWire: (state, action: PayloadAction<Wire>) => {
-			delete state.wires[action.payload.id];
-		},
-		setHoverOverWire: (state, action: PayloadAction<Wire>) => {
-			const wireEntries = Object.entries(state.wires);
-			for(const [key, wire] of wireEntries){
-				state.wires[key].hoveringOver = false;
+			if(!(state.wires[action.payload.id])){
+				throw new ReferenceError(`No wire with id: ${action.payload.id}`);
 			}
-			state.wires[action.payload.id].hoveringOver = true;
+			if(action.payload.connectedToId){
+				action.payload.connectedToId.forEach(connectedTo => {
+					//will need global outputs
+					//Remove it from the source "from"
+					({
+						gates: state.gates, globalInputs: 
+						state.globalInputs
+					} = disconnectByWire(state.gates, action.payload, state.globalInputs, connectedTo.id));
+				})
+			}
+			delete state.wires[action.payload.id];
 		},
 		addGate: (state, action: PayloadAction<Gate>) => {
 			state.gates[action.payload.id] = action.payload;
@@ -160,36 +168,23 @@ const objectsSlice = createSlice({
 			//Add the new ID to the wire
 			const wireConnectedTo = state.wires[wireId].connectedToId;
 			if(!wireConnectedTo){
-				state.wires[wireId].connectedToId = [{id:inputId, type:'inputs'}];
+				state.wires[wireId].connectedToId = [{id:inputId, type:'inputs', gateId: gate.id}];
 			}else{
-				state.wires[wireId].connectedToId?.push({id: action.payload.inputId, type: 'inputs'});
+				state.wires[wireId].connectedToId?.push({id: action.payload.inputId, type: 'inputs', gateId: gate.id});
 			}
 		},
 		disconnectWireFromGate: (state, action: PayloadAction<{gateId:string, inputId:string, wireId:string}>) => {
 			const gate = state.gates[action.payload.gateId];
 			const wire = state.wires[action.payload.wireId];
-			//When wires can connect to each other this won't work.
-			//TODO: loop through each wire and check if it's connected to this input, then remove it.
+
 			if(wire.connectedToId){
-				const index = wire.connectedToId.findIndex(connection => connection.id === action.payload.inputId);
-				if(index !== -1){
-					wire.connectedToId.splice(index, 1);
-				}else{
-					return;
-				}
+				removeWireTo(state.wires, action.payload.inputId);
 			}
 			gate.inputs[action.payload.inputId].from = null;
-			if(wire.from?.gateId){
-				const toId = state.gates[wire.from.gateId][wire.from.type][wire.from.id].to?.findIndex(to => to.id === action.payload.inputId);
-				if(toId !== undefined && toId !== -1){
-					state.gates[wire.from.gateId][wire.from.type][wire.from.id].to?.splice(toId, 1);
-				}
-			}else if(wire.from){
-				const toIdx = state.globalInputs[wire.from.id].to?.findIndex(to => to.id === action.payload.inputId);
-				if(toIdx !== undefined && toIdx !== -1){
-					state.globalInputs[wire.from.id].to?.splice(toIdx, 1);
-				}
-			}
+			({
+				gates: state.gates, 
+				globalInputs: state.globalInputs
+			} = disconnectByWire(state.gates, wire, state.globalInputs, action.payload.inputId));
 		},
 	}
 	
@@ -200,7 +195,6 @@ export const {addWire,
 	changeWirePosition, 
 	addGate, 
 	addCurrentInput,
-	setHoverOverWire,
 	changeGate, 
 	removeGate,
 	removeWire,

@@ -68,10 +68,11 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 
 	
 	const calculateDivHeight = () => {
+		const longest = inputLength > outputLength ? inputLength : outputLength;
 		if(inputLength <= 1 && Object.entries(outputs).length <= 1){
 			return 2*MINIMAL_BLOCKSIZE + LINE_WIDTH;
 		}
-		return inputLength % 2 === 0 ? (inputLength * MINIMAL_BLOCKSIZE) + LINE_WIDTH : ((inputLength-1) * MINIMAL_BLOCKSIZE) +LINE_WIDTH;
+		return longest % 2 === 0 ? (longest * MINIMAL_BLOCKSIZE) + LINE_WIDTH : ((longest-1) * MINIMAL_BLOCKSIZE) +LINE_WIDTH;
 	};
 
 

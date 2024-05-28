@@ -59,7 +59,6 @@ export default function useConnecting(){
     const dispatch = useDispatch();
     
     useEffect(() => {
-        console.log('change');
         Object.entries(wires).forEach(([key, w]) => {
              
             const connections = checkRectInputs(w.linearLine.endX, w.linearLine.endY, w.diagonalLine.endX, w.diagonalLine.endY, w);

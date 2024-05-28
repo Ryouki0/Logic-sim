@@ -1,20 +1,29 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { Wire } from "../Interfaces/Wire";
+import { Gate } from "../Interfaces/Gate";
+import { BinaryInput } from "../Interfaces/BinaryInput";
 
-interface MouseEvents{
-    objectClicked: objectClicked
+export type EntityClicked = {type: 'Gate' | 'Wire' | 'BinaryInput' | null, entity: Gate | BinaryInput | Wire | null}
+interface IEntityClicked {
+	entityClicked: EntityClicked,
+	hoveringOverWire: Wire | null,
 }
-export type objectClicked = "Gate" | "Input" | "Wire" | null;
-const initialState = {objectClicked: null} satisfies MouseEvents as MouseEvents;
+const initialState: IEntityClicked = { entityClicked: {type: null, entity: null}, hoveringOverWire: null};
 
 const mouseEventsSlice = createSlice({
-	name: "mouseEventsSlice",
-	initialState: initialState,
-	reducers: {
-		setObjectClicked: (state, action: PayloadAction<objectClicked>) => {
-			state.objectClicked = action.payload;
+    name: "mouseEventsSlice",
+    initialState,
+    reducers: {
+        setSelectedEntity: (state, action: PayloadAction<EntityClicked>) => {
+            state.entityClicked = action.payload;
+        },
+		setHoveringOverWire: (state, action: PayloadAction<Wire | null>) => {
+			state.hoveringOverWire = action.payload;
 		}
-	},
+    },
 });
 
-export const {setObjectClicked} = mouseEventsSlice.actions;
+export const {
+	setSelectedEntity,
+	setHoveringOverWire} = mouseEventsSlice.actions;
 export default mouseEventsSlice.reducer;

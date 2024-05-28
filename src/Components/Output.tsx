@@ -17,6 +17,9 @@ interface BinaryOutputProps {
 }
 
 const checkOutputStateEquality = (prev:BinaryOutput|null, next:BinaryOutput|null) => {
+	if(prev?.to !== next?.to){
+		return false;
+	} 
 	return prev?.state === next?.state;
 };
 
@@ -29,16 +32,15 @@ export function Output({style = null, output}:BinaryOutputProps) {
 		}else{
 			return null;
 		}
-	})
+	}, checkOutputStateEquality)
 	function handleMouseDown(e:React.MouseEvent<any>){
 		e.stopPropagation();
-		console.log(`THIS OUTPUT: ${thisOutput?.id} ${thisOutput?.state} ${thisOutput?.to?.[0]?.id}`);
+		console.log(`THIS OUTPUT: ${thisOutput?.id} ${thisOutput?.state} ${thisOutput?.to ? 'true' : 'false'}`);
 		startDrawing(e, {id: output.id, type: 'outputs', gateId: output.gateId});
 	}
 
 	return (
 		<>
-			{/*onsole.log(`rendering output with ID: ${thisOutput?.id}`)*/}
 			<div style={{...style,
 				width: DEFAULT_INPUT_DIM.width,
 				height: DEFAULT_INPUT_DIM.height,
@@ -48,10 +50,10 @@ export function Output({style = null, output}:BinaryOutputProps) {
 					value={100}
 					background={true}
 					styles={buildStyles({
-						backgroundColor: "grey",
-						trailColor: "grey",
-						pathColor: AMBER,
+						backgroundColor: 'black',
+						pathColor: thisOutput?.to ? AMBER : 'black',
 					})}
+					strokeWidth={thisOutput?.to?.length ? (thisOutput?.to?.length > 0 ? 12 : 100) : 100}
 				></CircularProgressbar>
 			</div>
 		</>
