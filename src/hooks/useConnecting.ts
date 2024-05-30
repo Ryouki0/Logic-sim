@@ -5,10 +5,13 @@ import { DEFAULT_GATE_DIM, DEFAULT_INPUT_DIM } from '../Constants/defaultDimensi
 import { calculateInputTop } from '../utils/calculateInputTop';
 import { getClosestBlock } from '../drawingFunctions/getClosestBlock';
 import { Wire } from '../Interfaces/Wire';
-import { addWireToGateInput, disconnectWireFromGate, } from '../state/objectsSlice';
+import { addWireToGateInput, connectToGlobalOutput, disconnectWireFromGate, disconnectWireFromGlobalOutput, } from '../state/objectsSlice';
 import { Gate } from '../Interfaces/Gate';
 import checkLineEquality from '../utils/checkLineEquality';
 import { connect } from 'http2';
+import { isAction } from 'redux';
+import { Root } from 'react-dom/client';
+import disconnectByWire from '../utils/disconnectByWire';
 
 const checkGatePositionEquality = (prev: {[key: string]:Gate}, next: {[key: string]:Gate}) => {
     const prevEntries = Object.entries(prev);
@@ -56,59 +59,105 @@ const checkWirePositionEquality = (prev: {[key:string]:Wire}, next: {[key:string
 export default function useConnecting(){
     const gates = useSelector((state: RootState) => {return state.objectsSlice.gates}, checkGatePositionEquality);
     const wires = useSelector((state: RootState) => {return state.objectsSlice.wires}, checkWirePositionEquality);
+    const globalOutputs = useSelector((state:RootState) => {return state.objectsSlice.globalOutputs});
     const dispatch = useDispatch();
     
+    //Disconnecting needs to happen first, to not get short circuit error when moving the gate directly from wire to wire
     useEffect(() => {
+        const allConnections:{ ioId: string, gate: Gate | null, action: 'connected' | 'disconnected' | null, wire: Wire }[] = [];
         Object.entries(wires).forEach(([key, w]) => {
              
             const connections = checkRectInputs(w.linearLine.endX, w.linearLine.endY, w.diagonalLine.endX, w.diagonalLine.endY, w);
-            
-            connections.forEach(connection => {
-                //console.log(`${connection.action} ${connection.gate.id}`);
-
-                if(connection.action === 'connected'){
-                    dispatch(addWireToGateInput({gate:connection.gate, inputId: connection.inputId, wire: w}));
-
-                }else if(connection.action === 'disconnected'){
-                    dispatch(disconnectWireFromGate({gateId:connection.gate.id, inputId: connection.inputId, wireId: w.id}));
-                }
+            connections?.forEach(connection => {
+                allConnections.push({...connection, wire:w});
             })
-        }
-    )}, [gates, wires])
+        })
+
+        allConnections.forEach(connection => {
+            if(connection.action === 'disconnected'){
+                if(!connection.gate){
+                    dispatch(disconnectWireFromGlobalOutput({wireId: connection.wire.id, outputId: connection.ioId, }));
+                }else{
+                    dispatch(disconnectWireFromGate({gateId: connection.gate.id, inputId: connection.ioId, wireId: connection.wire.id}));
+                }
+            }
+        })
+        
+        allConnections.forEach(connection => {
+            if(connection.action === 'connected'){
+                if(!connection.gate){
+                    console.log(`connect: ${connection.ioId.slice(0,5)}`);
+                    dispatch(connectToGlobalOutput({
+                        outputId: connection.ioId, 
+                        wireId: connection.wire.id}))
+                }else{
+                    dispatch(addWireToGateInput({gate: connection.gate, inputId: connection.ioId, wire: connection.wire}));
+                }
+            }            
+        })
+    }, [gates, wires])
+        
 
     const checkRectInputs = (x:number,y:number, x2:number, y2:number, wire: Wire) => {
-        const connections: { inputId: string, gate: Gate, action: 'connected' | 'disconnected' | null }[] = [];
-
+        const connections: { ioId: string, gate: Gate | null, action: 'connected' | 'disconnected' | null }[] = [];
+        
+        //Check the gates' inputs
         Object.entries(gates).forEach(([key, g]) => {
 			const inputs = Object.entries(g.inputs);
             const inputConnections = inputs.map(([key, input], idx, array) => {
-
-                const inputY = calculateInputTop(idx, array.length);
-                const { roundedX, roundedY } = getClosestBlock(g.position?.x ?? 0, g.position?.y ? g.position.y + inputY + DEFAULT_INPUT_DIM.height : 0);
+                let roundedY =0;
+                if(g.position?.y){
+                    roundedY = g.position.y + calculateInputTop(idx, array.length) + (DEFAULT_INPUT_DIM.height/2) + (idx*DEFAULT_INPUT_DIM.height);
+                }else{
+                    return;
+                }
                 
                 let isConnected = false;
 
-                wire.connectedToId?.forEach(connectedInputId => {
-                    if(connectedInputId.id === input.id){
+                wire.connectedToId?.forEach(connectedioId => {
+                    if(connectedioId.id === input.id){
                         isConnected =true;
                 }})
                 if ((roundedY === y && x === g.position?.x) || (roundedY === y2 && x2 === g.position?.x)) {
                     if(isConnected){
                         return null;
                     }
-                    return { inputId: input.id, gate: g, action: 'connected' };
+                    return { ioId: input.id, gate: g, action: 'connected' };
  
                 } else if (isConnected) {
-                    return { inputId: input.id, gate: g, action: 'disconnected' };
+                    return { ioId: input.id, gate: g, action: 'disconnected' };
                 } 
                 else {
                     return null;
                 }
-            }).filter(connection => connection !== null) as { inputId: string, gate: Gate, action: 'connected' | 'disconnected' | null }[];
+            }).filter(connection => connection !== null) as { ioId: string, gate: Gate, action: 'connected' | 'disconnected' | null }[];
     
             connections.push(...inputConnections);
         });
-    
+
+        //
+        const globalOutputEntries = Object.entries(globalOutputs);
+        for(const [key, output] of globalOutputEntries){
+            if(output.position){
+                let isConnected = false;
+                wire.connectedToId?.forEach(to => {
+                    if(to.id === key){
+                        isConnected =true;
+                    }
+                })
+            
+                if((output.position.x === x && output.position.y === y) || (output.position.x === x2 && output.position.y === y2)){
+                    if(isConnected){
+                        return null;
+                    }else{
+                        connections.push({action: 'connected', gate:null,ioId:key});
+                    }
+                }else if(isConnected){
+                    console.log(`needs to disconnect... ${key.slice(0,5)}`);
+                    connections.push({ioId: key, action: 'disconnected', gate: null});
+                }
+            }
+        }
         return connections;
     }
     

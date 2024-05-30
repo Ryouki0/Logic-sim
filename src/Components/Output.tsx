@@ -20,6 +20,9 @@ const checkOutputStateEquality = (prev:BinaryOutput|null, next:BinaryOutput|null
 	if(prev?.to !== next?.to){
 		return false;
 	} 
+	if(prev?.from !== next?.from){
+		return false;
+	}
 	return prev?.state === next?.state;
 };
 
@@ -30,15 +33,37 @@ export function Output({style = null, output}:BinaryOutputProps) {
 		if(output.gateId){
 			return state.objectsSlice.gates[output.gateId]?.outputs[output.id];
 		}else{
-			return null;
+			return state.objectsSlice.globalOutputs[output.id];
 		}
 	}, checkOutputStateEquality)
+
 	function handleMouseDown(e:React.MouseEvent<any>){
 		e.stopPropagation();
-		console.log(`THIS OUTPUT: ${thisOutput?.id} ${thisOutput?.state} ${thisOutput?.to ? 'true' : 'false'}`);
+		console.log(`this ID: ${thisOutput?.id.slice(0,5)}`);
+		console.log(`this TO: ${thisOutput?.to?.[0]?.id.slice(0,5)}`);
+		console.log(`thisoutput from: ${thisOutput?.from?.id.slice(0,5)}`);
 		startDrawing(e, {id: output.id, type: 'outputs', gateId: output.gateId});
 	}
 
+	const getStrokeWidth = () => {
+		if(thisOutput?.to && thisOutput.to.length > 0){
+			return 12;
+		}
+		if(thisOutput?.from){
+			return 12;
+		}
+		return 100;
+	}
+
+	const getPathColor = () => {
+		if(thisOutput?.to){
+			return AMBER;
+		}
+		if(thisOutput?.from){
+			return AMBER;
+		}
+		return 'black';
+	}
 	return (
 		<>
 			<div style={{...style,
@@ -51,9 +76,9 @@ export function Output({style = null, output}:BinaryOutputProps) {
 					background={true}
 					styles={buildStyles({
 						backgroundColor: 'black',
-						pathColor: thisOutput?.to ? AMBER : 'black',
+						pathColor: getPathColor(),
 					})}
-					strokeWidth={thisOutput?.to?.length ? (thisOutput?.to?.length > 0 ? 12 : 100) : 100}
+					strokeWidth={getStrokeWidth()}
 				></CircularProgressbar>
 			</div>
 		</>

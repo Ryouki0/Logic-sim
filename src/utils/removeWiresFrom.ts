@@ -10,7 +10,6 @@ export default function removeWiresFrom(wires:{[key:string]:Wire}, fromId:string
     const newWires: {[key: string]:Wire} = {};
     for(const [key, wire] of wireEntries){
         if(wire.from?.id === fromId){
-            console.log('should remove wire from');
             newWires[key] = {...wire, from: null};
         }else{
             newWires[key] = wire;

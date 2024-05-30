@@ -8,14 +8,17 @@ import removeWireTo from "../utils/removeWiresTo";
 import removeWiresFrom from "../utils/removeWiresFrom";
 import { write } from "fs";
 import disconnectByWire from "../utils/disconnectByWire";
+import { DEFAULT_INPUT_DIM } from "../Constants/defaultDimensions";
+import { BinaryOutput } from "../Interfaces/BinaryOutput";
 
 interface objects{
     wires: {[key: string]: Wire};
     gates: {[key: string]: Gate};
 	globalInputs: {[key: string]: BinaryInput};
+	globalOutputs: {[key: string]: BinaryOutput};
 }
 
-const initialState = {wires: {}, gates: {}, globalInputs: {}} as objects;
+const initialState = {wires: {}, gates: {}, globalInputs: {}, globalOutputs: {}} as objects;
 
 const objectsSlice = createSlice({
 	name: 'objectsSlice',
@@ -38,12 +41,11 @@ const objectsSlice = createSlice({
 			}
 			if(action.payload.connectedToId){
 				action.payload.connectedToId.forEach(connectedTo => {
-					//will need global outputs
-					//Remove it from the source "from"
 					({
-						gates: state.gates, globalInputs: 
-						state.globalInputs
-					} = disconnectByWire(state.gates, action.payload, state.globalInputs, connectedTo.id));
+						gates: state.gates, 
+						globalInputs: state.globalInputs,
+						globalOutputs: state.globalOutputs
+					} = disconnectByWire(state.gates, action.payload, state.globalInputs, connectedTo.id, state.globalOutputs));
 				})
 			}
 			delete state.wires[action.payload.id];
@@ -85,9 +87,8 @@ const objectsSlice = createSlice({
 						if(to.gateId){
 							state.gates[to.gateId].inputs[to.id].from = null;
 						}
-						//When there will be global outputs, this will need update
 						else{
-
+							state.globalOutputs[to.id].from = null;
 						}
 					})
 				}
@@ -115,7 +116,11 @@ const objectsSlice = createSlice({
 
     		if (gate) {
        			Object.keys(gate.inputs).forEach((key, idx, array) => {
-            	const newY = gate.position?.y ?? -calculateInputTop(idx, array.length);
+					let newY = 0
+            	if(gate.position?.y){
+					newY = gate.position.y + calculateInputTop(idx, array.length) + DEFAULT_INPUT_DIM.height/2 + (idx*DEFAULT_INPUT_DIM.height);
+					
+				}
             	const newX = gate.position?.x ?? 0;
             
             	gate.inputs[key].position = { x: newX, y: newY };
@@ -177,15 +182,62 @@ const objectsSlice = createSlice({
 			const gate = state.gates[action.payload.gateId];
 			const wire = state.wires[action.payload.wireId];
 
-			if(wire.connectedToId){
-				removeWireTo(state.wires, action.payload.inputId);
-			}
+			
 			gate.inputs[action.payload.inputId].from = null;
 			({
-				gates: state.gates, 
-				globalInputs: state.globalInputs
-			} = disconnectByWire(state.gates, wire, state.globalInputs, action.payload.inputId));
+				gates: state.gates,
+				globalInputs: state.globalInputs,
+				globalOutputs: state.globalOutputs
+			} = disconnectByWire(state.gates, wire, state.globalInputs, action.payload.inputId, state.globalOutputs));
+			if(wire.connectedToId){
+				state.wires = removeWireTo(state.wires, action.payload.inputId);
+			}
 		},
+		disconnectWireFromGlobalOutput: (state, action: PayloadAction<{wireId: string, outputId: string}>) => {
+			const wire = state.wires[action.payload.wireId];
+			const fromGate = state.gates[wire.from?.gateId??''];
+			if(!fromGate){
+				return;
+			}
+			if(!wire){
+				return;
+			}
+			console.log(`called`);
+			(
+				{
+					gates: state.gates,
+					globalInputs: state.globalInputs,
+					globalOutputs: state.globalOutputs
+				} = disconnectByWire(state.gates,wire,state.globalInputs, action.payload.outputId, state.globalOutputs)
+			)
+			state.wires = removeWireTo(state.wires, action.payload.outputId);
+
+		},
+		addGlobalOutput: (state, action: PayloadAction<BinaryOutput>) => {
+			state.globalOutputs[action.payload.id] = action.payload;
+		},
+		connectToGlobalOutput: (state, action: PayloadAction<{wireId: string, outputId: string}>) => {
+			const wire = state.wires[action.payload.wireId];
+			const outputId = action.payload.outputId;
+			const gate = state.gates[wire.from?.gateId??''];
+			if(!wire || !gate || !wire.from){
+				return;
+			}
+			
+			//Add the output reference to the gate
+			if(gate.outputs[wire.from.id].to){
+				gate.outputs[wire.from.id].to?.push({type:'outputs', id:outputId, gateId: null});
+			}else{
+				gate.outputs[wire.from.id].to = [{type:'outputs', id:outputId, gateId: null}];
+			}
+
+			state.globalOutputs[outputId].from = wire.from;
+			if(wire.connectedToId){
+				wire.connectedToId.push({type: 'outputs', gateId: null, id: outputId});
+			}else{
+				wire.connectedToId = [{type: 'outputs', gateId: null, id: outputId}];
+			}
+		}
 	}
 	
 });
@@ -201,4 +253,7 @@ export const {addWire,
 	changeInputState,
 	changeInputPosition,
 	addWireToGateInput,
-	disconnectWireFromGate} = objectsSlice.actions;
+	disconnectWireFromGate,
+	addGlobalOutput,
+	connectToGlobalOutput,
+	disconnectWireFromGlobalOutput} = objectsSlice.actions;

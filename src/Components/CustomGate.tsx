@@ -78,19 +78,20 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 
 	const handlePreviewMouseDown = () => {
 		const newInputs:{[key: string]:BinaryInput} = {};
+		const newGateId = uuidv4();
 		for(var i=0;i<inputLength;i++){
 			const id = uuidv4();
-			newInputs[id] = ({state: 0, id: id, gateId: gateProps.id});
+			newInputs[id] = ({state: 0, id: id, gateId: newGateId});
 		};
 		const newOutputs:{[key:string]: BinaryOutput} = {};
 		for(var i =0;i<outputLength;i++){
 			const id = uuidv4();
-			newOutputs[id] = ({state: 0, id: id, gateId:gateProps.id});
+			newOutputs[id] = ({state: 0, id: id, gateId:newGateId});
 		}
 		dispatch(addGate({...gateProps,
 			inputs: newInputs,
 			outputs: newOutputs,
-			id: uuidv4(), position: {
+			id: newGateId, position: {
 				x: eleRef.current?.getBoundingClientRect().x ? eleRef.current.getBoundingClientRect().x : 0, 
 				y: eleRef.current?.getBoundingClientRect().y ? eleRef.current.getBoundingClientRect().y : 0
 			}}));
@@ -146,7 +147,7 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 				{Object.entries(outputs).map(([key, output], idx, array) => {
 					return <Output style={{position: 'absolute', left:
                         (3*MINIMAL_BLOCKSIZE)-DEFAULT_INPUT_DIM.width/2,
-					top:calculateInputTop(idx, array.length),
+					top:(calculateInputTop(idx, array.length) + (idx* DEFAULT_INPUT_DIM.height)),
 					cursor: 'default'}} output={{state: 0, id: output.id, gateId: gateProps.id}} key={output.id}></Output>;
 				})}
 			</div>

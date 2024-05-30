@@ -5,8 +5,8 @@ export default function BottomCanvas(){
 	const bottomCanvasRef = useRef<HTMLCanvasElement>(null);
 	useEffect(() => {
 		if(bottomCanvasRef && bottomCanvasRef.current){
-			const width =  window.innerWidth * CANVAS_WIDTH_MULTIPLIER;
-			const height =  window.innerHeight * CANVAS_WIDTH_MULTIPLIER;
+			const width =  CANVAS_WIDTH_MULTIPLIER;
+			const height =  CANVAS_WIDTH_MULTIPLIER;
 			bottomCanvasRef.current.width = width;
 			bottomCanvasRef.current.height = height;
 			const context = bottomCanvasRef.current.getContext('2d');

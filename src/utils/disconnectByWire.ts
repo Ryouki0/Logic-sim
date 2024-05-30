@@ -1,4 +1,5 @@
 import { BinaryInput } from "../Interfaces/BinaryInput";
+import { BinaryOutput } from "../Interfaces/BinaryOutput";
 import { Gate } from "../Interfaces/Gate";
 import { Wire } from "../Interfaces/Wire";
 
@@ -8,10 +9,16 @@ import { Wire } from "../Interfaces/Wire";
  * @param wire The wire to disconnect
  * @param globalInputs The globalInputs state
  * @param inputId The input the wire is connected to
- * @returns {{ gates: { [key: string]: Gate }, globalInputs: { [key: string]: BinaryInput } }}
+ * @returns {{ gates: { [key: string]: Gate }, globalInputs: { [key: string]: BinaryInput }, globalOutputs: { [key:string]: BinaryOutput} }}
  */
-export default function disconnectByWire(gates:{[key:string]:Gate},wire:Wire, globalInputs: {[key:string]: BinaryInput},inputId: string)
-    : { gates: { [key: string]: Gate; }; globalInputs: { [key: string]: BinaryInput; }; } 
+export default function disconnectByWire(
+    gates:{[key:string]:Gate},
+    wire:Wire, 
+    globalInputs: {[key:string]: BinaryInput},
+    inputId: string,
+    globalOutputs: {[key:string]: BinaryOutput}
+    )
+    : { gates: { [key: string]: Gate; }; globalInputs: { [key: string]: BinaryInput; }; globalOutputs: {[key:string]:BinaryOutput}} 
     {
     
     //Remove the reference from the outputs/globalInputs
@@ -34,8 +41,9 @@ export default function disconnectByWire(gates:{[key:string]:Gate},wire:Wire, gl
             if(to.gateId){
                 gates[to.gateId].inputs[to.id].from = null;
             }else{
+                globalOutputs[to.id].from = null;
             }
         })
     }
-    return {gates, globalInputs};
+    return {gates, globalInputs, globalOutputs};
 }

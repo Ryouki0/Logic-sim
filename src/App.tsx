@@ -6,12 +6,14 @@ import CurrentInput from "./Components/GlobalInputs";
 import MovableGates from "./Components/MovableGates";
 import BottomCanvas from "./Components/BottomCanvas";
 import EmptyComponent from "./Components/EmptyComponent";
+import GlobalOutputs from "./Components/GlobalOutputs";
 function App() {
 	
 	return (
 		<>
 			{console.log("rendering whole App...")}
 			<CurrentInput></CurrentInput>
+			<GlobalOutputs></GlobalOutputs>
 			<MainCanvas></MainCanvas>
 			<BottomCanvas></BottomCanvas>
 			<DisplayAllGates></DisplayAllGates>

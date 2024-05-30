@@ -50,8 +50,9 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 		if(from){
 			console.log(`${from.id} ${from.state}`);
 		}
-		console.log(`this inpot is TO: ${currentInput.to?.[0]?.id}`);
-		console.log(`this input is from: ${currentInput.from?.type} ${currentInput.from?.id}`);
+		// console.log(`this inpot is TO: ${currentInput.to?.[0]?.id}`);
+		// console.log(`this input is from: ${currentInput.from?.type} ${currentInput.from?.id}`);
+		// console.log(`this inputs position is: ${currentInput.position?.x} ${currentInput.position?.y}`);
 		startDrawing(e, {id: currentInput.id, type: 'inputs', gateId: binaryInput.gateId});
 	}
 	const getPathColor = () => {

@@ -1,3 +1,4 @@
+import { ChildProcessWithoutNullStreams } from "child_process";
 import { BinaryInput } from "./BinaryInput";
 import { Wire } from "./Wire";
 
@@ -7,5 +8,7 @@ export interface BinaryOutput{
     wires?: Wire[] | null,
     gateId?: string,
     id: string,
+    position?: {x:number,y:number},
     to?: {id: string, type: 'inputs' | 'outputs', gateId?: string | null}[] | null,
+    from?:{id: string, type: 'inputs' | 'outputs', gateId?: string | null} | null,
 }

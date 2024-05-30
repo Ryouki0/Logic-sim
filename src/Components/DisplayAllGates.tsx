@@ -9,9 +9,9 @@ export default function DisplayAllGates(){
 	const allGates = useSelector((state: RootState) => {return state.allGatesSlice;});
 
 	return console.log('rendering allgates'),
-	<div style={{display: 'flex', top: window.innerHeight * CANVAS_WIDTH_MULTIPLIER,
+	<div style={{display: 'flex', top: CANVAS_WIDTH_MULTIPLIER,
 		position: 'absolute',
-		width: (window.innerWidth * CANVAS_WIDTH_MULTIPLIER) - 30,
+		width: CANVAS_WIDTH_MULTIPLIER - 30,
 		backgroundColor: 'rgb(140 140 140)',
 		borderColor: 'rgb(60 60 60)',
 		borderWidth: 5,

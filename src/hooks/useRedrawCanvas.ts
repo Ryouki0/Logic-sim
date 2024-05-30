@@ -7,6 +7,7 @@ import { Root, RootOptions } from 'react-dom/client';
 import { AMBER, DARK_RED, ORANGE, RED_ORANGE } from '../Constants/colors';
 import { BinaryInput } from '../Interfaces/BinaryInput';
 import { BinaryOutput } from '../Interfaces/BinaryOutput';
+import { getClosestBlock } from '../drawingFunctions/getClosestBlock';
 
 const checkWireSourceEquality = (prev:{[key: string]: BinaryInput | BinaryOutput}, next: {[key: string]: BinaryInput | BinaryOutput}) => {
 	const prevEntries = Object.entries(prev);
@@ -32,6 +33,7 @@ export default function useRedrawCanvas(){
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const inputs = useSelector((state: RootState) => {return state.objectsSlice.globalInputs;}, shallowEqual);
 	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire});
+
 	//Create a hashmap with the wires' IDs as keys, and the input/output they are connected from as values
 	const wireFrom = useSelector((state: RootState) => {
 		const wireEntries = Object.entries(state.objectsSlice.wires);
@@ -45,11 +47,12 @@ export default function useRedrawCanvas(){
 		}
 		return wireFrom;
 	}, checkWireSourceEquality)
+
 	useEffect(() => {
 		const canvasEle = canvasRef.current;
 		if (!canvasRef.current || !canvasEle) return;
-		canvasRef.current.height = window.innerHeight * CANVAS_WIDTH_MULTIPLIER;
-		canvasRef.current.width = window.innerWidth * CANVAS_WIDTH_MULTIPLIER;
+		canvasRef.current.height = CANVAS_WIDTH_MULTIPLIER;
+		canvasRef.current.width = CANVAS_WIDTH_MULTIPLIER;
 		const context = canvasEle.getContext('2d');
 		if (!context) return;
 		context.clearRect(0, 0, canvasEle.width, canvasEle.height);
