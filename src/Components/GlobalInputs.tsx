@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CANVAS_OFFSET_LEFT, CANVAS_WIDTH_MULTIPLIER, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { BinaryInput } from '../Interfaces/BinaryInput';
 import { Input } from './Input';
 import { getClosestBlock } from '../drawingFunctions/getClosestBlock';
@@ -47,7 +47,7 @@ export default function CurrentInput(){
 	return <div id='current-inputs'
 		style={{backgroundColor: 'rgb(80 80 80)', 
 			width: 2*MINIMAL_BLOCKSIZE, 
-			height: CANVAS_WIDTH_MULTIPLIER, 
+			height: CANVAS_HEIGHT, 
 			position: 'absolute',
 			zIndex: 1,
 			marginLeft: CANVAS_OFFSET_LEFT}}

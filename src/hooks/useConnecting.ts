@@ -48,7 +48,7 @@ const checkWirePositionEquality = (prev: {[key:string]:Wire}, next: {[key:string
         if (!checkLineEquality(prevWire.diagonalLine, nextWire.diagonalLine)) {
             return false;
         }
-        if(nextWire.connectedToId !== prevWire.connectedToId){
+        if(nextWire.connectedToId.length !== prevWire.connectedToId.length){
             return false
         }
     }

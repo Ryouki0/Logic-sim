@@ -138,7 +138,7 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 					<span
 						key={gateProps.id}
 						style={{color: 'white', cursor: "drag", userSelect: 'none', fontSize: 22, fontWeight: 500}} 
-						onMouseDown={e => { e.stopPropagation();
+						onMouseDown={e => { e.stopPropagation(); e.preventDefault();
 							preview ? handlePreviewMouseDown()
 								: handleMouseDown(e, eleRef, dispatch, offsetRef.current.dx, offsetRef.current.dy, setOffset, setPositions);
 						}}

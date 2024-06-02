@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { drawLine } from '../drawingFunctions/drawLine';
-import { CANVAS_WIDTH_MULTIPLIER, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { Root, RootOptions } from 'react-dom/client';
 import { AMBER, DARK_RED, ORANGE, RED_ORANGE } from '../Constants/colors';
 import { BinaryInput } from '../Interfaces/BinaryInput';
@@ -51,8 +51,8 @@ export default function useRedrawCanvas(){
 	useEffect(() => {
 		const canvasEle = canvasRef.current;
 		if (!canvasRef.current || !canvasEle) return;
-		canvasRef.current.height = CANVAS_WIDTH_MULTIPLIER;
-		canvasRef.current.width = CANVAS_WIDTH_MULTIPLIER;
+		canvasRef.current.height = CANVAS_HEIGHT;
+		canvasRef.current.width = CANVAS_WIDTH;
 		const context = canvasEle.getContext('2d');
 		if (!context) return;
 		context.clearRect(0, 0, canvasEle.width, canvasEle.height);

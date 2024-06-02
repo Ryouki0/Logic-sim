@@ -35,6 +35,54 @@ const objectsSlice = createSlice({
 				state.wires[action.payload.id] = {...action.payload};
 			}
 		},
+		breakWirePath: (state, action: PayloadAction<Wire>) => {
+			let from:BinaryOutput | BinaryInput |null = null;
+			if(action.payload.from){
+				if(action.payload.from.gateId){
+					from = state.gates[action.payload.from.gateId].outputs[action.payload.from.id];
+				}else{
+					from = state.globalInputs[action.payload.from.id];
+				}
+			}
+			
+
+			let connectedTo: (BinaryInput | BinaryOutput)[] = [];
+		
+			from?.to?.forEach(to => {
+				
+				if(to.gateId){
+					connectedTo.push(state.gates[to.gateId].inputs[to.id]);
+					//console.log(`${state.gates[to.gateId].inputs[to.id].id.slice(0,5)}`);
+				}else{
+					connectedTo.push(state.globalOutputs[to.id]);
+				}
+			})
+
+			//For every connected input check if the wirePaths contain the wire that will be removed, if it is contained, 
+			//then break the connection.
+			//It won't break the wires if they are not connected to something.
+			connectedTo.forEach(to => {
+				if(to.wirePath?.includes(action.payload.id)){
+					const wireIdx = to.wirePath.indexOf(action.payload.id);
+					const lastWireIdxInPath = to.wirePath[to.wirePath.length-1];
+					const lastWireInPath = state.wires[lastWireIdxInPath];
+
+					({
+						gates:state.gates,
+						globalInputs: state.globalInputs,
+						globalOutputs: state.globalOutputs,
+					} = disconnectByWire(state.gates, lastWireInPath, state.globalInputs, to.id, state.globalOutputs));
+					for(let i = wireIdx+1; i<to.wirePath?.length;i++){
+						state.wires[to.wirePath[i]].wirePath = state.wires[to.wirePath[i]].wirePath.slice(wireIdx+1);
+						if(i === to.wirePath.length-1){
+							to.wirePath = state.wires[to.wirePath[i]].wirePath;
+						}
+					}
+				}
+			})
+
+			delete state.wires[action.payload.id];
+		},
 		removeWire: (state, action: PayloadAction<Wire>) => {
 			if(!(state.wires[action.payload.id])){
 				throw new ReferenceError(`No wire with id: ${action.payload.id}`);
@@ -134,7 +182,7 @@ const objectsSlice = createSlice({
 			const wireFrom = action.payload.wire.from;
 			const wire = state.wires[action.payload.wire.id];
 			if(!wireFrom){
-				throw new ReferenceError(`No "from" to connect with: ${wireFrom}`);
+				return;
 			}
 			if(!gate){
 				throw new ReferenceError(`Gate with ${action.payload.gate.id} not found`);
@@ -146,6 +194,7 @@ const objectsSlice = createSlice({
 				return;
 			}else{
 				gate.inputs[action.payload.inputId].from = action.payload.wire.from;
+				gate.inputs[action.payload.inputId].wirePath = action.payload.wire.wirePath;
 			}
 			
 			//Change the inputs state to the "from" state when connecting
@@ -175,8 +224,20 @@ const objectsSlice = createSlice({
 			if(!wireConnectedTo){
 				state.wires[wireId].connectedToId = [{id:inputId, type:'inputs', gateId: gate.id}];
 			}else{
-				state.wires[wireId].connectedToId?.push({id: action.payload.inputId, type: 'inputs', gateId: gate.id});
+				state.wires[wireId].connectedToId.push({id:inputId, type:'inputs',gateId: gate.id});
+				// for(let i = 0;i<wire.wirePath.length;i++){
+				// 	if(state.wires[wire.wirePath[i]].connectedToId.includes({id:inputId,type:'inputs',gateId:gate.id})){
+				// 		return;
+				// 	}
+				// 	state.wires[wire.wirePath[i]].connectedToId = [
+				// 		...state.wires[wire.wirePath[i]].connectedToId, 
+				// 		{id:inputId,type:'inputs',gateId:gate.id
+				// 	}]
+				// }
 			}
+			// for(let i =0;i<wire.wirePath.length;i++){
+			// 	console.log(`connectedTo: ${state.wires[wire.wirePath[i]].connectedToId[0].id.slice(0,6)}`);
+			// }
 		},
 		disconnectWireFromGate: (state, action: PayloadAction<{gateId:string, inputId:string, wireId:string}>) => {
 			const gate = state.gates[action.payload.gateId];
@@ -232,6 +293,7 @@ const objectsSlice = createSlice({
 			}
 
 			state.globalOutputs[outputId].from = wire.from;
+			state.globalOutputs[outputId].wirePath = wire.wirePath;
 			if(wire.connectedToId){
 				wire.connectedToId.push({type: 'outputs', gateId: null, id: outputId});
 			}else{
@@ -256,4 +318,5 @@ export const {addWire,
 	disconnectWireFromGate,
 	addGlobalOutput,
 	connectToGlobalOutput,
-	disconnectWireFromGlobalOutput} = objectsSlice.actions;
+	disconnectWireFromGlobalOutput,
+	breakWirePath} = objectsSlice.actions;

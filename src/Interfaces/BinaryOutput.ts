@@ -9,6 +9,7 @@ export interface BinaryOutput{
     gateId?: string,
     id: string,
     position?: {x:number,y:number},
+    wirePath?: string[],
     to?: {id: string, type: 'inputs' | 'outputs', gateId?: string | null}[] | null,
     from?:{id: string, type: 'inputs' | 'outputs', gateId?: string | null} | null,
 }

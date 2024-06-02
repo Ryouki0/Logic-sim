@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { CANVAS_OFFSET_LEFT, CANVAS_WIDTH_MULTIPLIER, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 
 export default function BottomCanvas(){
 	const bottomCanvasRef = useRef<HTMLCanvasElement>(null);
 	useEffect(() => {
 		if(bottomCanvasRef && bottomCanvasRef.current){
-			const width =  CANVAS_WIDTH_MULTIPLIER;
-			const height =  CANVAS_WIDTH_MULTIPLIER;
+			const width =  CANVAS_WIDTH;
+			const height =  CANVAS_HEIGHT;
 			bottomCanvasRef.current.width = width;
 			bottomCanvasRef.current.height = height;
 			const context = bottomCanvasRef.current.getContext('2d');

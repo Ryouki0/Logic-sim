@@ -17,7 +17,8 @@ export default function useDrawWire() {
 
 	function startDrawing(
 		e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
-		fromId: {id: string, type: 'inputs' | 'outputs', gateId?: string | null | undefined} | null = null,
+		from: {id: string, type: 'inputs' | 'outputs', gateId?: string | null | undefined} | null = null,
+		wire?: Wire
 	){
 		const canvasEle = document.getElementById("main-canvas") as HTMLCanvasElement;
 		if (!canvasEle) {
@@ -30,13 +31,20 @@ export default function useDrawWire() {
 		//console.log('drawline from: ', from);
 		const line: Line = {startX: 0, startY: 0, endX: 0, endY: 0};
 		const lastPosition = {x: 0, y: 0};
-		const currentWire:Wire = {
+		const thisWireId = uuidv4();
+		let currentWire:Wire = {
 			linearLine: {...line},
 			diagonalLine: {...line},
-			id: uuidv4(),
-			from: fromId,
-			connectedToId: null,
+			id: thisWireId,
+			from: from,
+			wirePath: wire ? [...wire.wirePath, thisWireId] : [thisWireId],
+			connectedToId: [],
 		};
+		if(from?.gateId && from?.type ==='inputs'){
+			currentWire.from = null;
+			currentWire.connectedToId = [{...from}];
+			}
+		
 		const getClientOffset = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 			const { pageX, pageY } = event;
 			const x = pageX - canvasEle.offsetLeft;
@@ -113,7 +121,8 @@ export default function useDrawWire() {
 					diagonalLine: {...currentWire.diagonalLine}, 
 					id: currentWire.id,
 					from: currentWire.from,
-					
+					wirePath: currentWire.wirePath,
+					connectedToId: currentWire.connectedToId,
 				};
 				dispatch(changeWirePosition(newWire));
 			}

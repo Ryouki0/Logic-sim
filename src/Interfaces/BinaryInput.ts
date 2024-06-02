@@ -7,6 +7,7 @@ export interface BinaryInput{
     wires?: Wire[] | null,
     id: string,
     gateId?: string,
+    wirePath?: string[],
     position?: {x:number,y:number},
     from?: {id: string, type: 'inputs' | 'outputs', gateId?: string | null } | null,
     to?: [{id: string, type: 'inputs' | 'outputs', gateId?: string | null}] | null,

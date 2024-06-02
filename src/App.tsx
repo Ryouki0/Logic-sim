@@ -7,11 +7,13 @@ import MovableGates from "./Components/MovableGates";
 import BottomCanvas from "./Components/BottomCanvas";
 import EmptyComponent from "./Components/EmptyComponent";
 import GlobalOutputs from "./Components/GlobalOutputs";
+import SelectedComponent from "./Components/SelectedComponent";
 function App() {
 	
 	return (
 		<>
 			{console.log("rendering whole App...")}
+			<SelectedComponent></SelectedComponent>
 			<CurrentInput></CurrentInput>
 			<GlobalOutputs></GlobalOutputs>
 			<MainCanvas></MainCanvas>
@@ -19,6 +21,7 @@ function App() {
 			<DisplayAllGates></DisplayAllGates>
 			<MovableGates></MovableGates>
 			<EmptyComponent></EmptyComponent>
+
 		</>
 	);
 }

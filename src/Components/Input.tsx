@@ -53,6 +53,9 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 		// console.log(`this inpot is TO: ${currentInput.to?.[0]?.id}`);
 		// console.log(`this input is from: ${currentInput.from?.type} ${currentInput.from?.id}`);
 		// console.log(`this inputs position is: ${currentInput.position?.x} ${currentInput.position?.y}`);
+		currentInput.wirePath?.forEach(wire => {
+			console.log(`${wire.slice(0,5)}`);
+		})
 		startDrawing(e, {id: currentInput.id, type: 'inputs', gateId: binaryInput.gateId});
 	}
 	const getPathColor = () => {

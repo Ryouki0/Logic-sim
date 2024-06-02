@@ -1,5 +1,5 @@
 import React from 'react';
-import { CANVAS_WIDTH_MULTIPLIER, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { getClosestBlock } from '../drawingFunctions/getClosestBlock';
@@ -25,7 +25,7 @@ export default function GlobalOutputs() {
                 state:0,
                 id: uuidv4(),
                 position: {
-                    x: CANVAS_WIDTH_MULTIPLIER - MINIMAL_BLOCKSIZE,
+                    x: CANVAS_WIDTH - MINIMAL_BLOCKSIZE,
                     y: roundedY
                 },
                 style: {
@@ -40,11 +40,11 @@ export default function GlobalOutputs() {
     return <div 
     style={{
         width: MINIMAL_BLOCKSIZE,
-        height: CANVAS_WIDTH_MULTIPLIER,
+        height: CANVAS_HEIGHT,
         zIndex: 1,
         backgroundColor: 'rgb(100, 100, 100)',
         position: 'absolute',
-        left: CANVAS_WIDTH_MULTIPLIER - MINIMAL_BLOCKSIZE, 
+        left: CANVAS_WIDTH - MINIMAL_BLOCKSIZE, 
     }}
     onContextMenu={e=> {handleRightClick(e)}}>
         {outputEntries.map(([key, output], idx, array) => {
