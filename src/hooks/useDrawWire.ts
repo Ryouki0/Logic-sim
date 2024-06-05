@@ -6,6 +6,7 @@ import { getClosestBlock } from "../drawingFunctions/getClosestBlock";
 import { v4 as uuidv4 } from 'uuid';
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
+import { setDrawingWire } from "../state/mouseEventsSlice";
 
 const checkWireLenghtEquality = (prev: Wire[], next: Wire[]) => {
 	return prev.length === next.length;
@@ -40,6 +41,7 @@ export default function useDrawWire() {
 			wirePath: wire ? [...wire.wirePath, thisWireId] : [thisWireId],
 			connectedToId: [],
 		};
+		dispatch(setDrawingWire(thisWireId));
 		if(from?.gateId && from?.type ==='inputs'){
 			currentWire.from = null;
 			currentWire.connectedToId = [{...from}];
@@ -132,6 +134,7 @@ export default function useDrawWire() {
 		
 			document.removeEventListener("mousemove", mouseMoveListener);
 			document.removeEventListener("mouseup", mouseupListener);
+			dispatch(setDrawingWire(null));
 		};
     
 		document.addEventListener("mousemove", mouseMoveListener);

@@ -1,5 +1,6 @@
 import { CANVAS_OFFSET_LEFT, LINE_WIDTH } from "../Constants/defaultDimensions";
 import { Line } from "../Interfaces/Line";
+import { Wire } from "../Interfaces/Wire";
 
 export function calculateLinePoints(line:Line){
     let { startX, endX, startY, endY } = line;
@@ -43,4 +44,17 @@ export function isPointOnDiagonalLine(startX: number, startY: number, endX: numb
     }
 
     return distance <= Math.trunc(LINE_WIDTH / 2) + 1;
+}
+
+export function isPointOnWire(x:number,y:number, wire:Wire){
+    let {startX, startY, endX, endY} = calculateLinePoints(wire.linearLine);
+    if(isPointOnLine(startX,startY,endX,endY, x, y)){
+		return true;
+	}
+	({startX, startY, endX, endY} = wire.diagonalLine);
+
+	if(isPointOnDiagonalLine(startX, startY, endX, endY, x, y)){			
+        return true;
+	}
+    return false;
 }

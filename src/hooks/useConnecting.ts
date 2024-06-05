@@ -5,13 +5,14 @@ import { DEFAULT_GATE_DIM, DEFAULT_INPUT_DIM } from '../Constants/defaultDimensi
 import { calculateInputTop } from '../utils/calculateInputTop';
 import { getClosestBlock } from '../drawingFunctions/getClosestBlock';
 import { Wire } from '../Interfaces/Wire';
-import { addWireToGateInput, connectToGlobalOutput, disconnectWireFromGate, disconnectWireFromGlobalOutput, } from '../state/objectsSlice';
+import { addWireToGateInput, connectToGlobalOutput, connectWireToWire, disconnectWireFromGate, disconnectWireFromGlobalOutput, } from '../state/objectsSlice';
 import { Gate } from '../Interfaces/Gate';
 import checkLineEquality from '../utils/checkLineEquality';
 import { connect } from 'http2';
 import { isAction } from 'redux';
 import { Root } from 'react-dom/client';
 import disconnectByWire from '../utils/disconnectByWire';
+import useIsWireClicked from './useIsWireClicked';
 
 const checkGatePositionEquality = (prev: {[key: string]:Gate}, next: {[key: string]:Gate}) => {
     const prevEntries = Object.entries(prev);
@@ -60,6 +61,8 @@ export default function useConnecting(){
     const gates = useSelector((state: RootState) => {return state.objectsSlice.gates}, checkGatePositionEquality);
     const wires = useSelector((state: RootState) => {return state.objectsSlice.wires}, checkWirePositionEquality);
     const globalOutputs = useSelector((state:RootState) => {return state.objectsSlice.globalOutputs});
+    const drawingWire = useSelector((state: RootState) => {return state.mouseEventsSlice.drawingWire});
+    const {getAllWire} = useIsWireClicked();
     const dispatch = useDispatch();
     
     //Disconnecting needs to happen first, to not get short circuit error when moving the gate directly from wire to wire
@@ -67,7 +70,7 @@ export default function useConnecting(){
         const allConnections:{ ioId: string, gate: Gate | null, action: 'connected' | 'disconnected' | null, wire: Wire }[] = [];
         Object.entries(wires).forEach(([key, w]) => {
              
-            const connections = checkRectInputs(w.linearLine.endX, w.linearLine.endY, w.diagonalLine.endX, w.diagonalLine.endY, w);
+            const connections = checkConnections(w.linearLine.endX, w.linearLine.endY, w.diagonalLine.endX, w.diagonalLine.endY, w);
             connections?.forEach(connection => {
                 allConnections.push({...connection, wire:w});
             })
@@ -98,7 +101,7 @@ export default function useConnecting(){
     }, [gates, wires])
         
 
-    const checkRectInputs = (x:number,y:number, x2:number, y2:number, wire: Wire) => {
+    const checkConnections = (x:number,y:number, x2:number, y2:number, wire: Wire) => {
         const connections: { ioId: string, gate: Gate | null, action: 'connected' | 'disconnected' | null }[] = [];
         
         //Check the gates' inputs
@@ -135,7 +138,7 @@ export default function useConnecting(){
             connections.push(...inputConnections);
         });
 
-        //
+        //check global outputs
         const globalOutputEntries = Object.entries(globalOutputs);
         for(const [key, output] of globalOutputEntries){
             if(output.position){
@@ -157,6 +160,22 @@ export default function useConnecting(){
                     connections.push({ioId: key, action: 'disconnected', gate: null});
                 }
             }
+        }
+
+        if(wire.id === drawingWire){
+            let endPoint: {x:number,y:number};
+            if(wire.diagonalLine.startX === wire.diagonalLine.endX){
+                endPoint = {x:x,y:y}
+            }else{
+                endPoint = {x:x2, y:y2};
+            }
+            const wireToConnect = getAllWire(endPoint.x,endPoint.y);
+            wireToConnect?.forEach(w => {
+                if(w.id !== drawingWire){
+                    console.log(`Wire to connect: ${w.id.slice(0,6)}`);
+                    dispatch(connectWireToWire({wire1: w, wire2: wire}));
+                }
+            })
         }
         return connections;
     }

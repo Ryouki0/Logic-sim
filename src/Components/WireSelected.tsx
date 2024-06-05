@@ -16,11 +16,21 @@ export default function WireSelected({wire} : {wire:Wire}){
         <span style={{
             color: 'white', 
             fontSize: 16,
+            marginTop: 10}}>
+            From: {wire.from?.id.slice(0,6)}
+        </span>
+        <span style={{
+            color: 'white', 
+            fontSize: 16,
             marginTop: 10,
         }}>wirePath: {wire.wirePath?.map(w => {return w.slice(0,6)}).join(' - ')}</span>
         <span style={{
             color: 'white', 
             fontSize: 16,
             marginTop: 10}}>CONNECTED TO: {wire.connectedToId?.map(to => to.id.slice(0,6)).join('')}</span>
+        <span style={{
+            color: 'white', 
+            fontSize: 16,
+            marginTop: 10}}>WirePathConnected TO: {wire.wirePathConnectedTo?.map(to => to.id.slice(0,6)).join(' ')}</span>
     </div>
 }

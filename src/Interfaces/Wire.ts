@@ -8,6 +8,7 @@ export interface Wire{
     connectedToId: {id:string, type: 'inputs' | 'outputs', gateId?: string | null}[],
     from?: {id: string, type:'inputs' | 'outputs', gateId?: string | null} | null,
     wirePath: string[],
+    wirePathConnectedTo?: {id:string, type:'inputs' | 'outputs', gateId?: string | null}[],
     id: string,
     state?: 0 | 1,
     error?: boolean | null,

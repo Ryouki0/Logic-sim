@@ -7,8 +7,9 @@ export type EntityClicked = {type: 'Gate' | 'Wire' | 'BinaryInput' | null, entit
 interface IEntityClicked {
 	entityClicked: EntityClicked,
 	hoveringOverWire: Wire | null,
+    drawingWire: string | null,
 }
-const initialState: IEntityClicked = { entityClicked: {type: null, entity: null}, hoveringOverWire: null};
+const initialState: IEntityClicked = { entityClicked: {type: null, entity: null}, hoveringOverWire: null, drawingWire:null};
 
 const mouseEventsSlice = createSlice({
     name: "mouseEventsSlice",
@@ -19,11 +20,16 @@ const mouseEventsSlice = createSlice({
         },
 		setHoveringOverWire: (state, action: PayloadAction<Wire | null>) => {
 			state.hoveringOverWire = action.payload;
-		}
+		},
+        setDrawingWire: (state, action: PayloadAction<string | null>) => {
+            state.drawingWire = action.payload;
+        }
     },
 });
 
 export const {
 	setSelectedEntity,
-	setHoveringOverWire} = mouseEventsSlice.actions;
+	setHoveringOverWire,
+    setDrawingWire} = mouseEventsSlice.actions;
+    
 export default mouseEventsSlice.reducer;

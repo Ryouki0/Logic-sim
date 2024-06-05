@@ -33,7 +33,7 @@ export default function useRedrawCanvas(){
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const inputs = useSelector((state: RootState) => {return state.objectsSlice.globalInputs;}, shallowEqual);
 	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire});
-
+	const drawingWire = useSelector((state:RootState) => {return state.mouseEventsSlice.drawingWire});
 	//Create a hashmap with the wires' IDs as keys, and the input/output they are connected from as values
 	const wireFrom = useSelector((state: RootState) => {
 		const wireEntries = Object.entries(state.objectsSlice.wires);

@@ -11,7 +11,7 @@ import { breakWirePath, removeWire } from '../state/objectsSlice';
 
 export default function MainCanvas(){
 	const canvasRef = useRedrawCanvas();
-	const checkWire = useIsWireClicked();
+	const {checkWire} = useIsWireClicked();
 	const startDrawing = useDrawWire();
 	const dispatch = useDispatch();
 	const throttledCheckWire = throttle((x:number, y:number) => {
