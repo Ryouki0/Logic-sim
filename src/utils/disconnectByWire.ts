@@ -37,10 +37,10 @@ export default function disconnectByWire(
     //Remove the reference from the inputs/globalOutputs(sometime)
     if(wire.connectedToId){
         wire.connectedToId.forEach(to => {
-            console.log(`Wire is connected To: ${to.type} ${to.id} ${to.gateId}`);
-            if(to.gateId){
+            //console.log(`Wire is connected To: ${to.type} ${to.id} ${to.gateId}`);
+            if(to.gateId && to.id === inputId){
                 gates[to.gateId].inputs[to.id].from = null;
-            }else{
+            }else if(!to.gateId && to.id === inputId){
                 globalOutputs[to.id].from = null;
             }
         })

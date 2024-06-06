@@ -16,6 +16,14 @@ export default function removeWireTo(wires: {[key: string]: Wire}, ioId: string)
                 return;
             }
         })
+        
+        wire.wirePathConnectedTo?.forEach((pathConnectedTo, idx) => {
+            if(pathConnectedTo.id === ioId){
+                wire.wirePathConnectedTo?.splice(idx, 1);
+                newWires[key] = wire;
+                return;
+            }
+        })
         if(!newWires[key]){
             newWires[key] = wire;
         }

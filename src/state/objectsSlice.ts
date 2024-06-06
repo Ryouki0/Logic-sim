@@ -289,7 +289,7 @@ const objectsSlice = createSlice({
 			if(!wire){
 				return;
 			}
-			console.log(`called`);
+
 			(
 				{
 					gates: state.gates,
@@ -338,20 +338,25 @@ const objectsSlice = createSlice({
 				fromWire = wire2;
 				toWire = wire1;
 			}
-			if(wire1.from && wire2.from && wire1.from.id !== wire2.from.id){
+			if(wire1.from && wire2.from){
 				wire1.error = true;
 				wire2.error = true;
 				return;
 			}
+			const from = fromWire.from;
 			const wireTree:Wire[] = [];
 			Object.entries(state.wires).forEach(([key, wire]) => {
 				if(wire.wirePath.includes(toWire.wirePath[0])){
 					wireTree.push(wire);
 				}
 			})
-			const traversedPairs: Set<string> = new Set();
+
+			//Start with the "toWire" and check each wire's endpoints in the wiretree to see if they are connected,
+			//if they are, add them to the "wires" list, and check the wires with respect to that wire.
 			const traversedWires: Set<string> = new Set();
 			let wires:Wire[] = [toWire];
+
+			const connections: {[key:string]: string} = {};
 			toWire.from = fromWire.from;
 			toWire.wirePath = [...fromWire.wirePath, toWire.id];
 			while (wires.length > 0) {
@@ -369,13 +374,30 @@ const objectsSlice = createSlice({
 						if(currentWire.id !== wire.id){
 							wire.wirePath = [...currentWire.wirePath, wire.id];
 						}
-						console.log(`connecting ${currentWire.id.slice(0, 5)} -> ${wire.id.slice(0, 5)}`);
+						//console.log(`connecting ${currentWire.id.slice(0, 5)} -> ${wire.id.slice(0, 5)}`);
+						wire.connectedToId?.forEach((connection, idx) => {
+							connections[connection.id] = wire.id;
+						})
 					}
 				});
 			
 				traversedWires.add(currentWire.id);
 			}
-				
+			toWire.wirePathConnectedTo?.forEach((connection, idx) => {
+				if(connection.gateId){
+					state.gates[connection.gateId].inputs[connection.id].from = fromWire.from;
+					state.gates[connection.gateId].inputs[connection.id].wirePath = state.wires[connections[connection.id]].wirePath;
+				}else{
+					state.globalOutputs[connection.id].from = fromWire.from;
+					state.globalOutputs[connection.id].wirePath = state.wires[connections[connection.id]].wirePath;
+				}
+				if(from?.gateId){
+					state.gates[from?.gateId].outputs[from.id].to?.push(connection);
+				}else if(from){
+					state.globalInputs[from.id].to?.push(connection);
+				}
+			})
+			
 		}
 	}
 	

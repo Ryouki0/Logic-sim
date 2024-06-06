@@ -1,12 +1,13 @@
 import { Dispatch, UnknownAction } from "redux";
 import { Line } from "../Interfaces/Line";
 import { Wire } from "../Interfaces/Wire";
-import { addWire, changeWirePosition } from "../state/objectsSlice";
+import { addWire, changeWirePosition, connectWireToWire } from "../state/objectsSlice";
 import { getClosestBlock } from "../drawingFunctions/getClosestBlock";
 import { v4 as uuidv4 } from 'uuid';
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
 import { setDrawingWire } from "../state/mouseEventsSlice";
+import useIsWireClicked from "./useIsWireClicked";
 
 const checkWireLenghtEquality = (prev: Wire[], next: Wire[]) => {
 	return prev.length === next.length;
@@ -15,7 +16,7 @@ const checkWireLenghtEquality = (prev: Wire[], next: Wire[]) => {
 
 export default function useDrawWire() {
 	const dispatch = useDispatch();
-
+	const {getAllWire} = useIsWireClicked();
 	function startDrawing(
 		e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
 		from: {id: string, type: 'inputs' | 'outputs', gateId?: string | null | undefined} | null = null,
@@ -135,6 +136,19 @@ export default function useDrawWire() {
 			document.removeEventListener("mousemove", mouseMoveListener);
 			document.removeEventListener("mouseup", mouseupListener);
 			dispatch(setDrawingWire(null));
+
+			let endPoint: {x:number,y:number};
+            if(currentWire.diagonalLine.startX === currentWire.diagonalLine.endX){
+                endPoint = {x:currentWire.linearLine.endX,y:currentWire.linearLine.endY};
+            }else{
+                endPoint = {x:currentWire.diagonalLine.endX, y:currentWire.diagonalLine.endY};
+            }
+            const wireToConnect = getAllWire(endPoint.x,endPoint.y);
+            wireToConnect?.forEach(w => {
+                if(w.id !== currentWire.id){
+                    dispatch(connectWireToWire({wire1: w, wire2: currentWire}));
+                }
+            })
 		};
     
 		document.addEventListener("mousemove", mouseMoveListener);

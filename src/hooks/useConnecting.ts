@@ -61,8 +61,6 @@ export default function useConnecting(){
     const gates = useSelector((state: RootState) => {return state.objectsSlice.gates}, checkGatePositionEquality);
     const wires = useSelector((state: RootState) => {return state.objectsSlice.wires}, checkWirePositionEquality);
     const globalOutputs = useSelector((state:RootState) => {return state.objectsSlice.globalOutputs});
-    const drawingWire = useSelector((state: RootState) => {return state.mouseEventsSlice.drawingWire});
-    const {getAllWire} = useIsWireClicked();
     const dispatch = useDispatch();
     
     //Disconnecting needs to happen first, to not get short circuit error when moving the gate directly from wire to wire
@@ -81,6 +79,7 @@ export default function useConnecting(){
                 if(!connection.gate){
                     dispatch(disconnectWireFromGlobalOutput({wireId: connection.wire.id, outputId: connection.ioId, }));
                 }else{
+                    console.log(`disconnecting: ${connection.ioId.slice(0,5)}`);
                     dispatch(disconnectWireFromGate({gateId: connection.gate.id, inputId: connection.ioId, wireId: connection.wire.id}));
                 }
             }
@@ -162,21 +161,7 @@ export default function useConnecting(){
             }
         }
 
-        if(wire.id === drawingWire){
-            let endPoint: {x:number,y:number};
-            if(wire.diagonalLine.startX === wire.diagonalLine.endX){
-                endPoint = {x:x,y:y}
-            }else{
-                endPoint = {x:x2, y:y2};
-            }
-            const wireToConnect = getAllWire(endPoint.x,endPoint.y);
-            wireToConnect?.forEach(w => {
-                if(w.id !== drawingWire){
-                    console.log(`Wire to connect: ${w.id.slice(0,6)}`);
-                    dispatch(connectWireToWire({wire1: w, wire2: wire}));
-                }
-            })
-        }
+        
         return connections;
     }
     

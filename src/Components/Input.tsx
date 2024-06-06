@@ -20,7 +20,15 @@ interface InputProps{
 	
 }
 
-
+const inputEquality = (prev: BinaryInput, next:BinaryInput) => {
+	if(prev?.state !== next?.state){
+		return false;
+	}
+	if(prev?.from?.id !== next?.from?.id){
+		return false;
+	}
+	return true;
+}
 
 export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 	const eleRef = useRef<HTMLDivElement>(null);
@@ -32,7 +40,7 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 		}else{
 			return state.objectsSlice.gates[binaryInput.gateId]?.inputs[binaryInput.id];
 		}
-	});
+	}, inputEquality);
 	//const allInputs = useSelector((state:RootState) => {return state.objectsSlice.currentInputs});
 	const from = useSelector((state: RootState) => {
 		if(currentInput?.from){
@@ -51,7 +59,7 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 			console.log(`${from.id} ${from.state}`);
 		}
 		// console.log(`this inpot is TO: ${currentInput.to?.[0]?.id}`);
-		// console.log(`this input is from: ${currentInput.from?.type} ${currentInput.from?.id}`);
+		console.log(`this input is from: ${currentInput.from?.type} ${currentInput.from?.id}`);
 		// console.log(`this inputs position is: ${currentInput.position?.x} ${currentInput.position?.y}`);
 		currentInput.wirePath?.forEach(wire => {
 			console.log(`${wire.slice(0,5)}`);
