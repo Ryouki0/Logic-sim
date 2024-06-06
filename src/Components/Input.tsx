@@ -28,7 +28,7 @@ const inputEquality = (prev: BinaryInput, next:BinaryInput) => {
 		return false;
 	}
 	return true;
-}
+};
 
 export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 	const eleRef = useRef<HTMLDivElement>(null);
@@ -51,7 +51,7 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 				return state.objectsSlice.globalInputs[currentInput.from?.id];
 			}
 		}
-	})
+	});
 	
 	function handleMouseDown(e: React.MouseEvent<any>){
 		e.stopPropagation();
@@ -63,16 +63,16 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 		// console.log(`this inputs position is: ${currentInput.position?.x} ${currentInput.position?.y}`);
 		currentInput.wirePath?.forEach(wire => {
 			console.log(`${wire.slice(0,5)}`);
-		})
+		});
 		startDrawing(e, {id: currentInput.id, type: 'inputs', gateId: binaryInput.gateId});
 	}
 	const getPathColor = () => {
 		if(currentInput?.gateId){
-			return currentInput?.from ? (currentInput?.state === 1 ? RED_ORANGE : AMBER) : 'black'
+			return currentInput?.from ? (currentInput?.state === 1 ? RED_ORANGE : AMBER) : 'black';
 		}else{
 			return currentInput?.state ? RED_ORANGE : AMBER;
 		}
-	}
+	};
 	return (
 		<>
 			{/*gateId ? console.log(`currentInput state: ${currentInput?.state}`) : null*/}

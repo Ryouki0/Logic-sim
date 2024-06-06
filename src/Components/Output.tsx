@@ -35,7 +35,7 @@ export function Output({style = null, output}:BinaryOutputProps) {
 		}else{
 			return state.objectsSlice.globalOutputs[output.id];
 		}
-	}, checkOutputStateEquality)
+	}, checkOutputStateEquality);
 
 	function handleMouseDown(e:React.MouseEvent<any>){
 		e.stopPropagation();
@@ -53,7 +53,7 @@ export function Output({style = null, output}:BinaryOutputProps) {
 			return 12;
 		}
 		return 100;
-	}
+	};
 
 	const getPathColor = () => {
 		if(thisOutput?.to){
@@ -63,7 +63,7 @@ export function Output({style = null, output}:BinaryOutputProps) {
 			return AMBER;
 		}
 		return 'black';
-	}
+	};
 	return (
 		<>
 			<div style={{...style,

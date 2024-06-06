@@ -1,16 +1,13 @@
-import { PayloadAction, createActionCreatorInvariantMiddleware, createSlice, current } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { Wire } from "../Interfaces/Wire";
 import { Gate } from "../Interfaces/Gate";
 import { BinaryInput } from "../Interfaces/BinaryInput";
 import { calculateInputTop } from "../utils/calculateInputTop";
-import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 import removeWireTo from "../utils/removeWiresTo";
 import removeWiresFrom from "../utils/removeWiresFrom";
-import { write } from "fs";
 import disconnectByWire from "../utils/disconnectByWire";
 import { DEFAULT_INPUT_DIM } from "../Constants/defaultDimensions";
 import { BinaryOutput } from "../Interfaces/BinaryOutput";
-import { isPointOnWire } from "../utils/isPointOnLine";
 import isWireConnectedToWire from "../utils/isWireConnectedToWire";
 
 interface objects{
@@ -48,7 +45,7 @@ const objectsSlice = createSlice({
 			}
 			
 
-			let connectedTo: (BinaryInput | BinaryOutput)[] = [];
+			const connectedTo: (BinaryInput | BinaryOutput)[] = [];
 		
 			from?.to?.forEach(to => {
 				
@@ -58,7 +55,7 @@ const objectsSlice = createSlice({
 				}else{
 					connectedTo.push(state.globalOutputs[to.id]);
 				}
-			})
+			});
 
 			//For every connected input check if the wirePaths contain the wire that will be removed, if it is contained, 
 			//then break the connection.
@@ -96,7 +93,7 @@ const objectsSlice = createSlice({
 						}
 					}
 				}
-			})
+			});
 
 			//For wires that are not connected to anything
 			Object.entries(state.wires).forEach(([key, wire]) => {
@@ -106,7 +103,7 @@ const objectsSlice = createSlice({
 				}
 				wire.wirePath = wire.wirePath.slice(wireIdx+1);
 				wire.from = null;
-			})
+			});
 
 			delete state.wires[action.payload.id];
 		},
@@ -121,7 +118,7 @@ const objectsSlice = createSlice({
 						globalInputs: state.globalInputs,
 						globalOutputs: state.globalOutputs
 					} = disconnectByWire(state.gates, action.payload, state.globalInputs, connectedTo.id, state.globalOutputs));
-				})
+				});
 			}
 			delete state.wires[action.payload.id];
 		},
@@ -165,7 +162,7 @@ const objectsSlice = createSlice({
 						else{
 							state.globalOutputs[to.id].from = null;
 						}
-					})
+					});
 				}
 			}
 			delete state.gates[action.payload];
@@ -182,7 +179,7 @@ const objectsSlice = createSlice({
 						//console.log(`to: ${to.id}`);
 						state.gates[to.gateId].inputs[to.id].state = newState;
 					}
-				})
+				});
 			}
 		},
 		changeInputPosition: (state, action: PayloadAction<{x:number,y:number, gateId: string}>) => {
@@ -191,11 +188,11 @@ const objectsSlice = createSlice({
 
     		if (gate) {
        			Object.keys(gate.inputs).forEach((key, idx, array) => {
-					let newY = 0
+					let newY = 0;
             	if(gate.position?.y){
-					newY = gate.position.y + calculateInputTop(idx, array.length) + DEFAULT_INPUT_DIM.height/2 + (idx*DEFAULT_INPUT_DIM.height);
+						newY = gate.position.y + calculateInputTop(idx, array.length) + DEFAULT_INPUT_DIM.height/2 + (idx*DEFAULT_INPUT_DIM.height);
 					
-				}
+					}
             	const newX = gate.position?.x ?? 0;
             
             	gate.inputs[key].position = { x: newX, y: newY };
@@ -296,7 +293,7 @@ const objectsSlice = createSlice({
 					globalInputs: state.globalInputs,
 					globalOutputs: state.globalOutputs
 				} = disconnectByWire(state.gates,wire,state.globalInputs, action.payload.outputId, state.globalOutputs)
-			)
+			);
 			state.wires = removeWireTo(state.wires, action.payload.outputId);
 
 		},
@@ -349,12 +346,12 @@ const objectsSlice = createSlice({
 				if(wire.wirePath.includes(toWire.wirePath[0])){
 					wireTree.push(wire);
 				}
-			})
+			});
 
 			//Start with the "toWire" and check each wire's endpoints in the wiretree to see if they are connected,
 			//if they are, add them to the "wires" list, and check the wires with respect to that wire.
 			const traversedWires: Set<string> = new Set();
-			let wires:Wire[] = [toWire];
+			const wires:Wire[] = [toWire];
 
 			const connections: {[key:string]: string} = {};
 			toWire.from = fromWire.from;
@@ -377,7 +374,7 @@ const objectsSlice = createSlice({
 						//console.log(`connecting ${currentWire.id.slice(0, 5)} -> ${wire.id.slice(0, 5)}`);
 						wire.connectedToId?.forEach((connection, idx) => {
 							connections[connection.id] = wire.id;
-						})
+						});
 					}
 				});
 			
@@ -396,7 +393,7 @@ const objectsSlice = createSlice({
 				}else if(from){
 					state.globalInputs[from.id].to?.push(connection);
 				}
-			})
+			});
 			
 		}
 	}

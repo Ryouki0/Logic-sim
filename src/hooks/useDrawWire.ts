@@ -1,7 +1,7 @@
 import { Dispatch, UnknownAction } from "redux";
 import { Line } from "../Interfaces/Line";
 import { Wire } from "../Interfaces/Wire";
-import { addWire, changeWirePosition, connectWireToWire } from "../state/objectsSlice";
+import { addWire, changeWirePosition, connectWireToWire } from "../state/entities";
 import { getClosestBlock } from "../drawingFunctions/getClosestBlock";
 import { v4 as uuidv4 } from 'uuid';
 import { useDispatch, useSelector } from "react-redux";
@@ -34,7 +34,7 @@ export default function useDrawWire() {
 		const line: Line = {startX: 0, startY: 0, endX: 0, endY: 0};
 		const lastPosition = {x: 0, y: 0};
 		const thisWireId = uuidv4();
-		let currentWire:Wire = {
+		const currentWire:Wire = {
 			linearLine: {...line},
 			diagonalLine: {...line},
 			id: thisWireId,
@@ -46,7 +46,7 @@ export default function useDrawWire() {
 		if(from?.gateId && from?.type ==='inputs'){
 			currentWire.from = null;
 			currentWire.connectedToId = [{...from}];
-			}
+		}
 		
 		const getClientOffset = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 			const { pageX, pageY } = event;
@@ -138,17 +138,17 @@ export default function useDrawWire() {
 			dispatch(setDrawingWire(null));
 
 			let endPoint: {x:number,y:number};
-            if(currentWire.diagonalLine.startX === currentWire.diagonalLine.endX){
-                endPoint = {x:currentWire.linearLine.endX,y:currentWire.linearLine.endY};
-            }else{
-                endPoint = {x:currentWire.diagonalLine.endX, y:currentWire.diagonalLine.endY};
-            }
-            const wireToConnect = getAllWire(endPoint.x,endPoint.y);
-            wireToConnect?.forEach(w => {
-                if(w.id !== currentWire.id){
-                    dispatch(connectWireToWire({wire1: w, wire2: currentWire}));
-                }
-            })
+			if(currentWire.diagonalLine.startX === currentWire.diagonalLine.endX){
+				endPoint = {x:currentWire.linearLine.endX,y:currentWire.linearLine.endY};
+			}else{
+				endPoint = {x:currentWire.diagonalLine.endX, y:currentWire.diagonalLine.endY};
+			}
+			const wireToConnect = getAllWire(endPoint.x,endPoint.y);
+			wireToConnect?.forEach(w => {
+				if(w.id !== currentWire.id){
+					dispatch(connectWireToWire({wire1: w, wire2: currentWire}));
+				}
+			});
 		};
     
 		document.addEventListener("mousemove", mouseMoveListener);

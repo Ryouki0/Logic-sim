@@ -24,7 +24,7 @@ const checkWireSourceEquality = (prev:{[key: string]: BinaryInput | BinaryOutput
 		}
 	}
 	return true;
-}
+};
 
 export default function useRedrawCanvas(){
 
@@ -32,8 +32,8 @@ export default function useRedrawCanvas(){
 		
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const inputs = useSelector((state: RootState) => {return state.objectsSlice.globalInputs;}, shallowEqual);
-	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire});
-	const drawingWire = useSelector((state:RootState) => {return state.mouseEventsSlice.drawingWire});
+	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire;});
+	const drawingWire = useSelector((state:RootState) => {return state.mouseEventsSlice.drawingWire;});
 	//Create a hashmap with the wires' IDs as keys, and the input/output they are connected from as values
 	const wireFrom = useSelector((state: RootState) => {
 		const wireEntries = Object.entries(state.objectsSlice.wires);
@@ -46,7 +46,7 @@ export default function useRedrawCanvas(){
 			}
 		}
 		return wireFrom;
-	}, checkWireSourceEquality)
+	}, checkWireSourceEquality);
 
 	useEffect(() => {
 		const canvasEle = canvasRef.current;
@@ -76,7 +76,7 @@ export default function useRedrawCanvas(){
 			
 			drawLine(wire.linearLine, context, line_width);
 			drawLine(wire.diagonalLine, context, line_width);
-		})
+		});
 		//console.timeEnd('drawing');
 	}, [wires, inputs, hoveringOverWire]);
 	

@@ -1,6 +1,6 @@
 import { configureStore} from "@reduxjs/toolkit";
 import mouseEventsSlice from "./mouseEventsSlice";
-import objectsSlice from "./objectsSlice";
+import objectsSlice from "./entities";
 import allGatesSlice from "./allGates";
 export const store = configureStore({
 	reducer: {

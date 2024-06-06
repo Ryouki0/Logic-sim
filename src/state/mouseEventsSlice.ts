@@ -12,24 +12,24 @@ interface IEntityClicked {
 const initialState: IEntityClicked = { entityClicked: {type: null, entity: null}, hoveringOverWire: null, drawingWire:null};
 
 const mouseEventsSlice = createSlice({
-    name: "mouseEventsSlice",
-    initialState,
-    reducers: {
-        setSelectedEntity: (state, action: PayloadAction<EntityClicked>) => {
-            state.entityClicked = action.payload;
-        },
+	name: "mouseEventsSlice",
+	initialState,
+	reducers: {
+		setSelectedEntity: (state, action: PayloadAction<EntityClicked>) => {
+			state.entityClicked = action.payload;
+		},
 		setHoveringOverWire: (state, action: PayloadAction<Wire | null>) => {
 			state.hoveringOverWire = action.payload;
 		},
-        setDrawingWire: (state, action: PayloadAction<string | null>) => {
-            state.drawingWire = action.payload;
-        }
-    },
+		setDrawingWire: (state, action: PayloadAction<string | null>) => {
+			state.drawingWire = action.payload;
+		}
+	},
 });
 
 export const {
 	setSelectedEntity,
 	setHoveringOverWire,
-    setDrawingWire} = mouseEventsSlice.actions;
+	setDrawingWire} = mouseEventsSlice.actions;
     
 export default mouseEventsSlice.reducer;

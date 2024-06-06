@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import "./App.css";
 import MainCanvas from "./Components/MainCanvas";
 import DisplayAllGates from "./Components/DisplayAllGates";

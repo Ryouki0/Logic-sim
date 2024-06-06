@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { CANVAS_OFFSET_LEFT, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { Line } from '../Interfaces/Line';
-import { removeWire,} from '../state/objectsSlice';
+import { removeWire,} from '../state/entities';
 import { Wire } from '../Interfaces/Wire';
 import { calculateLinePoints, isPointOnDiagonalLine, isPointOnLine } from '../utils/isPointOnLine';
 
@@ -21,10 +21,10 @@ export default function useIsWireClicked(){
 		if(!wires){
 			return;
 		}
-		let wire = null
+		let wire = null;
 		Object.entries(wires).forEach(([key, w]) => {
 			let {startX, startY, endX, endY} = calculateLinePoints(w.linearLine);
-            if(isPointOnLine(startX,startY,endX,endY, x, y)){
+			if(isPointOnLine(startX,startY,endX,endY, x, y)){
 				wire = w;
 				return;
 			}
@@ -48,10 +48,10 @@ export default function useIsWireClicked(){
 		if(!wires){
 			return;
 		}
-		let allWire:Wire[] = [];
+		const allWire:Wire[] = [];
 		Object.entries(wires).forEach(([key, w]) => {
 			let {startX, startY, endX, endY} = calculateLinePoints(w.linearLine);
-            if(isPointOnLine(startX,startY,endX,endY, x, y)){
+			if(isPointOnLine(startX,startY,endX,endY, x, y)){
 				allWire.push(w);
 				return;
 			}
@@ -63,6 +63,6 @@ export default function useIsWireClicked(){
 			}
 		});
 		return allWire;
-	}
+	};
 	return {checkWire, getAllWire};
 }

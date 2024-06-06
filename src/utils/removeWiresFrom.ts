@@ -6,14 +6,14 @@ import { Wire } from "../Interfaces/Wire";
  * @returns {Object.<string, Wire>} The new wires state
  */
 export default function removeWiresFrom(wires:{[key:string]:Wire}, fromId:string): {[key: string]: Wire} {
-    const wireEntries = Object.entries(wires);
-    const newWires: {[key: string]:Wire} = {};
-    for(const [key, wire] of wireEntries){
-        if(wire.from?.id === fromId){
-            newWires[key] = {...wire, from: null};
-        }else{
-            newWires[key] = wire;
-        }
-    }
-    return newWires;
+	const wireEntries = Object.entries(wires);
+	const newWires: {[key: string]:Wire} = {};
+	for(const [key, wire] of wireEntries){
+		if(wire.from?.id === fromId){
+			newWires[key] = {...wire, from: null};
+		}else{
+			newWires[key] = wire;
+		}
+	}
+	return newWires;
 }

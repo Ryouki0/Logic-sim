@@ -1,7 +1,7 @@
 import { Dispatch, UnknownAction } from "redux";
 import { getClosestBlock } from "./drawingFunctions/getClosestBlock";
 import { transform } from "typescript";
-import { changeGate, changeInputPosition } from "./state/objectsSlice";
+import { changeGate, changeInputPosition } from "./state/entities";
 
 const handleMouseDown = (
 	e: React.MouseEvent, 

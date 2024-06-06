@@ -5,7 +5,7 @@ import { Input } from './Input';
 import { getClosestBlock } from '../drawingFunctions/getClosestBlock';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
-import { addCurrentInput, changeInputState } from '../state/objectsSlice';
+import { addCurrentInput, changeInputState } from '../state/entities';
 import {v4 as uuidv4} from 'uuid';
 import GhostInput from './GhostInput';
 import { throttle } from '../utils/throttle';
@@ -43,7 +43,7 @@ export default function CurrentInput(){
 		}
 		setShowGhostInput(true);
 		setGhostInputPosition({x:2*MINIMAL_BLOCKSIZE, y: roundedY});
-	}, 16)
+	}, 16);
 	return <div id='current-inputs'
 		style={{backgroundColor: 'rgb(80 80 80)', 
 			width: 2*MINIMAL_BLOCKSIZE, 
@@ -53,7 +53,7 @@ export default function CurrentInput(){
 			marginLeft: CANVAS_OFFSET_LEFT}}
 		onContextMenu={handleRightClick}
 		onMouseLeave={e => setShowGhostInput(false)}
-		onMouseMove={e => {throttledMouseMove(e)}}
+		onMouseMove={e => {throttledMouseMove(e);}}
 		ref = {currentInputsRef}>
 		{Object.entries(inputs).map(([key, input], idx) => {
 			return (

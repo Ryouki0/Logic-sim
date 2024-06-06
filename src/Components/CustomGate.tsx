@@ -6,7 +6,7 @@ import { DEFAULT_INPUT_DIM, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/d
 import { BinaryInput } from '../Interfaces/BinaryInput';
 import { Output } from './Output';
 import { Gate } from '../Interfaces/Gate';
-import { addGate, changeGate, changeInputPosition, removeGate } from '../state/objectsSlice';
+import { addGate, changeGate, changeInputPosition, removeGate } from '../state/entities';
 import { RootState } from '../state/store';
 import {v4 as uuidv4} from 'uuid';
 import './../gate.css';
@@ -35,7 +35,7 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 	const eleRef = React.useRef<HTMLDivElement>(null);
 	const dispatch = useDispatch();
 	
-	const thisGate = useSelector((state: RootState) => {return state.objectsSlice.gates[gateProps.id]}, checkGateEquality);
+	const thisGate = useSelector((state: RootState) => {return state.objectsSlice.gates[gateProps.id];}, checkGateEquality);
     
 	const offsetRef = useRef({dx: 
 		thisGate?.position ? thisGate.position.x : 0, 

@@ -7,7 +7,7 @@ import useIsWireClicked from '../hooks/useIsWireClicked';
 import { throttle } from '../utils/throttle';
 import { Wire } from '../Interfaces/Wire';
 import { setHoveringOverWire, setSelectedEntity } from '../state/mouseEventsSlice';
-import { breakWirePath, removeWire } from '../state/objectsSlice';
+import { breakWirePath, removeWire } from '../state/entities';
 
 export default function MainCanvas(){
 	const canvasRef = useRedrawCanvas();
@@ -31,7 +31,7 @@ export default function MainCanvas(){
 		}
 		console.log(`need to break wire: ${wire.id.slice(0,5)}`);
 		dispatch(breakWirePath(wire));
-	}
+	};
 
 	const drawWireFromWire = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 		if(e.button !== 0){
@@ -47,16 +47,16 @@ export default function MainCanvas(){
 		// 	console.log(`${w.slice(0,6)}`);
 		// })
 		startDrawing(e, wire.from, wire);
-	}
+	};
 
 	return (
 		<>
 			<canvas
 				id="main-canvas"
 				ref={canvasRef}
-				onMouseDown={e => {drawWireFromWire(e)}}
-				onMouseMove={e => {throttledCheckWire(e.pageX,e.pageY)}}
-				onContextMenu={e => {handleContextMenu(e)}}
+				onMouseDown={e => {drawWireFromWire(e);}}
+				onMouseMove={e => {throttledCheckWire(e.pageX,e.pageY);}}
+				onContextMenu={e => {handleContextMenu(e);}}
 				style={{
 					backgroundColor: 'rgb(100 100 100 / 30%) ',
 					marginLeft: CANVAS_OFFSET_LEFT,
