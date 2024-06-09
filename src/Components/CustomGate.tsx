@@ -6,13 +6,13 @@ import { DEFAULT_INPUT_DIM, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/d
 import { BinaryInput } from '../Interfaces/BinaryInput';
 import { Output } from './Output';
 import { Gate } from '../Interfaces/Gate';
-import { addGate, changeGate, changeInputPosition, removeGate } from '../state/entities';
+import { addGate, changeGate, changeInputPosition, removeGate } from '../state/slices/entities';
 import { RootState } from '../state/store';
 import {v4 as uuidv4} from 'uuid';
 import './../gate.css';
 import { calculateInputTop } from '../utils/calculateInputTop';
 import { BinaryOutput } from '../Interfaces/BinaryOutput';
-import allGates from '../state/allGates';
+import allGates from '../state/slices/allGates';
 interface CustomGateProps{
     gateProps: Gate,
 	preview: boolean,
@@ -35,7 +35,7 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 	const eleRef = React.useRef<HTMLDivElement>(null);
 	const dispatch = useDispatch();
 	
-	const thisGate = useSelector((state: RootState) => {return state.objectsSlice.gates[gateProps.id];}, checkGateEquality);
+	const thisGate = useSelector((state: RootState) => {return state.entities.gates[gateProps.id];}, checkGateEquality);
     
 	const offsetRef = useRef({dx: 
 		thisGate?.position ? thisGate.position.x : 0, 
@@ -47,7 +47,7 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 
 	const inputs = useSelector((state: RootState) => {
 		if(!preview){
-			return state.objectsSlice.gates[gateProps.id].inputs;
+			return state.entities.gates[gateProps.id].inputs;
 		}else{
 			const index = state.allGatesSlice.findIndex(g => g.id === gateProps.id);
 			return state.allGatesSlice[index]?.inputs;

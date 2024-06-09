@@ -1,12 +1,12 @@
 import { Dispatch, UnknownAction } from "redux";
 import { Line } from "../Interfaces/Line";
 import { Wire } from "../Interfaces/Wire";
-import { addWire, changeWirePosition, connectWireToWire } from "../state/entities";
+import { addWire, changeWirePosition, connectWireToWire } from "../state/slices/entities";
 import { getClosestBlock } from "../drawingFunctions/getClosestBlock";
 import { v4 as uuidv4 } from 'uuid';
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
-import { setDrawingWire } from "../state/mouseEventsSlice";
+import { setDrawingWire } from "../state/slices/mouseEventsSlice";
 import useIsWireClicked from "./useIsWireClicked";
 
 const checkWireLenghtEquality = (prev: Wire[], next: Wire[]) => {

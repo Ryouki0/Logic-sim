@@ -3,13 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { CANVAS_OFFSET_LEFT, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { Line } from '../Interfaces/Line';
-import { removeWire,} from '../state/entities';
+import { removeWire,} from '../state/slices/entities';
 import { Wire } from '../Interfaces/Wire';
 import { calculateLinePoints, isPointOnDiagonalLine, isPointOnLine } from '../utils/isPointOnLine';
 
 
 export default function useIsWireClicked(){
-	const wires = useSelector((state: RootState) => {return state.objectsSlice.wires;});
+	const wires = useSelector((state: RootState) => {return state.entities.wires;});
 	const dispatch = useDispatch();
 	/**
 	 * Tells if a point is on any wire (Only gives back the last wire that contains the point).

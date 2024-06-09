@@ -1,9 +1,9 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../state/store";
-import { CANVAS_WIDTH } from "../Constants/defaultDimensions";
+import { RootState } from "../../state/store";
+import { CANVAS_WIDTH } from "../../Constants/defaultDimensions";
 import WireSelected from "./WireSelected";
-import { Wire } from "../Interfaces/Wire";
+import { Wire } from "../../Interfaces/Wire";
 
 export default function SelectedComponent(){
 	const selectedComponent = useSelector((state: RootState) => {

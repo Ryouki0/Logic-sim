@@ -40,6 +40,7 @@ export default function disconnectByWire(
 			//console.log(`Wire is connected To: ${to.type} ${to.id} ${to.gateId}`);
 			if(to.gateId && to.id === inputId){
 				gates[to.gateId].inputs[to.id].from = null;
+				gates[to.gateId].inputs[to.id].state = 0;
 			}else if(!to.gateId && to.id === inputId){
 				globalOutputs[to.id].from = null;
 			}

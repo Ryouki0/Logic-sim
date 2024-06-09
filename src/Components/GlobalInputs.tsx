@@ -5,13 +5,13 @@ import { Input } from './Input';
 import { getClosestBlock } from '../drawingFunctions/getClosestBlock';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
-import { addCurrentInput, changeInputState } from '../state/entities';
+import { addCurrentInput, changeInputState } from '../state/slices/entities';
 import {v4 as uuidv4} from 'uuid';
 import GhostInput from './GhostInput';
 import { throttle } from '../utils/throttle';
 export default function CurrentInput(){
 	const currentInputsRef = useRef<HTMLDivElement | null>(null);
-	const inputs = useSelector((state: RootState) => {return state.objectsSlice.globalInputs;});
+	const inputs = useSelector((state: RootState) => {return state.entities.globalInputs;});
 	const [{x, y}, setGhostInputPosition] = useState({x:0,y:0});
 	const [showGhostInput,setShowGhostInput] = useState(false);
 	const dispatch = useDispatch();

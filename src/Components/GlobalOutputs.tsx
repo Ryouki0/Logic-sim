@@ -3,12 +3,12 @@ import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } fro
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { getClosestBlock } from '../drawingFunctions/getClosestBlock';
-import { addGlobalOutput } from '../state/entities';
+import { addGlobalOutput } from '../state/slices/entities';
 import {v4 as uuidv4} from 'uuid';
 import { Output } from './Output';
 
 export default function GlobalOutputs() {
-	const outputs = useSelector((state: RootState) => {return state.objectsSlice.globalOutputs;});
+	const outputs = useSelector((state: RootState) => {return state.entities.globalOutputs;});
 	const dispatch = useDispatch();
 	const outputEntries = Object.entries(outputs);
 

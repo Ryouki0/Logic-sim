@@ -6,8 +6,8 @@ import { CANVAS_OFFSET_LEFT, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimen
 import useIsWireClicked from '../hooks/useIsWireClicked';
 import { throttle } from '../utils/throttle';
 import { Wire } from '../Interfaces/Wire';
-import { setHoveringOverWire, setSelectedEntity } from '../state/mouseEventsSlice';
-import { breakWirePath, removeWire } from '../state/entities';
+import { setHoveringOverWire, setSelectedEntity } from '../state/slices/mouseEventsSlice';
+import { breakWirePath, removeWire } from '../state/slices/entities';
 
 export default function MainCanvas(){
 	const canvasRef = useRedrawCanvas();

@@ -28,21 +28,21 @@ const checkWireSourceEquality = (prev:{[key: string]: BinaryInput | BinaryOutput
 
 export default function useRedrawCanvas(){
 
-	const wires = useSelector((state: RootState) => state.objectsSlice.wires);
+	const wires = useSelector((state: RootState) => state.entities.wires);
 		
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
-	const inputs = useSelector((state: RootState) => {return state.objectsSlice.globalInputs;}, shallowEqual);
+	const inputs = useSelector((state: RootState) => {return state.entities.globalInputs;}, shallowEqual);
 	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire;});
 	const drawingWire = useSelector((state:RootState) => {return state.mouseEventsSlice.drawingWire;});
 	//Create a hashmap with the wires' IDs as keys, and the input/output they are connected from as values
 	const wireFrom = useSelector((state: RootState) => {
-		const wireEntries = Object.entries(state.objectsSlice.wires);
+		const wireEntries = Object.entries(state.entities.wires);
 		const wireFrom: {[key:string]: BinaryInput | BinaryOutput} = {};
 		for (const [k, w] of wireEntries){
 			if(w.from?.gateId){
-				wireFrom[k] = state.objectsSlice.gates[w.from.gateId]?.[w.from?.type]?.[w.from.id];
+				wireFrom[k] = state.entities.gates[w.from.gateId]?.[w.from?.type]?.[w.from.id];
 			}else if(w.from){
-				wireFrom[k] = state.objectsSlice.globalInputs[w.from.id];
+				wireFrom[k] = state.entities.globalInputs[w.from.id];
 			}
 		}
 		return wireFrom;
@@ -78,7 +78,7 @@ export default function useRedrawCanvas(){
 			drawLine(wire.diagonalLine, context, line_width);
 		});
 		//console.timeEnd('drawing');
-	}, [wires, inputs, hoveringOverWire]);
+	}, [wires, inputs, hoveringOverWire, wireFrom]);
 	
 	return canvasRef;
 

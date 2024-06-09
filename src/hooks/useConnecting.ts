@@ -5,7 +5,7 @@ import { DEFAULT_GATE_DIM, DEFAULT_INPUT_DIM } from '../Constants/defaultDimensi
 import { calculateInputTop } from '../utils/calculateInputTop';
 import { getClosestBlock } from '../drawingFunctions/getClosestBlock';
 import { Wire } from '../Interfaces/Wire';
-import { addWireToGateInput, connectToGlobalOutput, connectWireToWire, disconnectWireFromGate, disconnectWireFromGlobalOutput, } from '../state/entities';
+import { addWireToGateInput, connectToGlobalOutput, connectWireToWire, disconnectWireFromGate, disconnectWireFromGlobalOutput, } from '../state/slices/entities';
 import { Gate } from '../Interfaces/Gate';
 import checkLineEquality from '../utils/checkLineEquality';
 import { connect } from 'http2';
@@ -58,9 +58,9 @@ const checkWirePositionEquality = (prev: {[key:string]:Wire}, next: {[key:string
 };
 
 export default function useConnecting(){
-	const gates = useSelector((state: RootState) => {return state.objectsSlice.gates;}, checkGatePositionEquality);
-	const wires = useSelector((state: RootState) => {return state.objectsSlice.wires;}, checkWirePositionEquality);
-	const globalOutputs = useSelector((state:RootState) => {return state.objectsSlice.globalOutputs;});
+	const gates = useSelector((state: RootState) => {return state.entities.gates;}, checkGatePositionEquality);
+	const wires = useSelector((state: RootState) => {return state.entities.wires;}, checkWirePositionEquality);
+	const globalOutputs = useSelector((state:RootState) => {return state.entities.globalOutputs;});
 	const dispatch = useDispatch();
     
 	//Disconnecting needs to happen first, to not get short circuit error when moving the gate directly from wire to wire

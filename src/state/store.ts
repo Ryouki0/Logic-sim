@@ -1,12 +1,14 @@
 import { configureStore} from "@reduxjs/toolkit";
-import mouseEventsSlice from "./mouseEventsSlice";
-import objectsSlice from "./entities";
-import allGatesSlice from "./allGates";
+import mouseEventsSlice from "./slices/mouseEventsSlice";
+import entities from "./slices/entities";
+import allGatesSlice from "./slices/allGates";
+import clock from './slices/clock';
 export const store = configureStore({
 	reducer: {
 		mouseEventsSlice,
-		objectsSlice,
+		entities,
 		allGatesSlice,
+		clock
 	}
 });
 

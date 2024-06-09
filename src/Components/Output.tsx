@@ -9,7 +9,7 @@ import { RootState } from "../state/store";
 import { BinaryInput } from "../Interfaces/BinaryInput";
 import { BinaryOutput } from "../Interfaces/BinaryOutput";
 import useDrawWire from "../hooks/useDrawWire";
-import { AMBER } from "../Constants/colors";
+import { AMBER, ORANGE } from "../Constants/colors";
 
 interface BinaryOutputProps {
 	output: BinaryOutput;
@@ -31,17 +31,15 @@ export function Output({style = null, output}:BinaryOutputProps) {
 	const startDrawing = useDrawWire();
 	const thisOutput = useSelector((state: RootState) => {
 		if(output.gateId){
-			return state.objectsSlice.gates[output.gateId]?.outputs[output.id];
+			return state.entities.gates[output.gateId]?.outputs[output.id];
 		}else{
-			return state.objectsSlice.globalOutputs[output.id];
+			return state.entities.globalOutputs[output.id];
 		}
 	}, checkOutputStateEquality);
 
 	function handleMouseDown(e:React.MouseEvent<any>){
 		e.stopPropagation();
-		console.log(`this ID: ${thisOutput?.id.slice(0,5)}`);
-		console.log(`this TO: ${thisOutput?.to?.[0]?.id.slice(0,5)}`);
-		console.log(`thisoutput from: ${thisOutput?.from?.id.slice(0,5)}`);
+		console.log(`this output state: ${thisOutput?.state}`);
 		startDrawing(e, {id: output.id, type: 'outputs', gateId: output.gateId});
 	}
 
@@ -56,10 +54,10 @@ export function Output({style = null, output}:BinaryOutputProps) {
 	};
 
 	const getPathColor = () => {
-		if(thisOutput?.to){
-			return AMBER;
+		if(thisOutput?.state){
+			return 'red';
 		}
-		if(thisOutput?.from){
+		if(thisOutput?.to){
 			return AMBER;
 		}
 		return 'black';

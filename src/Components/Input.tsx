@@ -36,19 +36,19 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 	const startDrawing = useDrawWire();
 	const currentInput = useSelector((state: RootState) => {
 		if(!binaryInput.gateId){
-			return state.objectsSlice.globalInputs[binaryInput.id];
+			return state.entities.globalInputs[binaryInput.id];
 		}else{
-			return state.objectsSlice.gates[binaryInput.gateId]?.inputs[binaryInput.id];
+			return state.entities.gates[binaryInput.gateId]?.inputs[binaryInput.id];
 		}
 	}, inputEquality);
-	//const allInputs = useSelector((state:RootState) => {return state.objectsSlice.currentInputs});
+	//const allInputs = useSelector((state:RootState) => {return state.entities.currentInputs});
 	const from = useSelector((state: RootState) => {
 		if(currentInput?.from){
 			const inputOrOutput = currentInput.from?.type;
 			if(currentInput.from.gateId){
-				return state.objectsSlice.gates[currentInput.from.gateId][inputOrOutput][currentInput.from.id];
+				return state.entities.gates[currentInput.from.gateId][inputOrOutput][currentInput.from.id];
 			}else{
-				return state.objectsSlice.globalInputs[currentInput.from?.id];
+				return state.entities.globalInputs[currentInput.from?.id];
 			}
 		}
 	});
@@ -59,8 +59,9 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 			console.log(`${from.id} ${from.state}`);
 		}
 		// console.log(`this inpot is TO: ${currentInput.to?.[0]?.id}`);
+		
 		console.log(`this input is from: ${currentInput.from?.type} ${currentInput.from?.id}`);
-		// console.log(`this inputs position is: ${currentInput.position?.x} ${currentInput.position?.y}`);
+		console.log(`this input state: ${currentInput.state}`);
 		currentInput.wirePath?.forEach(wire => {
 			console.log(`${wire.slice(0,5)}`);
 		});

@@ -1,11 +1,11 @@
 import React from "react";
-import { Wire } from "../Interfaces/Wire";
-import { AMBER } from "../Constants/colors";
+import { Wire } from "../../Interfaces/Wire";
+import { AMBER, ORANGE, RED_ORANGE } from "../../Constants/colors";
 
 export default function WireSelected({wire} : {wire:Wire}){
    
 	return <div style={{justifyContent: 'center', display: 'flex', flexDirection: 'column'}}>
-		<div style={{width: 150, height: 10, backgroundColor:AMBER, alignSelf: 'center', marginTop: '30%'}}>
+		<div style={{width: 150, height: 10, backgroundColor:ORANGE, alignSelf: 'center', marginTop: '30%'}}>
 
 		</div>
 		<span style={{

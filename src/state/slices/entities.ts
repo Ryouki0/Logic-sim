@@ -1,14 +1,14 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { Wire } from "../Interfaces/Wire";
-import { Gate } from "../Interfaces/Gate";
-import { BinaryInput } from "../Interfaces/BinaryInput";
-import { calculateInputTop } from "../utils/calculateInputTop";
-import removeWireTo from "../utils/removeWiresTo";
-import removeWiresFrom from "../utils/removeWiresFrom";
-import disconnectByWire from "../utils/disconnectByWire";
-import { DEFAULT_INPUT_DIM } from "../Constants/defaultDimensions";
-import { BinaryOutput } from "../Interfaces/BinaryOutput";
-import isWireConnectedToWire from "../utils/isWireConnectedToWire";
+import { Wire } from "../../Interfaces/Wire";
+import { Gate } from "../../Interfaces/Gate";
+import { BinaryInput } from "../../Interfaces/BinaryInput";
+import { calculateInputTop } from "../../utils/calculateInputTop";
+import removeWireTo from "../../utils/removeWiresTo";
+import removeWiresFrom from "../../utils/removeWiresFrom";
+import disconnectByWire from "../../utils/disconnectByWire";
+import { DEFAULT_INPUT_DIM } from "../../Constants/defaultDimensions";
+import { BinaryOutput } from "../../Interfaces/BinaryOutput";
+import isWireConnectedToWire from "../../utils/isWireConnectedToWire";
 
 interface objects{
     wires: {[key: string]: Wire};
@@ -19,8 +19,8 @@ interface objects{
 
 const initialState = {wires: {}, gates: {}, globalInputs: {}, globalOutputs: {}} as objects;
 
-const objectsSlice = createSlice({
-	name: 'objectsSlice',
+const entities = createSlice({
+	name: 'entities',
 	initialState: initialState,
 	reducers: {
 		addWire: (state, action: PayloadAction<Wire>) => {
@@ -383,7 +383,7 @@ const objectsSlice = createSlice({
 			toWire.wirePathConnectedTo?.forEach((connection, idx) => {
 				if(connection.gateId){
 					state.gates[connection.gateId].inputs[connection.id].from = fromWire.from;
-					state.gates[connection.gateId].inputs[connection.id].wirePath = state.wires[connections[connection.id]].wirePath;
+					state.gates[connection.gateId].inputs[connection.id].wirePath = state.wires[connections[connection.id]]?.wirePath;
 				}else{
 					state.globalOutputs[connection.id].from = fromWire.from;
 					state.globalOutputs[connection.id].wirePath = state.wires[connections[connection.id]].wirePath;
@@ -395,12 +395,28 @@ const objectsSlice = createSlice({
 				}
 			});
 			
+		},
+		changeGateOutput: (state, action: PayloadAction<{gateId: string, newState: 0 | 1}>) => {
+			const output = Object.entries(state.gates[action.payload.gateId].outputs);
+			let outputId = output.map(([key, output])=> {
+				return key;
+			})
+			state.gates[action.payload.gateId].outputs[outputId[0]].state = action.payload.newState;
+
+		},
+		updateState: (state, action: PayloadAction<{
+			gates:{[key:string]:Gate}, 
+			inputs:{[key:string]:BinaryInput}, 
+			outputs: {[key:string]: BinaryOutput}}>) => {
+				state.gates = action.payload.gates;
+				state.globalInputs = action.payload.inputs;
+				state.globalOutputs = action.payload.outputs;
 		}
 	}
 	
 });
 
-export default objectsSlice.reducer;
+export default entities.reducer;
 export const {addWire, 
 	changeWirePosition, 
 	addGate, 
@@ -416,4 +432,6 @@ export const {addWire,
 	connectToGlobalOutput,
 	disconnectWireFromGlobalOutput,
 	breakWirePath,
-	connectWireToWire} = objectsSlice.actions;
+	connectWireToWire,
+	changeGateOutput,
+	updateState} = entities.actions;
