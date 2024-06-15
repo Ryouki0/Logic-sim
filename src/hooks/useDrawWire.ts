@@ -1,8 +1,8 @@
 import { Dispatch, UnknownAction } from "redux";
 import { Line } from "../Interfaces/Line";
 import { Wire } from "../Interfaces/Wire";
-import { addWire, changeWirePosition, connectWireToWire } from "../state/slices/entities";
-import { getClosestBlock } from "../drawingFunctions/getClosestBlock";
+import { addWire, changeWirePosition } from "../state/slices/entities";
+import { getClosestBlock } from "../Constants/defaultDimensions";
 import { v4 as uuidv4 } from 'uuid';
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
@@ -19,7 +19,7 @@ export default function useDrawWire() {
 	const {getAllWire} = useIsWireClicked();
 	function startDrawing(
 		e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
-		from: {id: string, type: 'inputs' | 'outputs', gateId?: string | null | undefined} | null = null,
+		from: {id: string, type: 'input' | 'output', gateId?: string | null | undefined} | null = null,
 		wire?: Wire
 	){
 		const canvasEle = document.getElementById("main-canvas") as HTMLCanvasElement;
@@ -38,15 +38,9 @@ export default function useDrawWire() {
 			linearLine: {...line},
 			diagonalLine: {...line},
 			id: thisWireId,
-			from: from,
-			wirePath: wire ? [...wire.wirePath, thisWireId] : [thisWireId],
 			connectedToId: [],
 		};
 		dispatch(setDrawingWire(thisWireId));
-		if(from?.gateId && from?.type ==='inputs'){
-			currentWire.from = null;
-			currentWire.connectedToId = [{...from}];
-		}
 		
 		const getClientOffset = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 			const { pageX, pageY } = event;
@@ -137,18 +131,18 @@ export default function useDrawWire() {
 			document.removeEventListener("mouseup", mouseupListener);
 			dispatch(setDrawingWire(null));
 
-			let endPoint: {x:number,y:number};
-			if(currentWire.diagonalLine.startX === currentWire.diagonalLine.endX){
-				endPoint = {x:currentWire.linearLine.endX,y:currentWire.linearLine.endY};
-			}else{
-				endPoint = {x:currentWire.diagonalLine.endX, y:currentWire.diagonalLine.endY};
-			}
-			const wireToConnect = getAllWire(endPoint.x,endPoint.y);
-			wireToConnect?.forEach(w => {
-				if(w.id !== currentWire.id){
-					dispatch(connectWireToWire({wire1: w, wire2: currentWire}));
-				}
-			});
+		// 	let endPoint: {x:number,y:number};
+		// 	if(currentWire.diagonalLine.startX === currentWire.diagonalLine.endX){
+		// 		endPoint = {x:currentWire.linearLine.endX,y:currentWire.linearLine.endY};
+		// 	}else{
+		// 		endPoint = {x:currentWire.diagonalLine.endX, y:currentWire.diagonalLine.endY};
+		// 	}
+		// 	const wireToConnect = getAllWire(endPoint.x,endPoint.y);
+		// 	wireToConnect?.forEach(w => {
+		// 		if(w.id !== currentWire.id){
+		// 			dispatch(connectWireToWire({wire1: w, wire2: currentWire}));
+		// 		}
+		// 	});
 		};
     
 		document.addEventListener("mousemove", mouseMoveListener);

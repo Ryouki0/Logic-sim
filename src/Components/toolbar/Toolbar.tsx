@@ -1,11 +1,12 @@
 import React from 'react';
-import SelectedComponent from './SelectedComponent';
 import Clock from './Clock';
+import CreateButton from './CreateButton';
+import SelectedComponent from './SelectedComponent';
 
 export default function Toolbar() {
-
     return <>
-        <SelectedComponent></SelectedComponent>
-        <Clock></Clock>
-    </>
+         <SelectedComponent></SelectedComponent>
+         <Clock></Clock>
+         <CreateButton></CreateButton>
+     </>
 }

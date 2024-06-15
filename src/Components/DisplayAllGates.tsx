@@ -6,7 +6,7 @@ import useRedrawCanvas from "../hooks/useRedrawCanvas";
 import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, MINIMAL_BLOCKSIZE } from "../Constants/defaultDimensions";
 
 export default function DisplayAllGates(){
-	const allGates = useSelector((state: RootState) => {return state.allGatesSlice;});
+	const allGates = useSelector((state: RootState) => {return state.entities.createdComponents;});
 
 	return console.log('rendering allgates'),
 	<div style={{display: 'flex', top: CANVAS_HEIGHT,
@@ -17,7 +17,7 @@ export default function DisplayAllGates(){
 		borderWidth: 5,
 		padding: 10,
 		borderStyle: 'solid'}}>
-		{allGates?.map((gate) => {
+		{Object.entries(allGates)?.map(([key, gate]) => {
 			return <CustomGate
 				key={gate.id}
 				gateProps={gate}

@@ -6,23 +6,33 @@ import { DEFAULT_INPUT_DIM, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/d
 import { BinaryInput } from '../Interfaces/BinaryInput';
 import { Output } from './Output';
 import { Gate } from '../Interfaces/Gate';
-import { addGate, changeGate, changeInputPosition, removeGate } from '../state/slices/entities';
 import { RootState } from '../state/store';
 import {v4 as uuidv4} from 'uuid';
 import './../gate.css';
 import { calculateInputTop } from '../utils/calculateInputTop';
-import { BinaryOutput } from '../Interfaces/BinaryOutput';
-import allGates from '../state/slices/allGates';
+import { setSelectedEntity } from '../state/slices/mouseEventsSlice';
+import { BinaryIO } from '../Interfaces/BinaryIO';
+import { addGate, changeGatePosition, changeIOPosition, changeInputState } from '../state/slices/entities';
+import { text } from 'stream/consumers';
 interface CustomGateProps{
     gateProps: Gate,
 	preview: boolean,
 	position?: 'absolute' | 'relative'
 }
 
-function checkInputEquality(prev:BinaryInput[], next:BinaryInput[]){
+function checkInputEquality(prev:BinaryIO[], next:BinaryIO[]){
+	return prev?.length === next?.length;
+}
+function checkOutputEquality(prev: BinaryIO[], next: BinaryIO[]){
+	let isEqual = true;
+	prev?.forEach((prev,idx,array) => {
+		if(prev?.state !== next[idx]?.state){
+			isEqual = false;
+		}
+	});
+	return isEqual;
 	
 }
-
 function checkGateEquality(prev: Gate, next: Gate){
 	if(!prev || !next){
 		return true;
@@ -46,56 +56,61 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 	};
 
 	const inputs = useSelector((state: RootState) => {
-		if(!preview){
-			return state.entities.gates[gateProps.id].inputs;
-		}else{
-			const index = state.allGatesSlice.findIndex(g => g.id === gateProps.id);
-			return state.allGatesSlice[index]?.inputs;
-		}
-		
-	});
-	const inputLength = Object.entries(inputs).length;
+		return gateProps.inputs.map(input => {
+			return state.entities.binaryIO[input];});
+	}, checkInputEquality);
 
-	const outputs = gateProps.outputs;
-	const outputLength = Object.entries(outputs).length;
-	
+	const outputs = useSelector((state: RootState) => {
+		return gateProps.outputs.map(outputId => {
+			return state.entities.binaryIO[outputId];
+		});
+	}, checkOutputEquality);
+	const inputLength = gateProps.inputs.length;
+	const outputLength = gateProps.outputs.length;
 
 	function setPositions(x: number, y: number){
-		//console.log(`gateProps.position changing: ${thisGate?.position?.x} ${thisGate?.position?.y}`);
-		dispatch(changeInputPosition({x: x,y:y, gateId: thisGate.id}));
-		dispatch(changeGate({gate: thisGate, newPos: {x: x,y: y}}));
+		//console.log(`gateProps.position changing: ${thisGate?.position?.x} ${thisGate?.position?.y}`)
+		
+		inputs.forEach((input,idx,array)=> {
+			
+			dispatch(changeIOPosition({id: input.id, position:{
+				x:x, 
+				y:y + (calculateInputTop(idx, array.length) + DEFAULT_INPUT_DIM.height/2 + idx*DEFAULT_INPUT_DIM.height)}} ))
+		})
+		outputs.forEach((output,idx,array) => {
+			dispatch(changeIOPosition({
+				id: output.id,
+				position: {
+					x:x + 3*MINIMAL_BLOCKSIZE,
+					y:y + calculateInputTop(idx, array.length) + (idx*DEFAULT_INPUT_DIM.height) +DEFAULT_INPUT_DIM.height/2,
+				}
+			}))
+		})
+		dispatch(changeGatePosition({gate: thisGate, position: {x: x,y: y}}));
 	};
 
 	
 	const calculateDivHeight = () => {
 		const longest = inputLength > outputLength ? inputLength : outputLength;
-		if(inputLength <= 1 && Object.entries(outputs).length <= 1){
+		if(inputLength <= 1 && outputLength <= 1){
 			return 2*MINIMAL_BLOCKSIZE + LINE_WIDTH;
 		}
 		return longest % 2 === 0 ? (longest * MINIMAL_BLOCKSIZE) + LINE_WIDTH : ((longest-1) * MINIMAL_BLOCKSIZE) +LINE_WIDTH;
 	};
 
+	const print = () => {
+		gateProps.inputs.forEach(input => {
+			console.log(`inputId in gate: ${input}`);
+		});
+	};
 
 	const handlePreviewMouseDown = () => {
-		const newInputs:{[key: string]:BinaryInput} = {};
-		const newGateId = uuidv4();
-		for(var i=0;i<inputLength;i++){
-			const id = uuidv4();
-			newInputs[id] = ({state: 0, id: id, gateId: newGateId});
-		};
-		const newOutputs:{[key:string]: BinaryOutput} = {};
-		for(var i =0;i<outputLength;i++){
-			const id = uuidv4();
-			newOutputs[id] = ({state: 0, id: id, gateId:newGateId});
-		}
-		dispatch(addGate({...gateProps,
-			inputs: newInputs,
-			outputs: newOutputs,
-			id: newGateId, position: {
-				x: eleRef.current?.getBoundingClientRect().x ? eleRef.current.getBoundingClientRect().x : 0, 
-				y: eleRef.current?.getBoundingClientRect().y ? eleRef.current.getBoundingClientRect().y : 0
-			}}));
-		//console.log('created gate');
+		dispatch(addGate({...gateProps, position: {
+			x: eleRef.current?.getBoundingClientRect() ? eleRef.current.getBoundingClientRect().x : 0,
+			y: eleRef.current?.getBoundingClientRect() ? eleRef.current.getBoundingClientRect().y : 0,
+		}}));
+		
+		console.log('created gate');
 	};
 
 	return	(
@@ -115,40 +130,46 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 					cursor: 'pointer',
 					backgroundColor: "rgb(100 100 100)"}} 
 				id={gateProps.id}
-				onContextMenu={e => {e.stopPropagation(); e.preventDefault();dispatch(removeGate(gateProps.id));}}
+				onContextMenu={e => {}}
 				onMouseEnter={e => {if(preview){
-					e.stopPropagation(); 
+					e.stopPropagation();
+					print();
 					handlePreviewMouseDown();
 				}}}
 			
 				onMouseDown={e => {if(preview){ }
 				else{
-					console.log(`thisgate ID: ${thisGate.id}`);
+					dispatch(setSelectedEntity({type: 'Gate', entity: gateProps}));
+
 					handleMouseDown(e, eleRef, dispatch, offsetRef.current.dx, offsetRef.current.dy, setOffset, setPositions);
 				}}}
 			>
-				{Object.entries(inputs)?.map(([key, input], idx, array) => {
-					return <Input binaryInput={{style: {
-						top: calculateInputTop(idx, array.length),
-						cursor: 'default'},
-					state: input.state, id: input.id,
-					gateId: gateProps.id}} gateId={gateProps.id} inputIdx={idx} key={input.id}></Input>;
+				{inputs.map((input, idx, array) => {
+					return <Input binaryInput={{...input, 
+						style: {
+							top: calculateInputTop(idx, array.length)
+						}}} 
+						gateId={gateProps.id} 
+						key={input?.id}></Input>;
 				})}
-				<div style={{position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)"}}> 
-					<span
-						key={gateProps.id}
-						style={{color: 'white', cursor: "drag", userSelect: 'none', fontSize: 22, fontWeight: 500}} 
-						onMouseDown={e => { e.stopPropagation(); e.preventDefault();
-							preview ? handlePreviewMouseDown()
-								: handleMouseDown(e, eleRef, dispatch, offsetRef.current.dx, offsetRef.current.dy, setOffset, setPositions);
-						}}
-					>{gateProps.name}</span>
+				<div 
+				style={{
+					position: "absolute", 
+					left: "50%", 
+					top: "50%", 
+					transform: "translate(-50%, -50%)"
+				}}> 
+					<span style={{fontSize: 23, 
+        				userSelect: 'none', 
+				        color: 'white'}}>
+						{gateProps.name}
+					</span>
 				</div>
-				{Object.entries(outputs).map(([key, output], idx, array) => {
-					return <Output style={{position: 'absolute', left:
-                        (3*MINIMAL_BLOCKSIZE)-DEFAULT_INPUT_DIM.width/2,
-					top:(calculateInputTop(idx, array.length) + (idx* DEFAULT_INPUT_DIM.height)),
-					cursor: 'default'}} output={{state: 0, id: output.id, gateId: gateProps.id}} key={output.id}></Output>;
+				{outputs.map((output,idx,array) => {
+					return <Output output={output} style={{
+						top: calculateInputTop(idx, array.length) + (idx*DEFAULT_INPUT_DIM.height),
+						position:'absolute',
+						left:3*MINIMAL_BLOCKSIZE - DEFAULT_INPUT_DIM.height/2}} key={output?.id}></Output>;
 				})}
 			</div>
 		</>

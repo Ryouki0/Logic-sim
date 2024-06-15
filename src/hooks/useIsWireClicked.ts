@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { CANVAS_OFFSET_LEFT, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { Line } from '../Interfaces/Line';
-import { removeWire,} from '../state/slices/entities';
 import { Wire } from '../Interfaces/Wire';
 import { calculateLinePoints, isPointOnDiagonalLine, isPointOnLine } from '../utils/isPointOnLine';
 

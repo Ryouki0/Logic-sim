@@ -7,14 +7,12 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
 import { BinaryInput } from "../Interfaces/BinaryInput";
-import startDrawingLine from "../hooks/useDrawWire";
-import { stat } from "fs";
 import { AMBER, RED_ORANGE, SEA_MID_GREEN } from "../Constants/colors";
 import useDrawWire from "../hooks/useDrawWire";
-import { connect } from "http2";
+import { BinaryIO } from "../Interfaces/BinaryIO";
 
 interface InputProps{
-	binaryInput: BinaryInput,
+	binaryInput: BinaryIO,
 	gateId?: string,
 	inputIdx?: number,
 	
@@ -34,46 +32,18 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 	const eleRef = useRef<HTMLDivElement>(null);
 	//const objectClicked = useSelector((state: RootState) => {return state.mouseEventsSlice.objectClicked;});
 	const startDrawing = useDrawWire();
-	const currentInput = useSelector((state: RootState) => {
-		if(!binaryInput.gateId){
-			return state.entities.globalInputs[binaryInput.id];
-		}else{
-			return state.entities.gates[binaryInput.gateId]?.inputs[binaryInput.id];
-		}
-	}, inputEquality);
+	const thisInput = useSelector((state: RootState) => {return state.entities.binaryIO[binaryInput.id];});
 	//const allInputs = useSelector((state:RootState) => {return state.entities.currentInputs});
-	const from = useSelector((state: RootState) => {
-		if(currentInput?.from){
-			const inputOrOutput = currentInput.from?.type;
-			if(currentInput.from.gateId){
-				return state.entities.gates[currentInput.from.gateId][inputOrOutput][currentInput.from.id];
-			}else{
-				return state.entities.globalInputs[currentInput.from?.id];
-			}
-		}
-	});
 	
-	function handleMouseDown(e: React.MouseEvent<any>){
+	const handleMouseDown = (e:React.MouseEvent<any>) => {
 		e.stopPropagation();
-		if(from){
-			console.log(`${from.id} ${from.state}`);
-		}
-		// console.log(`this inpot is TO: ${currentInput.to?.[0]?.id}`);
-		
-		console.log(`this input is from: ${currentInput.from?.type} ${currentInput.from?.id}`);
-		console.log(`this input state: ${currentInput.state}`);
-		currentInput.wirePath?.forEach(wire => {
-			console.log(`${wire.slice(0,5)}`);
-		});
-		startDrawing(e, {id: currentInput.id, type: 'inputs', gateId: binaryInput.gateId});
-	}
-	const getPathColor = () => {
-		if(currentInput?.gateId){
-			return currentInput?.from ? (currentInput?.state === 1 ? RED_ORANGE : AMBER) : 'black';
-		}else{
-			return currentInput?.state ? RED_ORANGE : AMBER;
-		}
+		console.log(`this input ID: ${thisInput?.id.slice(0,5)}`);
+		console.log(`this input state: ${thisInput?.state}`);
+		console.log(`this input is from: ${thisInput?.from?.id.slice(0,5)}`);
+		startDrawing(e, {id:binaryInput.id, type: 'input', gateId: gateId});
 	};
+	
+	
 	return (
 		<>
 			{/*gateId ? console.log(`currentInput state: ${currentInput?.state}`) : null*/}
@@ -83,17 +53,17 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 					height: DEFAULT_INPUT_DIM.height,
 					position: 'relative',
 					left: -(DEFAULT_INPUT_DIM.width / 2),
-					...binaryInput.style,
+					...binaryInput?.style,
 				}}
-				onMouseDown={handleMouseDown}>
+				onMouseDown={e => {handleMouseDown(e);}}>
 				<CircularProgressbar
 					value={100}
 					background={true}
 					styles={buildStyles({
-						backgroundColor: "black",
-						pathColor: getPathColor(),
+						backgroundColor: thisInput?.state ? "rgb(255 60 60)" : 'black',
+						pathColor: 'black',
 					})}
-					strokeWidth={currentInput?.from ? 12 : 100}
+					strokeWidth={14}
 				></CircularProgressbar>
 			</div>
 		</>
