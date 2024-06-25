@@ -28,6 +28,7 @@ export default function GlobalOutputs() {
 				type: 'output',
  		 		id: uuidv4(),
 				to: [],
+				isGlobalIo: true,
  		 		position: {
  		 			x: CANVAS_WIDTH - MINIMAL_BLOCKSIZE,
  		 			y: roundedY

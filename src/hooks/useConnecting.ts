@@ -6,6 +6,7 @@ import { current } from '@reduxjs/toolkit';
 import isWireConnectedToWire from '../utils/isWireConnectedToWire';
 import { setConnections } from '../state/slices/entities';
 import { BinaryIO } from '../Interfaces/BinaryIO';
+import checkLineEquality from '../utils/checkLineEquality';
 //Only trigger re-render when the drawingWire is null, so that the wire won't connect when drawing
 const checkDrawingWireEquality = (prev:string|null,next:string|null) => {
     if(prev && !next){
@@ -14,7 +15,19 @@ const checkDrawingWireEquality = (prev:string|null,next:string|null) => {
         return true;
     }
 }
-
+const checkWireEquality = (prev: {[key: string]: Wire}, next:{[key: string]:Wire}) => {
+    const prevEntries = Object.entries(prev);
+    if(Object.entries(next).length !== prevEntries?.length){
+        return false;
+    }
+    for(const [key, wire] of prevEntries){
+        if(!(checkLineEquality(wire.linearLine, next[key]?.linearLine)) 
+        || !(checkLineEquality(wire.diagonalLine, next[key]?.diagonalLine))){
+            return false;
+        }
+    }
+    return true;
+}
 const checkIOEquality = (prev: {[key: string]: BinaryIO}, next: {[key: string]: BinaryIO}) => {
     let isEqual = true;
     const prevEntries = Object.entries(prev);
@@ -33,7 +46,7 @@ const checkIOEquality = (prev: {[key: string]: BinaryIO}, next: {[key: string]: 
 
 
 export default function useConnecting(){
-    const wires = useSelector((state: RootState) => {return state.entities.wires});
+    const wires = useSelector((state: RootState) => {return state.entities.wires}, checkWireEquality);
     const io = useSelector((state: RootState) => {return state.entities.binaryIO}, checkIOEquality);
     const drawingWire = useSelector((state: RootState) => {return state.mouseEventsSlice.drawingWire}, checkDrawingWireEquality);
     const dispatch = useDispatch();
@@ -89,9 +102,12 @@ export default function useConnecting(){
                 }
                 if(isWireConnectedToWire(wire, currentWire)){
                     nextWires.push(key);
+                }else if(isWireConnectedToWire(currentWire, wire)){
+                    nextWires.push(key);
                 }
             })
         }
+        
         return wireTree;
     }
 
@@ -112,7 +128,7 @@ export default function useConnecting(){
 
                 if(isOnIo){
                     if((io.type === 'input' && !io.gateId) || (io.type === 'output' && io.gateId)){
-                        if(sourceId){
+                        if(sourceId && sourceId !== key){   
                             console.warn(`Short circuit! ${sourceId.slice(0,5)} -> ${key.slice(0,5)}`);
                         }
                         sourceId = key;

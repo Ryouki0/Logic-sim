@@ -31,50 +31,28 @@ export function Output({style = null, output}:BinaryOutputProps) {
 
 	const startDrawing = useDrawWire();
 	const thisOutput = useSelector((state:RootState) => {return state.entities.binaryIO[output.id]})
-	const handleMouseDown = () => {
-		console.log(`this output id: ${thisOutput.id.slice(0,5)}`);
-		console.log(`this output position: X: ${thisOutput.position?.x} Y: ${thisOutput.position?.y}`);
+	const handleMouseDown = (e: React.MouseEvent<any>) => {
+		e.preventDefault();
+		e.stopPropagation();
+		console.log(`thisOutput state: ${thisOutput?.state}`);
+		startDrawing(e);
 	}
-	// function handleMouseDown(e:React.MouseEvent<any>){
-	// 	e.stopPropagation();
-	// 	console.log(`this output state: ${thisOutput?.state}`);
-	// 	startDrawing(e, {id: output.id, type: 'outputs', gateId: output.gateId});
-	// }
+	
+	
 
-	// const getStrokeWidth = () => {
-	// 	if(thisOutput?.to && thisOutput.to.length > 0){
-	// 		return 12;
-	// 	}
-	// 	if(thisOutput?.from){
-	// 		return 12;
-	// 	}
-	// 	return 100;
-	// };
-
-	// const getPathColor = () => {
-	// 	if(thisOutput?.state){
-	// 		return 'red';
-	// 	}
-	// 	if(thisOutput?.to){
-	// 		return AMBER;
-	// 	}
-	// 	if(thisOutput?.from){
-	// 		return AMBER
-	// 	}
-	// 	return 'black';
-	// };
 	return (
 		<>
 			<div style={{...style,
 				width: DEFAULT_INPUT_DIM.width,
 				height: DEFAULT_INPUT_DIM.height,
+				cursor: 'arrow',
 			}}
-			onMouseDown={e => {handleMouseDown()}}>
+			onMouseDown={handleMouseDown}>
 				<CircularProgressbar
 					value={100}
 					background={true}
 					styles={buildStyles({
-						backgroundColor: 'black',
+						backgroundColor: thisOutput?.state ? 'red' : 'black',
 						pathColor: 'black',
 					})}
 					strokeWidth={12}

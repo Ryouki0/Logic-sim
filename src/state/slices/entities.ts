@@ -8,17 +8,19 @@ import { BinaryIO } from "../../Interfaces/BinaryIO";
 import { networkInterfaces } from "os";
 import { parseIsolatedEntityName } from "typescript";
 import { time } from "console";
+import { connect } from "http2";
 
 
 const ANDInputId1 = uuidv4();
 const ANDInputId2 = uuidv4();
-const ANDInputId3 = uuidv4();
+const DELAYInputId1 = uuidv4();
 const ANDOutputId1 = uuidv4();
 const NOInputId1 = uuidv4();
 const NOOutputId1 = uuidv4();
-const NOOutputId2 = uuidv4();
+const DELAYOutputId1 = uuidv4();
 const ANDId = uuidv4();
 const NOId = uuidv4();
+const DELAYId = uuidv4();
 interface entities{
     wires: {[key: string]: Wire};
     gates: {[key: string]: Gate};
@@ -39,6 +41,13 @@ const initialState = {wires: {}, gates: {}, globalInputs: {}, globalOutputs: {},
 		outputs: [NOOutputId1],
 		id: NOId
 	},
+	[DELAYId]: {
+		name: 'DELAY',
+		inputs: [DELAYInputId1],
+		outputs: [DELAYOutputId1],
+		id: DELAYId,
+		nextTick: 0,
+	}
 }, binaryIO: {
 	[ANDInputId1]: {
 		id: ANDInputId1,
@@ -46,6 +55,7 @@ const initialState = {wires: {}, gates: {}, globalInputs: {}, globalOutputs: {},
 		to: [],
 		type: 'input',
 		state: 0,
+		isGlobalIo: false,
 		style: {},
 	},
 	[ANDInputId2]: {
@@ -53,6 +63,7 @@ const initialState = {wires: {}, gates: {}, globalInputs: {}, globalOutputs: {},
 		gateId: ANDId,
 		to: [],
 		state: 0,
+		isGlobalIo: false,
 		type: 'input',
 		style: {},
 	},
@@ -61,6 +72,7 @@ const initialState = {wires: {}, gates: {}, globalInputs: {}, globalOutputs: {},
 		gateId: ANDId,
 		state: 0,
 		to: [],
+		isGlobalIo: false,
 		type: 'output',
 		style: {},
 	},
@@ -69,6 +81,7 @@ const initialState = {wires: {}, gates: {}, globalInputs: {}, globalOutputs: {},
 		gateId: NOId,
 		state: 0,
 		to: [],
+		isGlobalIo: false,
 		type: 'input',
 		style: {},
 	},
@@ -77,6 +90,25 @@ const initialState = {wires: {}, gates: {}, globalInputs: {}, globalOutputs: {},
 		state: 0,
 		gateId: NOId,
 		to: [],
+		isGlobalIo: false,
+		type: 'output',
+		style: {},
+	},
+	[DELAYInputId1]: {
+		id: DELAYInputId1,
+		state: 0,
+		gateId: DELAYId,
+		to: [],
+		isGlobalIo: false,
+		type: 'input',
+		style: {},
+	},
+	[DELAYOutputId1]: {
+		id: DELAYOutputId1,
+		state: 0,
+		gateId: DELAYId,
+		to: [],
+		isGlobalIo: false,
 		type: 'output',
 		style: {},
 	}
@@ -109,13 +141,13 @@ const entities = createSlice({
 			const newGateId = uuidv4();
 			for(let i =0;i<gate.inputs.length;i++){
 				const newInputId = uuidv4();
-				const newInput:BinaryIO = {gateId: newGateId, state: 0,style:{},id: newInputId, type: 'input', to: []};
+				const newInput:BinaryIO = {gateId: newGateId, state: 0,style:{},id: newInputId, type: 'input', to: [], isGlobalIo: false};
 				state.binaryIO[newInputId] = newInput;
 				gate.inputs[i] = newInputId;
 			}
 			for(let i = 0;i<gate.outputs.length;i++){
 				const newOutputId = uuidv4();
-				const newOutput:BinaryIO = {gateId: newGateId, state: 0,style:{},id: newOutputId, type: 'output', to: []};
+				const newOutput:BinaryIO = {gateId: newGateId, state: 0,style:{},id: newOutputId, type: 'output', to: [], isGlobalIo: false};
 				state.binaryIO[newOutputId] = newOutput;
 				gate.outputs[i] = newOutputId;
 			}
@@ -162,16 +194,66 @@ const entities = createSlice({
 		},
 		setConnections: (state, action:PayloadAction<{connections: {wireTree: string[], outputs: string[], sourceId: string|null}[]}>) => {
 			const connections = action.payload.connections;
+			const ioEntires = Object.entries(state.binaryIO);
+			const wireEntries = Object.entries(state.wires);
+			
+			for(const [key, io] of ioEntires){
+				if((io.type === 'output' && !io.isGlobalIo) || (io.type === 'input' && io.isGlobalIo)){
+					io.to = [];
+				}else if((io.type === 'input' && !io.isGlobalIo) || (io.type === 'output' && io.isGlobalIo)){
+					io.from = null;
+					io.state = 0;
+				}
+			}
+			for(const [key, wire] of wireEntries){
+				state.wires[key].from = null;
+			}
 			connections.forEach(connection => {
-				// const source = state.binaryIO[connection.sourceId!];
+				const source = state.binaryIO[connection.sourceId!];
+				if(source){
+					source.to = [];
+				}
 
-				// connection.wireTree.forEach(wireId => {
-				// 	state.wires[wireId].from = {id: connection.sourceId, gateId: };
-				// })
-				// connection.outputs.forEach(output => {
-				// })
+				connection.wireTree.forEach(wireId => {
+					state.wires[wireId].from = source ? {id: source.id, gateId: source.gateId, type: source.type} : null;
+				})
+				connection.outputs.forEach(outputId => {
+					const output = state.binaryIO[outputId];
+					output.from = source ? {id: source.id, gateId: source.gateId, type: source.type} : null;
+					output.state = source?.state ?? 0;
+					if(source){
+						source.to?.push({id: output.id, gateId: output.gateId, type: output.type});
+					}
+				})
+				
 			})
 		},
+		deleteWire: (state, action:PayloadAction<string>) => {
+			delete state.wires[action.payload];
+		},
+		deleteComponent: (state, aciton: PayloadAction<string>) => {
+			const component = state.gates[aciton.payload];
+			function deleteBaseGate(gateId: string){
+				const gate = state.gates[gateId];
+				gate.inputs.forEach(inputId => {
+					delete state.binaryIO[inputId];
+				})
+				gate.outputs.forEach(outputId => {
+					delete state.binaryIO[outputId];
+				})
+				delete state.gates[gateId];
+			}
+			if(!component.gates){
+				deleteBaseGate(component.id);
+			}
+		},
+		updateState: (state, action: PayloadAction<{gates: {[key: string]: Gate}, binaryIO: {[key: string] :BinaryIO}}>) => {
+			state.binaryIO = action.payload.binaryIO;
+			state.gates = action.payload.gates;
+		},
+		createBluePrint: (state, action: PayloadAction<{name: string}>) => {
+			
+		}
 	}
 });
 export default entities.reducer;
@@ -184,7 +266,9 @@ export const {addWire,
 	addGlobalOutput,
 	changeIOPosition,
 	setConnections,
-} = entities.actions;
+	deleteWire,
+	deleteComponent,
+	updateState} = entities.actions;
 // const entities = createSlice({
 // 	name: 'entities',
 // 	initialState: initialState,

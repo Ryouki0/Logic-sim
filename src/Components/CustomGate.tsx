@@ -12,7 +12,7 @@ import './../gate.css';
 import { calculateInputTop } from '../utils/calculateInputTop';
 import { setSelectedEntity } from '../state/slices/mouseEventsSlice';
 import { BinaryIO } from '../Interfaces/BinaryIO';
-import { addGate, changeGatePosition, changeIOPosition, changeInputState } from '../state/slices/entities';
+import { addGate, changeGatePosition, changeIOPosition, changeInputState, deleteComponent } from '../state/slices/entities';
 import { text } from 'stream/consumers';
 interface CustomGateProps{
     gateProps: Gate,
@@ -99,9 +99,7 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 	};
 
 	const print = () => {
-		gateProps.inputs.forEach(input => {
-			console.log(`inputId in gate: ${input}`);
-		});
+		
 	};
 
 	const handlePreviewMouseDown = () => {
@@ -130,7 +128,10 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 					cursor: 'pointer',
 					backgroundColor: "rgb(100 100 100)"}} 
 				id={gateProps.id}
-				onContextMenu={e => {}}
+				onContextMenu={e => {
+					e.preventDefault();
+					e.stopPropagation();
+					dispatch(deleteComponent(thisGate.id))}}
 				onMouseEnter={e => {if(preview){
 					e.stopPropagation();
 					print();
@@ -139,6 +140,7 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 			
 				onMouseDown={e => {if(preview){ }
 				else{
+					e.stopPropagation();
 					dispatch(setSelectedEntity({type: 'Gate', entity: gateProps}));
 
 					handleMouseDown(e, eleRef, dispatch, offsetRef.current.dx, offsetRef.current.dy, setOffset, setPositions);
@@ -166,7 +168,8 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 					</span>
 				</div>
 				{outputs.map((output,idx,array) => {
-					return <Output output={output} style={{
+					return <Output output={output} style={
+						{
 						top: calculateInputTop(idx, array.length) + (idx*DEFAULT_INPUT_DIM.height),
 						position:'absolute',
 						left:3*MINIMAL_BLOCKSIZE - DEFAULT_INPUT_DIM.height/2}} key={output?.id}></Output>;

@@ -18,11 +18,14 @@ interface InputProps{
 	
 }
 
-const inputEquality = (prev: BinaryInput, next:BinaryInput) => {
+const inputEquality = (prev: BinaryIO, next:BinaryIO) => {
+	if(prev?.from?.id !== next?.from?.id){
+		return false;
+	}
 	if(prev?.state !== next?.state){
 		return false;
 	}
-	if(prev?.from?.id !== next?.from?.id){
+	if(prev?.position?.x !== next?.position?.x || prev?.position?.y !== next?.position?.y){
 		return false;
 	}
 	return true;
@@ -32,7 +35,7 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 	const eleRef = useRef<HTMLDivElement>(null);
 	//const objectClicked = useSelector((state: RootState) => {return state.mouseEventsSlice.objectClicked;});
 	const startDrawing = useDrawWire();
-	const thisInput = useSelector((state: RootState) => {return state.entities.binaryIO[binaryInput.id];});
+	const thisInput = useSelector((state: RootState) => {return state.entities.binaryIO[binaryInput.id];}, inputEquality);
 	//const allInputs = useSelector((state:RootState) => {return state.entities.currentInputs});
 	
 	const handleMouseDown = (e:React.MouseEvent<any>) => {
@@ -40,6 +43,7 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 		console.log(`this input ID: ${thisInput?.id.slice(0,5)}`);
 		console.log(`this input state: ${thisInput?.state}`);
 		console.log(`this input is from: ${thisInput?.from?.id.slice(0,5)}`);
+		console.log(`this input position is: X: ${thisInput?.position?.x} Y: ${thisInput?.position?.y}`);
 		startDrawing(e, {id:binaryInput.id, type: 'input', gateId: gateId});
 	};
 	
@@ -61,7 +65,7 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 					background={true}
 					styles={buildStyles({
 						backgroundColor: thisInput?.state ? "rgb(255 60 60)" : 'black',
-						pathColor: 'black',
+						pathColor: "black",
 					})}
 					strokeWidth={14}
 				></CircularProgressbar>

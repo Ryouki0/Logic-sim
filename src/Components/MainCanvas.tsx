@@ -8,6 +8,7 @@ import { throttle } from '../utils/throttle';
 import { Wire } from '../Interfaces/Wire';
 import { setHoveringOverWire, setSelectedEntity } from '../state/slices/mouseEventsSlice';
 import { getClosestBlock } from '../Constants/defaultDimensions';
+import { deleteWire } from '../state/slices/entities';
 export default function MainCanvas(){
 	const canvasRef = useRedrawCanvas();
 	const {checkWire} = useIsWireClicked();
@@ -28,7 +29,7 @@ export default function MainCanvas(){
 		if(!wire){
 			return;
 		}
-		console.log(`need to break wire: ${wire.id.slice(0,5)}`);
+		dispatch(deleteWire(wire.id));
 	};
 
 	const drawWireFromWire = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {

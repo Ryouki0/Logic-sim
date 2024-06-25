@@ -37,6 +37,7 @@ export default function GlobalInputs(){
  			id: uuidv4(),
 			type: 'input',
 			to: [],
+			isGlobalIo: true,
  			style: {top: roundedY - DEFAULT_INPUT_DIM.height/2},
  			position: {x: 2*MINIMAL_BLOCKSIZE, y: roundedY}
  		} as BinaryIO));
