@@ -40,10 +40,15 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 	
 	const handleMouseDown = (e:React.MouseEvent<any>) => {
 		e.stopPropagation();
+		console.log(`\n\n`);
 		console.log(`this input ID: ${thisInput?.id.slice(0,5)}`);
 		console.log(`this input state: ${thisInput?.state}`);
 		console.log(`this input is from: ${thisInput?.from?.id.slice(0,5)}`);
 		console.log(`this input position is: X: ${thisInput?.position?.x} Y: ${thisInput?.position?.y}`);
+		console.log(`this input parent: ${thisInput?.parent}`);
+		thisInput?.to?.forEach(to => {
+			console.log(`this input is to: ${to.id.slice(0,5)}`);
+		})
 		startDrawing(e, {id:binaryInput.id, type: 'input', gateId: gateId});
 	};
 	

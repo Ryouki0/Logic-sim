@@ -5,6 +5,7 @@ import { CANVAS_WIDTH } from "../../Constants/defaultDimensions";
 import WireSelected from "./WireSelected";
 import { Wire } from "../../Interfaces/Wire";
 import { Gate } from "../../Interfaces/Gate";
+import GateSelected from "./GateSelected";
 
 export default function SelectedComponent(){
 	const selectedComponent = useSelector((state: RootState) => {
@@ -20,5 +21,6 @@ export default function SelectedComponent(){
  		position: 'absolute',
  	}}>
  		{selectedComponent?.type === 'Wire' && <WireSelected wire={selectedComponent.entity as Wire}></WireSelected>}
+		{selectedComponent?.type === 'Gate' && <GateSelected gate={selectedComponent.entity as Gate}></GateSelected>}
  	</div>;
 }

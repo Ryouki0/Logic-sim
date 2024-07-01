@@ -36,6 +36,7 @@ export default function GlobalInputs(){
  			state: 0,
  			id: uuidv4(),
 			type: 'input',
+			parent: 'global',
 			to: [],
 			isGlobalIo: true,
  			style: {top: roundedY - DEFAULT_INPUT_DIM.height/2},

@@ -2,13 +2,10 @@ import React, { useEffect } from 'react';
 import { CANVAS_WIDTH } from '../../Constants/defaultDimensions';
 import { RootState } from '../../state/store';
 import { useDispatch, useSelector } from 'react-redux';
-import useClock from '../../hooks/useClock';
 import { logic } from '../../utils/clock';
 import { updateState } from '../../state/slices/entities';
-import { GetAccessorDeclaration } from 'typescript';
 import { BinaryIO } from '../../Interfaces/BinaryIO';
-import { off } from 'process';
-import { formatProdErrorMessage } from '@reduxjs/toolkit';
+import { Gate } from '../../Interfaces/Gate';
 
 
 const checkIoEquality = (prev: {[key:string]:BinaryIO}, next: {[key: string] : BinaryIO}) => {
@@ -45,10 +42,9 @@ export default function Clock() {
 	}}>
 		<input style={{marginTop: 10, fontSize: 18, color: 'black'}} value={`Hz: ${hertz}`}></input>
 		<button style={{marginTop: 10, fontSize: 18}} onClick={e => {
-			const newState = logic({gates:gates,io: io});
+			const newState = logic({gates:gates,io: io, level: 'global'});
 			dispatch(updateState({gates: newState.gates, binaryIO: newState.io}));
 		}
-
 		}>Tick</button>
 	</div>;
 }

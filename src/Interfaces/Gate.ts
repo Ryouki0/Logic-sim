@@ -8,5 +8,6 @@ export interface Gate{
     gates?: string[],
     inputs: string[],
     outputs: string[],
+    parent: string,
     nextTick?: 0 | 1,
 }

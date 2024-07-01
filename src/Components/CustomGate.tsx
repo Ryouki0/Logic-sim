@@ -56,14 +56,29 @@ function CustomGate({gateProps, preview, position}:CustomGateProps){
 	};
 
 	const inputs = useSelector((state: RootState) => {
-		return gateProps.inputs.map(input => {
-			return state.entities.binaryIO[input];});
+		if(preview){
+			return gateProps.inputs.map(inputId => {
+				return state.entities.bluePrints.io[inputId];
+			})
+		}else{
+			return gateProps.inputs.map(input => {
+				return state.entities.binaryIO[input];
+			});
+		}
+		
 	}, checkInputEquality);
 
 	const outputs = useSelector((state: RootState) => {
-		return gateProps.outputs.map(outputId => {
-			return state.entities.binaryIO[outputId];
-		});
+		if(preview){
+			return gateProps.outputs.map(outputId => {
+				return state.entities.bluePrints.io[outputId];
+			})
+		}else{
+			return gateProps.outputs.map(outputId => {
+				return state.entities.binaryIO[outputId];
+			});
+		}
+		
 	}, checkOutputEquality);
 	const inputLength = gateProps.inputs.length;
 	const outputLength = gateProps.outputs.length;

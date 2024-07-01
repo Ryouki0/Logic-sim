@@ -30,11 +30,17 @@ const checkOutputStateEquality = (prev:BinaryOutput|null, next:BinaryOutput|null
 export function Output({style = null, output}:BinaryOutputProps) {
 
 	const startDrawing = useDrawWire();
-	const thisOutput = useSelector((state:RootState) => {return state.entities.binaryIO[output.id]})
+	const thisOutput = useSelector((state:RootState) => {return state.entities.binaryIO[output?.id]})
 	const handleMouseDown = (e: React.MouseEvent<any>) => {
 		e.preventDefault();
 		e.stopPropagation();
-		console.log(`thisOutput state: ${thisOutput?.state}`);
+		console.log(`\n\nthisOutput state: ${thisOutput?.state}`);
+		console.log(`thisOutput ID: ${thisOutput?.id.slice(0,5)}`);
+		console.log(`this output is from? : ${thisOutput?.from?.id.slice(0,5)}`);
+		thisOutput?.to?.forEach(to => {
+			console.log(`this output is to: ${to.id.slice(0,5)}`);
+		})
+		
 		startDrawing(e);
 	}
 	
