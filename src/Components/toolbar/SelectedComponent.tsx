@@ -6,6 +6,7 @@ import WireSelected from "./WireSelected";
 import { Wire } from "../../Interfaces/Wire";
 import { Gate } from "../../Interfaces/Gate";
 import GateSelected from "./GateSelected";
+import { ONYX } from "../../Constants/colors";
 
 export default function SelectedComponent(){
 	const selectedComponent = useSelector((state: RootState) => {
@@ -16,9 +17,7 @@ export default function SelectedComponent(){
  		width: window.innerWidth - CANVAS_WIDTH,
  		height: 300,
  		backgroundColor: 'rgb(70 70 70)',
- 		left: CANVAS_WIDTH,
  		zIndex: -2,
- 		position: 'absolute',
  	}}>
  		{selectedComponent?.type === 'Wire' && <WireSelected wire={selectedComponent.entity as Wire}></WireSelected>}
 		{selectedComponent?.type === 'Gate' && <GateSelected gate={selectedComponent.entity as Gate}></GateSelected>}

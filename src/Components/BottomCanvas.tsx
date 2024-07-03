@@ -28,7 +28,7 @@ export default function BottomCanvas(){
 			ref = {bottomCanvasRef}
 			id = 'bottom-canvas'
 			style={{
-				opacity: 0.3,
+				opacity: 1,
 				marginLeft: CANVAS_OFFSET_LEFT,
 				position: 'absolute',
 				zIndex: -1,

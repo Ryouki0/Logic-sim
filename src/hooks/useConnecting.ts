@@ -47,7 +47,15 @@ const checkIOEquality = (prev: {[key: string]: BinaryIO}, next: {[key: string]: 
 
 export default function useConnecting(){
     const wires = useSelector((state: RootState) => {return state.entities.wires}, checkWireEquality);
-    const io = useSelector((state: RootState) => {return state.entities.binaryIO}, checkIOEquality);
+    const io = useSelector((state: RootState) => {
+        const globalIO: {[key: string]: BinaryIO} = {};
+        Object.entries(state.entities.binaryIO).forEach(([key, io]) => {
+            if(io.parent === 'global'){
+                globalIO[key] = io;
+            }
+        })
+        return globalIO;
+    }, checkIOEquality);
     const drawingWire = useSelector((state: RootState) => {return state.mouseEventsSlice.drawingWire}, checkDrawingWireEquality);
     const dispatch = useDispatch();
     

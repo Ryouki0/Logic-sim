@@ -21,7 +21,7 @@ export function logic(component: {
     level: string
  })
  {
-    const {gates, io} = deepCopyComponent({gates: component.gates, io: component.io});
+    let {gates, io} = deepCopyComponent({gates: component.gates, io: component.io});
     const mainOrder = getMainOrder(gates, io, component.level);
     mainOrder.forEach(gateId => {
         const gate = gates[gateId];
@@ -35,7 +35,7 @@ export function logic(component: {
             })
             const output = io[gate.outputs[0]];
             output.state = areBothTrue ? 1 : 0; 
-            propagateIoStateChange(output.id, io);
+            io = propagateIoStateChange(output.id, io);
         }else if(gate.name === 'NO'){
             let isInputTrue = true;
             gate.inputs.forEach(inputId => {
@@ -45,13 +45,13 @@ export function logic(component: {
             })
             const output = io[gate.outputs[0]];
             output.state = isInputTrue ? 0 : 1;
-            propagateIoStateChange(output.id, io);
+            io = propagateIoStateChange(output.id, io);
         }else if(gate.name === 'DELAY'){
             const output = io[gate.outputs[0]];
             const input = io[gate.inputs[0]];
             output.state = gate.nextTick!;
             gate.nextTick = input.state;
-            propagateIoStateChange(output.id, io);
+            io = propagateIoStateChange(output.id, io);
         }else if(gate.gates){
             const subGates: {[key: string]: Gate} = {};
             
@@ -101,8 +101,10 @@ export function getMainOrder(gates: {[key: string]: Gate}, io: {[key: string]: B
             const gateIds: string[] = [];
             output.to?.forEach(to => {
                 const toIo = io[to.id];
-                if(toIo.gateId && !toIo.isGlobalIo){
-                    gateIds.push(toIo.gateId);
+                const fromGate = thisLevel[toIo.gateId!];
+                console.log(`currentGate: ${currentGate.id.slice(0,5)} -- ${currentGate.name}  to gate: ${fromGate?.name}`);
+                if(fromGate){
+                    gateIds.push(toIo.gateId!);
                 }
             })
             return gateIds;
@@ -120,11 +122,15 @@ export function getMainOrder(gates: {[key: string]: Gate}, io: {[key: string]: B
             let isNextLayer = true;
             gate.inputs.forEach(inputId => {
                 const input = io[inputId];
-                if(input.from?.gateId && !mainOrder.includes(input.from?.gateId)){
+                const toGate = thisLevel[input.from?.gateId!];
+                if(toGate && !mainOrder.includes(toGate.id)){
                     isNextLayer = false;
                 }
             })
             if(isNextLayer){
+                if(nextLayer.includes(gateId)){
+                    return;
+                }
                 nextLayer.push(gateId);
             }
         })
@@ -132,7 +138,7 @@ export function getMainOrder(gates: {[key: string]: Gate}, io: {[key: string]: B
             currentLayer.push(...nextLayer);
             mainOrder.push(...nextLayer);
             nextLayer.forEach(nextId => {
-                
+                console.log(`next layer: ${nextId.slice(0,5)}`);
             })
             nextLayer = [];
         }
@@ -141,7 +147,7 @@ export function getMainOrder(gates: {[key: string]: Gate}, io: {[key: string]: B
 }
  /**
  * Gives back the first layer of gates (the gates that are not connected from other gates)
- * @param gates The top level gates inside the component
+ * @param gates The top level gates inside the component 
  * @param io The IOs inside the component
  * @returns A list of gate IDs
  */
@@ -152,7 +158,7 @@ export function getMainOrder(gates: {[key: string]: Gate}, io: {[key: string]: B
          let isRoot = true;
          gate.inputs.forEach(inputId => {
             const from = io[io[inputId].from?.id!];
-            const fromGate = gates[from.gateId!];
+            const fromGate = gates[from?.gateId!];
             if(fromGate){
                 isRoot = false;
             }

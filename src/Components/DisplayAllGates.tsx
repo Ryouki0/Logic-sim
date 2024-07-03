@@ -34,12 +34,19 @@ export default function DisplayAllGates(){
 		borderColor: 'rgb(60 60 60)',
 		borderWidth: 5,
 		padding: 10,
-		borderStyle: 'solid'}}>
+		borderStyle: 'solid'}}
+		>
 		{Object.entries(allGates)?.map(([key, gate]) => {
-			return <CustomGate
+			return <div style={{
+				borderColor: 'rgb (200 200 200)',
+				borderWidth: 2,
+				marginRight: 30,
+			}} key={key}>
+			<CustomGate
 				key={gate.id}
 				gateProps={gate}
-				preview={true}></CustomGate>;
+				preview={true}></CustomGate>
+			</div>
 		})}
 	</div>;
 }

@@ -13,7 +13,15 @@ const checkEquality = (prev:{[key:string]:Gate}, next: {[key:string]:Gate}) => {
 };
 
 export default function MovableGates(){
-	const movableGates = useSelector((state: RootState) => {return state.entities.gates;}, checkEquality);
+	const movableGates = useSelector((state: RootState) => {
+		const globalGates: {[key: string]: Gate} = {}
+		Object.entries(state.entities.gates).forEach(([key, gate]) => {
+			if(gate.parent === 'global'){
+				globalGates[key] = gate;
+			}
+		})
+		return globalGates;
+	}, checkEquality);
 	return <>
 		{Object.entries(movableGates)?.map(([key, gate]) => {
 			return <CustomGate gateProps={gate} preview={false} key={gate.id} position='absolute'></CustomGate>;

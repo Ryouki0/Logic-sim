@@ -56,11 +56,12 @@ export default function useRedrawCanvas(){
 		context.strokeStyle = ORANGE;
 		//console.time('drawing');
 		let line_width = LINE_WIDTH;
+		
 		Object.entries(wires).forEach(([key, wire]) => {
 			line_width = LINE_WIDTH;
 			
 			
-			context.strokeStyle = ORANGE;
+			context.strokeStyle = 'rgb(255, 170, 51)';
 			if(wire.error){
 				context.strokeStyle = DARK_RED;
 			}if(hoveringOverWire?.id === wire.id){

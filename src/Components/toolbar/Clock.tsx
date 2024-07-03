@@ -33,14 +33,12 @@ export default function Clock() {
 	}, [gates, io])
 
 	return <div style={{
-		position:'absolute',
-		left: CANVAS_WIDTH,
 		top: 300,
 		backgroundColor: 'rgb(100 100 100)',
 		width: window.innerWidth-CANVAS_WIDTH,
 		height: 400,
 	}}>
-		<input style={{marginTop: 10, fontSize: 18, color: 'black'}} value={`Hz: ${hertz}`}></input>
+		<input style={{marginTop: 10, fontSize: 18, color: 'black', width: '90%'}} value={`Hz: ${hertz}`}></input>
 		<button style={{marginTop: 10, fontSize: 18}} onClick={e => {
 			const newState = logic({gates:gates,io: io, level: 'global'});
 			dispatch(updateState({gates: newState.gates, binaryIO: newState.io}));

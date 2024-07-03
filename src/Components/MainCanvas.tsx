@@ -9,6 +9,7 @@ import { Wire } from '../Interfaces/Wire';
 import { setHoveringOverWire, setSelectedEntity } from '../state/slices/mouseEventsSlice';
 import { getClosestBlock } from '../Constants/defaultDimensions';
 import { deleteWire } from '../state/slices/entities';
+import { FRENCH_GREY } from '../Constants/colors';
 export default function MainCanvas(){
 	const canvasRef = useRedrawCanvas();
 	const {checkWire} = useIsWireClicked();
@@ -57,7 +58,7 @@ export default function MainCanvas(){
 				onMouseMove={e => {throttledCheckWire(e.pageX,e.pageY);}}
 				onContextMenu={e => {handleContextMenu(e);}}
 				style={{
-					backgroundColor: 'rgb(100 100 100 / 30%) ',
+					backgroundColor: 'rgb(208 204 208 / 80%)',
 					marginLeft: CANVAS_OFFSET_LEFT,
 					position: 'absolute',
 					zIndex: 0,
