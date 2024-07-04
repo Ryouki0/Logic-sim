@@ -45,7 +45,7 @@ export default function useRedrawCanvas(){
 	useEffect(() => {
 		const canvasEle = canvasRef.current;
 		if (!canvasRef.current || !canvasEle) return;
-		canvasRef.current.height = CANVAS_HEIGHT;
+		canvasRef.current.height = window.innerHeight;
 		canvasRef.current.width = CANVAS_WIDTH;
 		const context = canvasEle.getContext('2d');
 		if (!context) return;

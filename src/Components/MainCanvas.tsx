@@ -64,7 +64,6 @@ export default function MainCanvas(){
 					zIndex: 0,
 				}}
 			>
-        asd
 			</canvas>
 		</>
 	);

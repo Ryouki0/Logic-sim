@@ -1,5 +1,5 @@
 import React from 'react';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { getClosestBlock } from '../Constants/defaultDimensions';
@@ -35,9 +35,9 @@ export default function GlobalOutputs() {
  		 			y: roundedY
  		 		},
  		 		style: {
- 		 			top: roundedY - DEFAULT_INPUT_DIM.height/2, 
- 		 			position:'absolute', 
- 		 			left: -DEFAULT_INPUT_DIM.height/2
+ 		 			top: roundedY - DEFAULT_INPUT_DIM.height/2 - DEFAULT_BORDER_WIDTH, 
+ 		 			position:'absolute',
+ 		 			left: -DEFAULT_INPUT_DIM.height/2 - DEFAULT_BORDER_WIDTH
  		 		}
  			}
  		));
@@ -50,9 +50,30 @@ export default function GlobalOutputs() {
  			zIndex: 1,
  			backgroundColor: 'rgb(100, 100, 100)',
  			position: 'absolute',
+			borderWidth: DEFAULT_BORDER_WIDTH,
+			borderColor: 'rgb(60 60 60)',
+			borderStyle: 'solid',
+			borderBottom: 0,
  			left: CANVAS_WIDTH - MINIMAL_BLOCKSIZE, 
  		}}
  		onContextMenu={e=> {handleRightClick(e);}}>
+			<div style={{
+				background: 'linear-gradient(rgb(100, 100, 100), rgb(140, 140, 140))',
+				width: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
+				position: 'absolute',
+				height: 2*MINIMAL_BLOCKSIZE,
+				top: CANVAS_HEIGHT + DEFAULT_BORDER_WIDTH -2*MINIMAL_BLOCKSIZE
+			}}>
+			</div>
+			<div style={{
+				backgroundColor: 'rgb(100 100 100)',
+				position: 'absolute',
+				width: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
+				height: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
+				left: -DEFAULT_BORDER_WIDTH
+			}}>
+
+			</div>
  		{outputEntries.map(([key, output], idx, array) => {
  			return <Output output={output} style={output.style} key={output.id}></Output>;
  		})}

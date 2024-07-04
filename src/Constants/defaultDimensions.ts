@@ -27,4 +27,5 @@ export const DEFAULT_GATE_DIM = {width: 100, height: 100};
 export const LINE_WIDTH = 8;
 export const CANVAS_OFFSET_LEFT = 0*MINIMAL_BLOCKSIZE;
 export const CANVAS_WIDTH = getClosestBlock(0.8*window.innerWidth,0).roundedX;
-export const CANVAS_HEIGHT = getClosestBlock(0,0.85*window.innerHeight).roundedY;
+export const CANVAS_HEIGHT = 0.9 * window.innerHeight;
+export const DEFAULT_BORDER_WIDTH = 5;

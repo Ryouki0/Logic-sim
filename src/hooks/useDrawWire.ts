@@ -118,7 +118,6 @@ export default function useDrawWire() {
 					diagonalLine: {...currentWire.diagonalLine}, 
 					id: currentWire.id,
 					from: currentWire.from,
-					wirePath: currentWire.wirePath,
 					connectedToId: currentWire.connectedToId,
 				};
 				dispatch(changeWirePosition(newWire));

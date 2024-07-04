@@ -7,11 +7,10 @@ export default function CreateButton(){
 	const dispatch = useDispatch();
 	const [name, setName] = useState<string>('');
 	return <div style={{
-		height: '30%',
 		display: 'flex',
 		flexDirection: 'column',
-		width: window.innerWidth - CANVAS_WIDTH,
-		top: '60%',
+		flex: '1 1',
+		width: '100%',
 	}} onClick={e=>{console.log(``)}}>
 		<div style={{
 			width: '100%',

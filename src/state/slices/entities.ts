@@ -260,12 +260,6 @@ const entities = createSlice({
 				mainGate.gates?.forEach(gateId => {
 					const currentGate = state.gates[gateId];
 					if(!currentGate){
-						// Object.entries(state.gates).forEach(([key, gate]) => {
-						// 	console.log(`THE STATE: ${gate.id.slice(0,6)} ${gate.name}`);
-						// })
-						// Object.entries(state.bluePrints.gates).forEach(([key, bluePrint]) => {
-						// 	console.log(`THE BLUEPRINTS: ${bluePrint.id.slice(0,6)} ${bluePrint.name}`)
-						// })
 						mainGate.gates?.forEach(gateId => {
 							console.log(`Gate IDS: ${gateId}`);
 						})
@@ -394,6 +388,16 @@ const entities = createSlice({
 			}
 			if(!component.gates){
 				deleteBaseGate(component.id);
+			}else{
+				const nextGateIds: string[] = [...component.gates];
+				deleteBaseGate(component.id);
+				while(nextGateIds.length > 0){
+					const currentGate = state.gates[nextGateIds.pop()!];
+					if(currentGate.gates){
+						nextGateIds.push(...currentGate.gates);
+					}
+					deleteBaseGate(currentGate.id);
+				}
 			}
 		},
 		updateState: (state, action: PayloadAction<{gates: {[key: string]: Gate}, binaryIO: {[key: string] :BinaryIO}}>) => {

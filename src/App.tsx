@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "./App.css";
 import MainCanvas from "./Components/MainCanvas";
 import BottomCanvas from "./Components/BottomCanvas";
 import DisplayAllGates from "./Components/DisplayAllGates";
@@ -8,6 +7,7 @@ import GlobalInputs from "./Components/GlobalInputs";
 import GlobalOutputs from "./Components/GlobalOutputs";
 import EmptyComponent from "./Components/EmptyComponent";
 import Toolbar from "./Components/toolbar/Toolbar";
+import CanvasTop from "./Components/CanvasTop";
 function App() {
 	const [hello, setHello] = useState<any>();
 	useEffect(() => {
@@ -35,6 +35,7 @@ function App() {
 			{console.log("rendering whole App...")}
 			<MainCanvas></MainCanvas>
 			<BottomCanvas></BottomCanvas>
+			<CanvasTop></CanvasTop>
 			<DisplayAllGates></DisplayAllGates>
 			<MovableGates></MovableGates>
 			<GlobalInputs></GlobalInputs>

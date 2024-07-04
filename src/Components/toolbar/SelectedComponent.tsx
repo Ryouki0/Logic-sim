@@ -14,8 +14,8 @@ export default function SelectedComponent(){
  	});
 
  	return <div style={{
- 		width: window.innerWidth - CANVAS_WIDTH,
- 		height: 300,
+ 		width: '100%',
+ 		height: '30%',
  		backgroundColor: 'rgb(70 70 70)',
  		zIndex: -2,
  	}}>

@@ -7,3 +7,4 @@ export const MOONSTONE = '#53A2BE';
 export const ONYX = '#353B3C';
 export const ALABASTER = '#E8E5DA';
 export const FRENCH_GREY = 'rgb(208 204 208)';
+export const DEFAULT_BORDER_COLOR = 'rgb(60 60 60)';

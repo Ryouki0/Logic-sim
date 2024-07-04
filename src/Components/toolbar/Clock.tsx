@@ -33,10 +33,10 @@ export default function Clock() {
 	}, [gates, io])
 
 	return <div style={{
-		top: 300,
 		backgroundColor: 'rgb(100 100 100)',
-		width: window.innerWidth-CANVAS_WIDTH,
-		height: 400,
+		width:'100%',
+		height: '30%',
+		flex: '1 1',
 	}}>
 		<input style={{marginTop: 10, fontSize: 18, color: 'black', width: '90%'}} value={`Hz: ${hertz}`}></input>
 		<button style={{marginTop: 10, fontSize: 18}} onClick={e => {

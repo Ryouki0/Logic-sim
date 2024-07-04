@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../state/store";
 import { CustomGate } from "./CustomGate";
 import useRedrawCanvas from "../hooks/useRedrawCanvas";
-import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, MINIMAL_BLOCKSIZE } from "../Constants/defaultDimensions";
+import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, MINIMAL_BLOCKSIZE } from "../Constants/defaultDimensions";
 import { Gate } from "../Interfaces/Gate";
 
 const checkAllGatesEquality = (prev: {[key: string]: Gate}, next: {[key: string]: Gate}) => {
@@ -29,11 +29,13 @@ export default function DisplayAllGates(){
 	return console.log('rendering allgates'),
 	<div style={{display: 'flex', top: CANVAS_HEIGHT,
 		position: 'absolute',
-		width: CANVAS_WIDTH - 30,
+		width: CANVAS_WIDTH,
+		height: '10%',
 		backgroundColor: 'rgb(140 140 140)',
 		borderColor: 'rgb(60 60 60)',
-		borderWidth: 5,
+		borderWidth: DEFAULT_BORDER_WIDTH,
 		padding: 10,
+		paddingLeft: 2*MINIMAL_BLOCKSIZE,
 		borderStyle: 'solid'}}
 		>
 		{Object.entries(allGates)?.map(([key, gate]) => {
