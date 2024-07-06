@@ -17,6 +17,7 @@ import { text } from 'stream/consumers';
 interface CustomGateProps{
     gateProps: Gate,
 	preview: boolean,
+	disableFunctionality?: boolean,
 	position?: 'absolute' | 'relative'
 }
 
@@ -41,7 +42,7 @@ function checkGateEquality(prev: Gate, next: Gate){
 	return prev.position?.x === next.position?.x && prev.position?.y === next.position?.y;
 }
 
-function CustomGate({gateProps, preview, position}:CustomGateProps){
+function CustomGate({gateProps, preview, position, disableFunctionality}:CustomGateProps){
 	const eleRef = React.useRef<HTMLDivElement>(null);
 	const dispatch = useDispatch();
 	

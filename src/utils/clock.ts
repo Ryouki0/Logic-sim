@@ -9,10 +9,11 @@ import { deepCopyComponent } from "./deepCopyComponent";
 *   a. Create a "mainOrder" list
 *   b. Get the first layer of gates (The gates that are not connected from any other gate)
 *   c. Put the first layer of gates into the main order
-*   d. For each element of the main order, check if that gate is connected to other gates
-*      -if it is, check that gates' inputs, to see if all the inputs' "from" gate ID is already in the main order
-*      -if the gate is dependent on a gate, that is not already in the main order, then skip it
-*      -if not, add the gate to the main order
+*   d. While there are gates in the current layer: 
+*       -Check if the current gate 
+* 2. Each main order should only contain the gate IDs of the same level (inside the same component)
+* 3. In each level, check if the main order's length is equal to all the gates in that level
+* 4.
 * @param component The component where the logic runs
 */
 export function logic(component: {
@@ -53,8 +54,6 @@ export function logic(component: {
             gate.nextTick = input.state;
             io = propagateIoStateChange(output.id, io);
         }else if(gate.gates){
-            const subGates: {[key: string]: Gate} = {};
-            
             const newState = logic({gates: gates, io: io, level:gate.id});
             const newGateEntries = Object.entries(newState.gates);
             const newIoEntries = Object.entries(newState.io);
@@ -64,6 +63,7 @@ export function logic(component: {
             newIoEntries.forEach(([key, newIo]) => {
                 io[key] = newIo;
             })
+            
         }
     })    
     return {gates, io};
