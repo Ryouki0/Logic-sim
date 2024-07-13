@@ -1,5 +1,3 @@
-import { BinaryInput } from "./BinaryInput";
-import { BinaryOutput } from "./BinaryOutput";
 import { Line } from "./Line";
 
 export interface Wire{

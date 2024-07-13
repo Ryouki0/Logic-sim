@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE,getClosestBlock } from '../Constants/defaultDimensions';
-import { BinaryInput } from '../Interfaces/BinaryInput';
 import { Input } from './Input';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
@@ -77,7 +76,9 @@ export default function GlobalInputs(){
 			borderWidth: DEFAULT_BORDER_WIDTH,
 			borderBottom: 0,
  			zIndex: 1,
- 			marginLeft: CANVAS_OFFSET_LEFT}}
+ 			marginLeft: CANVAS_OFFSET_LEFT
+		}}
+		onMouseDown={e=> e.preventDefault()}
  		onContextMenu={handleRightClick}
  		onMouseLeave={e => setShowGhostInput(false)}
  		onMouseMove={e => {throttledMouseMove(e);}}
@@ -109,7 +110,13 @@ export default function GlobalInputs(){
 			</div>
  		{inputs.map(( input, idx) => {
  			return (
- 				<div key={uuidv4()} style={{alignItems: 'center', justifyContent: 'center', position: 'absolute'}}>
+ 				<div key={uuidv4()} style={{
+					alignItems: 'center', 
+					justifyContent: 'center', 
+					position: 'absolute', 
+					userSelect: 'none', 
+					zIndex: 1}}
+					>
  					<Input binaryInput={{...input,
 						style: {top: (input.style?.top as number) - DEFAULT_BORDER_WIDTH, position: 'relative', left: 2*MINIMAL_BLOCKSIZE - (DEFAULT_INPUT_DIM.width/2) - (1*DEFAULT_BORDER_WIDTH)}, }} 
  					></Input>
@@ -121,7 +128,9 @@ export default function GlobalInputs(){
 						borderRadius: 10,
 						borderWidth: 0, 
 						userSelect: 'none'
-					}} onClick={e => dispatch(changeInputState(input.id))}>
+					}} onClick={e => {
+						e.preventDefault();
+						dispatch(changeInputState(input.id))}}>
  						{input.state ? 'ON' : 'OFF'}
  					</button>
  				</div>

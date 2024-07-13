@@ -31,12 +31,14 @@ export default function DisplayAllGates(){
 		position: 'absolute',
 		width: CANVAS_WIDTH,
 		height: '10%',
+		zIndex: 0,
 		backgroundColor: 'rgb(140 140 140)',
 		borderColor: 'rgb(60 60 60)',
 		borderWidth: DEFAULT_BORDER_WIDTH,
 		padding: 10,
 		paddingLeft: 2*MINIMAL_BLOCKSIZE,
 		borderStyle: 'solid'}}
+		onMouseDown={e => e.preventDefault()}
 		>
 		{Object.entries(allGates)?.map(([key, gate]) => {
 			return <div style={{

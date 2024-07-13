@@ -20,7 +20,7 @@ export default function MovableGates(){
 				globalGates[key] = gate;
 			}
 		})
-		return state.entities.gates;
+		return globalGates;
 	}, checkEquality);
 	return <>
 		{Object.entries(movableGates)?.map(([key, gate]) => {

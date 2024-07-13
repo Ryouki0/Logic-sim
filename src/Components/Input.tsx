@@ -6,7 +6,6 @@ import {
 } from "../Constants/defaultDimensions";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
-import { BinaryInput } from "../Interfaces/BinaryInput";
 import { AMBER, RED_ORANGE, SEA_MID_GREEN } from "../Constants/colors";
 import useDrawWire from "../hooks/useDrawWire";
 import { BinaryIO } from "../Interfaces/BinaryIO";

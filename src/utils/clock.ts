@@ -5,15 +5,6 @@ import { current } from "@reduxjs/toolkit";
 import { deepCopyComponent } from "./deepCopyComponent";
 
 /**
-* 1. Get the main order in the component
-*   a. Create a "mainOrder" list
-*   b. Get the first layer of gates (The gates that are not connected from any other gate)
-*   c. Put the first layer of gates into the main order
-*   d. While there are gates in the current layer: 
-*       -Check if the current gate 
-* 2. Each main order should only contain the gate IDs of the same level (inside the same component)
-* 3. In each level, check if the main order's length is equal to all the gates in that level
-* 4.
 * @param component The component where the logic runs
 */
 export function logic(component: {
@@ -36,7 +27,7 @@ export function logic(component: {
             })
             const output = io[gate.outputs[0]];
             output.state = areBothTrue ? 1 : 0; 
-            io = propagateIoStateChange(output.id, io);
+            io = propagateIoState(output.id, io);
         }else if(gate.name === 'NO'){
             let isInputTrue = true;
             gate.inputs.forEach(inputId => {
@@ -46,31 +37,109 @@ export function logic(component: {
             })
             const output = io[gate.outputs[0]];
             output.state = isInputTrue ? 0 : 1;
-            io = propagateIoStateChange(output.id, io);
+            io = propagateIoState(output.id, io);
         }else if(gate.name === 'DELAY'){
             const output = io[gate.outputs[0]];
             const input = io[gate.inputs[0]];
             output.state = gate.nextTick!;
             gate.nextTick = input.state;
-            io = propagateIoStateChange(output.id, io);
+            io = propagateIoState(output.id, io);
         }else if(gate.gates){
             const newState = logic({gates: gates, io: io, level:gate.id});
-            const newGateEntries = Object.entries(newState.gates);
-            const newIoEntries = Object.entries(newState.io);
-            newGateEntries.forEach(([key, gate]) => {
-                gates[key] = gate;
-            })
-            newIoEntries.forEach(([key, newIo]) => {
-                io[key] = newIo;
-            })
-            
+            gates = newState.gates;
+            io = newState.io;
         }
-    })    
+    })
+
+    //SCC:
+    const thisLevel: {[key: string]: Gate} = {};
+
+    Object.entries(gates).forEach(([key, gate]) => {
+        if(gate.parent === component.level){
+            thisLevel[key] = gate;
+        }
+    })
+    if(mainOrder.length !== Object.keys(thisLevel).length){
+        mainOrder.forEach(gateId => {
+            delete thisLevel[gateId];
+        })
+        const remainingGateIds = new Set(Object.keys(thisLevel));
+        while(remainingGateIds.size > 0){
+            let currentDelayGate: Gate | null = null;
+            for(const id of remainingGateIds){
+                if(gates[id].name === 'DELAY'){
+                    currentDelayGate = gates[id];
+                    break;
+                }
+            }
+            if(!currentDelayGate){
+                console.warn(`Actual circular dependency!`);
+                break;
+            }
+
+            const delayInput = io[currentDelayGate?.inputs[0]!];
+            const delayOutput = io[currentDelayGate?.outputs[0]!];
+            if(!delayInput){
+                throw new Error(`There is no input at: ${currentDelayGate?.inputs[0]}`);
+            }
+
+            const order = topologicalSort(currentDelayGate!, gates, io, thisLevel, remainingGateIds);
+            console.log(`order for currentDelayGate: ${currentDelayGate!.id.slice(0,5)}`);
+            order.forEach(id => {
+                console.log(`${id.slice(0,5)} -- ${gates[id].name}`);
+                const currentGate = gates[id];
+                if(!currentGate){
+                    throw new Error(`There is no gate with ID: ${id}`);
+                }
+
+                if(currentGate.name === 'AND'){
+                    let areBothTrue = true;
+                    currentGate.inputs.forEach(inputId => {
+                        if(io[inputId].state !== 1){
+                            areBothTrue = false;
+                        }
+                    })
+                    const output = io[currentGate.outputs[0]];
+                    output.state = areBothTrue ? 1 : 0; 
+                    propagateSCCIoState(output.id, io, gates, remainingGateIds);
+                }else if(currentGate.name === 'NO'){
+                    let isInputTrue = true;
+                    currentGate.inputs.forEach(inputId => {
+                        if(io[inputId].state !== 1){
+                            isInputTrue = false;
+                        }
+                    })
+                    const output = io[currentGate.outputs[0]];
+                    output.state = isInputTrue ? 0 : 1;
+                    propagateSCCIoState(output.id, io, gates, remainingGateIds);
+                }else if(currentGate.name === 'DELAY'){
+                    const output = io[currentGate.outputs[0]];
+                    const input = io[currentGate.inputs[0]];
+                    const fromGate = thisLevel[input.from?.gateId!];
+                    if(!remainingGateIds.has(fromGate.id)){
+                        output.state = currentGate.nextTick!;
+                        currentGate.nextTick = input.state;
+                    }else{
+                        output.state = currentGate.nextTick!;
+                    }
+                    propagateSCCIoState(output.id, io, gates, remainingGateIds);
+                }else if(currentGate.gates){
+                    const newState = logic({gates: gates, io: io, level:currentGate.id});
+                    gates = newState.gates;
+                    io = newState.io;
+                    currentGate.outputs.forEach(outputId => {
+                        propagateSCCIoState(outputId, io, gates, remainingGateIds);
+                    })
+                }
+            })
+
+        }
+    }
     return {gates, io};
  }
  
  /**
-  * Determines the order of the gates
+  * Determines the order of the gates (DAG)
   * @param gates The gates in the component
   * @param io The IO in the component
   * @returns Returns a list of gate IDs in execution order
@@ -102,7 +171,7 @@ export function getMainOrder(gates: {[key: string]: Gate}, io: {[key: string]: B
             output.to?.forEach(to => {
                 const toIo = io[to.id];
                 const fromGate = thisLevel[toIo.gateId!];
-                console.log(`currentGate: ${currentGate.id.slice(0,5)} -- ${currentGate.name}  to gate: ${fromGate?.name}`);
+                //console.log(`currentGate: ${currentGate.id.slice(0,5)} -- ${currentGate.name}  to gate: ${fromGate?.name}`);
                 if(fromGate){
                     gateIds.push(toIo.gateId!);
                 }
@@ -176,7 +245,7 @@ export function getMainOrder(gates: {[key: string]: Gate}, io: {[key: string]: B
 * @param io The whole I/O state
 * @returns The new I/O state
 */
-export function propagateIoStateChange(ioId: string, io: {[key: string]: BinaryIO}){
+export function propagateIoState(ioId: string, io: {[key: string]: BinaryIO}){
      const nextIos: string[] = [ioId];
      const newState = io[ioId].state;
      while(nextIos.length > 0){
@@ -194,6 +263,34 @@ export function propagateIoStateChange(ioId: string, io: {[key: string]: BinaryI
      return io;
  }
 
+export function propagateSCCIoState(
+    ioId: string, 
+    io: {[key: string]: BinaryIO}, 
+    gates: {[key: string]: Gate}, 
+    remainingGateIds: Set<string>
+){
+    const newState = io[ioId].state;
+    const nextIos = [ioId];
+    while(nextIos.length > 0){
+        const currentId = nextIos.pop()!;
+        const currentIo = io[currentId];
+        if(!currentIo){
+            throw new Error(`There is no input/output at ${currentId}`)
+        }
+
+        currentIo.state = newState;
+        currentIo.to?.forEach(to => {
+            const toGate = gates[to.gateId!];
+            if(toGate && toGate.name === 'DELAY' && !remainingGateIds.has(toGate.id)){
+                console.log(`changed nextTick to: ${newState}`);
+                toGate.nextTick = newState;
+            }
+
+            nextIos.push(to.id);
+        })
+    }
+}
+
 /**
  * Gives back a list of gate IDs that are connected to the "ioId"
  * @param ioId The ID whose gate connections are given back
@@ -207,4 +304,77 @@ export function propagateIoStateChange(ioId: string, io: {[key: string]: BinaryI
         }
     })
     return Array.from(connectedGates);
+ }
+
+ /**
+  * Sorts a DAG into a list of gate IDs
+  * @param root The root of the DAG
+  * @param gates The gates state
+  */
+ export function topologicalSort(
+    root: Gate, 
+    gates: {[key :string]: Gate}, 
+    io: {[key: string]: BinaryIO},
+    thisLevel: {[key: string]: Gate},
+    remainingGateIds: Set<string>
+){
+    let nextLayer: string[] = [];
+    let currentLayer: string[] = [root.id];
+    remainingGateIds.delete(root.id);
+    const order: string[] = [root.id];
+    while(currentLayer.length > 0){
+        const currentGateId = currentLayer.pop();
+        const currentGate = gates[currentGateId!];
+        if(!currentGate){
+            throw new Error(`There is no gate with ID: ${currentGateId}`);
+        }
+
+        const gateConnections = currentGate.outputs.flatMap(outputId => {
+            const output = io[outputId];
+            const gateIds: string[] = [];
+            output.to?.forEach(to => {
+                const toIo = io[to.id];
+                const toGate = thisLevel[toIo.gateId!];
+                console.log(`currentGate: ${currentGate.id.slice(0,5)} -- ${currentGate.name}  to gate: ${toGate?.name}`);
+                if(toGate){
+                    gateIds.push(toIo.gateId!);
+                }
+            })
+            return gateIds;
+        })
+
+        //If a connected gate has a connection that is in the 'remainingGateIds' then skip
+        gateConnections.forEach(gateId => {
+            const connectedGate = gates[gateId];
+            if(!connectedGate){
+                throw new Error(`There is no gate with ID: ${gateId}`);
+            }
+            if(!remainingGateIds.has(gateId)){
+                return;
+            }
+            if(connectedGate.name === 'DELAY'){
+                return;
+            }
+            connectedGate.inputs.forEach(inputId => {
+                const input = io[inputId];
+                if(!input){
+                    throw new Error(`There is no input with ID: ${inputId}`);
+                }
+                if(remainingGateIds.has(input.from?.gateId!)){
+                    return;
+                }
+            })
+            nextLayer.push(gateId);
+        })
+
+        if(currentLayer.length === 0){
+            currentLayer.push(...nextLayer);
+            order.push(...nextLayer);
+            nextLayer.forEach(nextId => {
+                remainingGateIds.delete(nextId);
+            })
+            nextLayer = [];
+        }
+    }
+    return order;
  }

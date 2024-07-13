@@ -1,9 +1,9 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { Wire } from "../../Interfaces/Wire";
 import { Gate } from "../../Interfaces/Gate";
-import { BinaryInput } from "../../Interfaces/BinaryInput";
+import { BinaryIO } from "../../Interfaces/BinaryIO";
 
-export type EntityClicked = {type: 'Gate' | 'Wire' | 'BinaryInput' | null, entity: Gate | BinaryInput | Wire | null}
+export type EntityClicked = {type: 'Gate' | 'Wire' | 'BinaryInput' | null, entity: Gate | BinaryIO | Wire | null}
 interface IEntityClicked {
 	entityClicked: EntityClicked,
 	hoveringOverWire: Wire | null,

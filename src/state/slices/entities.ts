@@ -1,11 +1,10 @@
 import { PayloadAction, createSlice, current } from "@reduxjs/toolkit";
 import { Wire } from "../../Interfaces/Wire";
 import { Gate } from "../../Interfaces/Gate";
-import { BinaryInput } from "../../Interfaces/BinaryInput";
 import {v4 as uuidv4} from 'uuid';
 
 import { BinaryIO } from "../../Interfaces/BinaryIO";
-import { propagateIoStateChange } from "../../utils/clock";
+import { propagateIoState } from "../../utils/clock";
 
 
 const ANDInputId1 = uuidv4();
@@ -193,7 +192,6 @@ const entities = createSlice({
 					}
 					state.gates[parentId].gates![prevGateIdx] = newGateId;
 					state.gates[newGateId].parent = parentId;
-					console.log(`GATE: ${gate.name} replaced the gateId from: ${gate.id} \nto: ${state.gates[parentId].gates![prevGateIdx].slice(0,5)}`);
 				}
 				/**
 				 * Create the new inputs
@@ -209,7 +207,7 @@ const entities = createSlice({
 							from.to![idxOfThisInput] = {id: newInputId, gateId: newGateId, type: from.to![idxOfThisInput].type};
 						}
 					}
-					console.log(`Changed input from: ${prevInput.id} to: ${newInputId.slice(0,5)} input is from: ${from?.id}`);
+					//console.log(`Changed input from: ${prevInput.id} to: ${newInputId.slice(0,5)} input is from: ${from?.id}`);
 					prevInput.to?.forEach(to => {
 						const toIo = state.binaryIO[to.id];
 						toIo.from = {id: newInputId, gateId: newGateId, type: toIo.from?.type!};
@@ -255,7 +253,6 @@ const entities = createSlice({
 			 */
 			function replaceGatesRecursively(gateId: string, parent: string){
 				const mainGate = state.gates[gateId];
-				console.log(`MAINGATE: ${mainGate.name} ${mainGate.id.slice(0,6)} parent: ${parent}`);
 				const newMainGateId = replaceIdsInGate(mainGate, parent);
 				mainGate.gates?.forEach(gateId => {
 					const currentGate = state.gates[gateId];
@@ -278,10 +275,7 @@ const entities = createSlice({
 			Object.entries(state.gates).forEach(([key, gate]) => {
 				gateIds.push(key);
 			})
-			console.log(`${gateIds.join(' ')}`)
-			Object.entries(state.binaryIO).forEach(([key,io]) => {
-				console.log(`${io.type}  ${key} is going to: ${io.to?.[0]?.id} and coming from: ${io.from?.id}`);
-			})
+			
 			replaceGatesRecursively(action.payload.id, 'global');
 			
 		},
@@ -302,15 +296,12 @@ const entities = createSlice({
 
 		},
 		changeInputState: (state, action:PayloadAction<string>) => {
-			console.log(`changing input state at: ${action.payload}`);
 			const newState = state.binaryIO[action.payload].state ? 0 : 1;
 			state.binaryIO[action.payload].state = newState;
 			
-			state.binaryIO = propagateIoStateChange(action.payload, state.binaryIO);
+			state.binaryIO = propagateIoState(action.payload, state.binaryIO);
 			state.binaryIO[action.payload].to?.forEach(to => {
-				console.log(`connected to : ${to.id.slice(0,5)}`);
 				const otherIo = state.binaryIO[to.id];
-				otherIo.to?.forEach(to => {console.log(`other: ${to.id}`)})
 			})
 		},
 		addGlobalOutput: (state, action: PayloadAction<BinaryIO>) => {
@@ -325,7 +316,9 @@ const entities = createSlice({
 			state.binaryIO[action.payload.id] = action.payload;
 		},
 		changeIOPosition: (state, action:PayloadAction<{id: string, position: {x:number, y:number}}>) => {
+			console.time('pos');
 			state.binaryIO[action.payload.id].position = action.payload.position;
+			console.timeEnd('pos');
 		},
 		setConnections: (state, action:PayloadAction<{connections: {wireTree: string[], outputs: string[], sourceId: string|null}[]}>) => {
 			const connections = action.payload.connections;
@@ -343,7 +336,7 @@ const entities = createSlice({
 					io.from = null;
 					io.state = 0;
 					if(io.to!.length > 0){
-						state.binaryIO = propagateIoStateChange(io.id, state.binaryIO);
+						state.binaryIO = propagateIoState(io.id, state.binaryIO);
 					}
 				}
 			}
@@ -363,7 +356,7 @@ const entities = createSlice({
 					const output = state.binaryIO[outputId];
 					output.from = source ? {id: source.id, gateId: source.gateId, type: source.type} : null;
 					output.state = source?.state ?? 0;
-					state.binaryIO = propagateIoStateChange(output.id, state.binaryIO);
+					state.binaryIO = propagateIoState(output.id, state.binaryIO);
 					if(source){
 						source.to?.push({id: output.id, gateId: output.gateId, type: output.type});
 					}

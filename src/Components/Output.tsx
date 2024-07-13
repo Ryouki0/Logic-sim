@@ -6,8 +6,6 @@ import {
 } from "../Constants/defaultDimensions";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
-import { BinaryInput } from "../Interfaces/BinaryInput";
-import { BinaryOutput } from "../Interfaces/BinaryOutput";
 import useDrawWire from "../hooks/useDrawWire";
 import { AMBER, ORANGE } from "../Constants/colors";
 import { BinaryIO } from "../Interfaces/BinaryIO";
@@ -17,15 +15,6 @@ interface BinaryOutputProps {
 	style?: React.CSSProperties | null,
 }
 
-const checkOutputStateEquality = (prev:BinaryOutput|null, next:BinaryOutput|null) => {
-	if(prev?.to !== next?.to){
-		return false;
-	} 
-	if(prev?.from !== next?.from){
-		return false;
-	}
-	return prev?.state === next?.state;
-};
 
 export function Output({style = null, output}:BinaryOutputProps) {
 
