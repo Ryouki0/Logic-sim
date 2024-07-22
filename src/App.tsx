@@ -8,6 +8,7 @@ import GlobalOutputs from "./Components/GlobalOutputs";
 import EmptyComponent from "./Components/EmptyComponent";
 import Toolbar from "./Components/toolbar/Toolbar";
 import CanvasTop from "./Components/CanvasTop";
+import BootstrapLogic from "./Components/bootstrapLogic";
 function App() {
 	const [hello, setHello] = useState<any>();
 	useEffect(() => {
@@ -42,6 +43,7 @@ function App() {
 			<GlobalOutputs></GlobalOutputs>
 			<EmptyComponent></EmptyComponent>
 			<Toolbar></Toolbar>
+			<BootstrapLogic></BootstrapLogic>
 		</>
 	);
 }

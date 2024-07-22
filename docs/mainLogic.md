@@ -1,8 +1,8 @@
 # The main logic of the simulator
-In this simulator, two types of graphs can be created with the gates. The first, and simpler one is a directed acyclic graph (DAG).
+In this simulator, two types of graphs can be created with the gates. The first is a directed acyclic graph (DAG).
 The second is a strongly connected component (SCC). These types of graphs can coexist.
 
-To sort the gates in a DAG, topological sort is used. However topoligcal sort is intrinsically incapable of finding SCCs.
+To sort the gates in a DAG, topological sort is used. However topoligcal sort is incapable of finding SCCs.
 If a gate is connected to another gate, which is a member of an SCC, the topological sort will skip it.
 Normally SCCs should create an infinite loop, but with delay gates, the ordering of an SCC can be derived,
 since the input of a delay gate doesn't affect the output in the same tick.

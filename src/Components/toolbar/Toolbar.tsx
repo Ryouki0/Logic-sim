@@ -3,6 +3,7 @@ import Clock from './Clock';
 import CreateButton from './CreateButton';
 import SelectedComponent from './SelectedComponent';
 import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH } from '../../Constants/defaultDimensions';
+import TestButton from './TestButton';
 
 export default function Toolbar() {
     return <div style={{
@@ -19,5 +20,6 @@ export default function Toolbar() {
          <SelectedComponent></SelectedComponent>
          <Clock></Clock>
          <CreateButton></CreateButton>
+         <TestButton></TestButton>
      </div>
 }

@@ -25,7 +25,7 @@ function checkInputs(prev:BinaryIO[],next:BinaryIO[]){
 export default function GlobalInputs(){
 	const currentInputsRef = useRef<HTMLDivElement | null>(null);
 	const inputs = useSelector((state: RootState) => {
-		return Object.entries(state.entities.binaryIO).map(([key, io]) => 
+		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => 
 		{
 			if(io.type === 'input' && !io.gateId){
 				return io;

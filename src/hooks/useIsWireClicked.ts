@@ -8,7 +8,7 @@ import { calculateLinePoints, isPointOnDiagonalLine, isPointOnLine } from '../ut
 
 
 export default function useIsWireClicked(){
-	const wires = useSelector((state: RootState) => {return state.entities.wires;});
+	const wires = useSelector((state: RootState) => {return state.entities.currentComponent.wires;});
 	const dispatch = useDispatch();
 	/**
 	 * Tells if a point is on any wire (Only gives back the last wire that contains the point).

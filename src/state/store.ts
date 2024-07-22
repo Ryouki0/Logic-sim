@@ -1,4 +1,4 @@
-import { configureStore} from "@reduxjs/toolkit";
+import { configureStore, Tuple} from "@reduxjs/toolkit";
 import mouseEventsSlice from "./slices/mouseEventsSlice";
 import entities from "./slices/entities";
 import clock from './slices/clock';
@@ -7,7 +7,10 @@ export const store = configureStore({
 		mouseEventsSlice,
 		entities,
 		clock
-	}
+	},
+	middleware: (getDefaultMiddleWare) => {return getDefaultMiddleWare({
+		serializableCheck: false,
+	})},
 });
 
 export type RootState = ReturnType<typeof store.getState>;

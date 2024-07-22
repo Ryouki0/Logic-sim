@@ -19,7 +19,8 @@ interface BinaryOutputProps {
 export function Output({style = null, output}:BinaryOutputProps) {
 
 	const startDrawing = useDrawWire();
-	const thisOutput = useSelector((state:RootState) => {return state.entities.binaryIO[output?.id]})
+	const thisOutput = useSelector((state:RootState) => {
+		return state.entities.binaryIO[output?.id] ?? state.entities.currentComponent.binaryIO[output?.id]})
 	const handleMouseDown = (e: React.MouseEvent<any>) => {
 		e.preventDefault();
 		e.stopPropagation();

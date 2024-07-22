@@ -26,17 +26,17 @@ const checkWireSourceEquality = (prev:{[key: string]: BinaryIO|null}, next: {[ke
 
 export default function useRedrawCanvas(){
 
-	const wires = useSelector((state: RootState) => state.entities.wires);
+	const wires = useSelector((state: RootState) => state.entities.currentComponent.wires);
 		
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire;});
 	const drawingWire = useSelector((state:RootState) => {return state.mouseEventsSlice.drawingWire;});
 	//Create a hashmap with the wires' IDs as keys, and the input/output they are connected from as values
 	const wireSources = useSelector((state:RootState) => {
-		const wireEntries = Object.entries(state.entities.wires);
+		const wireEntries = Object.entries(state.entities.currentComponent.wires);
 		const sourceMap: {[key: string]: BinaryIO|null} = {};
 		for(const [key, wire] of wireEntries){
-			const source = state.entities.binaryIO[wire.from?.id!];
+			const source = state.entities.currentComponent.binaryIO[wire.from?.id!];
 			sourceMap[key] = source ? source : null;
 		}
 		return sourceMap;

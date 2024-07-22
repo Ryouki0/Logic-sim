@@ -9,7 +9,7 @@ import { addGlobalOutput } from '../state/slices/entities';
 
 export default function GlobalOutputs() {
 	const outputs = useSelector((state: RootState) => {
-		return Object.entries(state.entities.binaryIO).map(([key, io]) => {
+		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => {
 			if(io.type === 'output' && !io.gateId){
 				return io;
 			}else{

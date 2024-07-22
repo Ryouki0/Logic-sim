@@ -34,7 +34,8 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 	const eleRef = useRef<HTMLDivElement>(null);
 	//const objectClicked = useSelector((state: RootState) => {return state.mouseEventsSlice.objectClicked;});
 	const startDrawing = useDrawWire();
-	const thisInput = useSelector((state: RootState) => {return state.entities.binaryIO[binaryInput.id];}, inputEquality);
+	const thisInput = useSelector((state: RootState) => {
+		return state.entities.binaryIO[binaryInput.id] ?? state.entities.currentComponent.binaryIO[binaryInput.id];}, inputEquality);
 	//const allInputs = useSelector((state:RootState) => {return state.entities.currentInputs});
 	
 	const handleMouseDown = (e:React.MouseEvent<any>) => {
@@ -54,7 +55,7 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 	
 	return (
 		<>
-			{/*gateId ? console.log(`currentInput state: ${currentInput?.state}`) : null*/}
+			{/* {console.log(`RENDER INPUT -- ${thisInput?.gateId?.slice(0,5)}`)} */}
 			<div ref={eleRef}
 				style={{
 					width: DEFAULT_INPUT_DIM.width,

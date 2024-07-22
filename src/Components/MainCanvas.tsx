@@ -1,5 +1,5 @@
-import React from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import useDrawWire from '../hooks/useDrawWire';
 import useRedrawCanvas from '../hooks/useRedrawCanvas';
 import { CANVAS_OFFSET_LEFT, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
@@ -10,21 +10,29 @@ import { setHoveringOverWire, setSelectedEntity } from '../state/slices/mouseEve
 import { getClosestBlock } from '../Constants/defaultDimensions';
 import { deleteWire } from '../state/slices/entities';
 import { FRENCH_GREY } from '../Constants/colors';
+import { RootState } from '../state/store';
 export default function MainCanvas(){
 	const canvasRef = useRedrawCanvas();
+	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire});
 	const {checkWire} = useIsWireClicked();
 	const startDrawing = useDrawWire();
 	const dispatch = useDispatch();
-	const throttledCheckWire = throttle((x:number, y:number) => {
+	const throttledCheckWire = throttle((e: MouseEvent) => {
+		const x = e.x;
+		const y = e.y;
 		const wire = checkWire(x,y);
-		if(!wire){
-			dispatch(setHoveringOverWire(null));
+		if(hoveringOverWire && hoveringOverWire?.id === wire?.id){
 			return;
 		}
-		dispatch(setHoveringOverWire(wire));
+		if(hoveringOverWire && !wire){
+			dispatch(setHoveringOverWire(null));
+			return;
+		}else if(wire && hoveringOverWire?.id !== wire.id){
+			dispatch(setHoveringOverWire(wire!));
+		}
 	}, 16);
 
-	const handleContextMenu = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+	const handleContextMenu = (e: MouseEvent) => {
 		e.preventDefault(); 
 		const wire = checkWire(e.pageX, e.pageY);
 		if(!wire){
@@ -33,7 +41,7 @@ export default function MainCanvas(){
 		dispatch(deleteWire(wire.id));
 	};
 
-	const drawWireFromWire = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+	const drawWireFromWire = (e: MouseEvent) => {
 		if(e.button !== 0){
 			return;
 		}
@@ -43,20 +51,27 @@ export default function MainCanvas(){
 			return;
 		}
 		dispatch(setSelectedEntity({type:'Wire', entity: wire}));
-		// wire.wirePath.forEach(w => {
-		// 	console.log(`${w.slice(0,6)}`);
-		// })
-		startDrawing(e, wire.from, wire);
+		
+		startDrawing(e as unknown as React.MouseEvent<HTMLCanvasElement, MouseEvent>, wire.from, wire);
 	};
+
+	useEffect(() => {
+		canvasRef.current?.addEventListener('mousedown', drawWireFromWire)
+		canvasRef.current?.addEventListener('contextmenu', handleContextMenu)
+		canvasRef.current?.addEventListener('mousemove', throttledCheckWire)
+
+		return () => {
+			canvasRef.current?.removeEventListener('mousedown', drawWireFromWire);
+			canvasRef.current?.removeEventListener('contextmenu', handleContextMenu);
+			canvasRef.current?.removeEventListener('mousemove', throttledCheckWire);
+		}
+	}, [hoveringOverWire, canvasRef, startDrawing])
 
 	return (
 		<>
 			<canvas
 				id="main-canvas"
 				ref={canvasRef}
-				onMouseDown={e => {drawWireFromWire(e);}}
-				onMouseMove={e => {throttledCheckWire(e.pageX,e.pageY);}}
-				onContextMenu={e => {handleContextMenu(e);}}
 				style={{
 					backgroundColor: 'rgb(208 204 208 / 80%)',
 					marginLeft: CANVAS_OFFSET_LEFT,

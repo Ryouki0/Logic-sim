@@ -10,6 +10,7 @@ import './../gate.css';
 import { calculateInputTop } from '../utils/calculateInputTop';
 import { setSelectedEntity } from '../state/slices/mouseEventsSlice';
 import { BinaryIO } from '../Interfaces/BinaryIO';
+import { createSelector } from '@reduxjs/toolkit';
 import { addGate, changeGatePosition, changeIOPosition, changeInputState, deleteComponent } from '../state/slices/entities';
 interface CustomGateProps{
     gateProps: Gate,
@@ -22,14 +23,16 @@ function checkInputEquality(prev:BinaryIO[], next:BinaryIO[]){
 	return prev?.length === next?.length;
 }
 function checkOutputEquality(prev: BinaryIO[], next: BinaryIO[]){
-	let isEqual = true;
-	prev?.forEach((prev,idx,array) => {
-		if(prev?.state !== next[idx]?.state){
-			isEqual = false;
-		}
-	});
-	return isEqual;
-	
+	// //console.time(`oEquality`);
+	// let isEqual = true;
+	// prev?.forEach((prev,idx,array) => {
+	// 	if(prev?.state !== next[idx]?.state){
+	// 		isEqual = false;
+	// 	}
+	// });
+	// //console.timeEnd(`oEquality`);
+	// return isEqual;
+	return true;
 }
 function checkGateEquality(prev: Gate, next: Gate){
 	if(!prev || !next){
@@ -38,7 +41,6 @@ function checkGateEquality(prev: Gate, next: Gate){
 	if(prev?.nextTick !== next?.nextTick){
 		return false;
 	}
-	
 	return prev.position?.x === next.position?.x && prev.position?.y === next.position?.y;
 }
 
@@ -46,7 +48,8 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 	const eleRef = React.useRef<HTMLDivElement>(null);
 	const dispatch = useDispatch();
 	
-	const thisGate = useSelector((state: RootState) => {return state.entities.gates[gateProps.id];}, checkGateEquality);
+	const thisGate = useSelector((state: RootState) => {return state.entities.gates[gateProps.id] ?? 
+		state.entities.currentComponent.gates[gateProps.id];}, checkGateEquality);
     
 	const offsetRef = useRef({dx: 
 		thisGate?.position ? thisGate.position.x : 0, 
@@ -64,12 +67,11 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 
 		}else{
 			return gateProps.inputs.map(input => {
-				return state.entities.binaryIO[input];
+				return state.entities.binaryIO[input] ?? state.entities.currentComponent.binaryIO[input];
 			});
 
 		}
 	}, checkInputEquality);
-
 	const outputs = useSelector((state: RootState) => {
 		if(preview){
 			return gateProps.outputs.map(outputId => {
@@ -77,35 +79,16 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 			})
 		}else{
 			return gateProps.outputs.map(outputId => {
-				return state.entities.binaryIO[outputId];
+				return state.entities.binaryIO[outputId] ?? state.entities.currentComponent.binaryIO[outputId];
 			});
 		}
 		
 	}, checkOutputEquality);
 	const inputLength = gateProps.inputs.length;
 	const outputLength = gateProps.outputs.length;
-
 	function setPositions(x: number, y: number){
-		//console.log(`gateProps.position changing: ${thisGate?.position?.x} ${thisGate?.position?.y}`)
 		console.time(`setPositions`);
-		inputs.forEach((input,idx,array)=> {
-			
-			dispatch(changeIOPosition({id: input.id, position:{
-				x:x, 
-				y:y + (calculateInputTop(idx, array.length) + DEFAULT_INPUT_DIM.height/2 + idx*DEFAULT_INPUT_DIM.height)}} ))
-		})
-		outputs.forEach((output,idx,array) => {
-			dispatch(changeIOPosition({
-				id: output.id,
-				position: {
-					x:x + 3*MINIMAL_BLOCKSIZE,
-					y:y + calculateInputTop(idx, array.length) + (idx*DEFAULT_INPUT_DIM.height) +DEFAULT_INPUT_DIM.height/2,
-				}
-			}))
-		})
-		console.time(`gatePos`);
 		dispatch(changeGatePosition({gate: thisGate, position: {x: x,y: y}}));
-		console.timeEnd(`gatePos`);
 		console.timeEnd(`setPositions`);
 	};
 
@@ -118,9 +101,11 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 		return longest % 2 === 0 ? (longest * MINIMAL_BLOCKSIZE) + LINE_WIDTH : ((longest-1) * MINIMAL_BLOCKSIZE) +LINE_WIDTH;
 	};
 
-	const print = () => {
-		
-	};
+	const handleContextMenu = (e: MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		dispatch(deleteComponent(thisGate.id))
+	}
 
 	const handlePreviewMouseDown = () => {
 		dispatch(addGate({...gateProps, position: {
@@ -131,11 +116,18 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 		console.log('created gate');
 	};
 
+	useEffect(() => {
+		eleRef.current?.addEventListener('contextmenu', handleContextMenu);
+
+		return () => {
+			eleRef.current?.removeEventListener('contextmenu', handleContextMenu);
+		}
+	}, [inputs, outputs, thisGate])
+
 	return	(
 		<>
-			{/*console.log('RENDER CUSTOMGATE ')*/}
-			<div ref={eleRef} 
-				className='Gate-container'
+			<div ref={eleRef}
+			className='Gate-container'
 				style={{width: 3*MINIMAL_BLOCKSIZE, 
 					height: calculateDivHeight(),
 					position: position ? position : 'relative',
@@ -148,13 +140,9 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 					cursor: 'pointer',
 					backgroundColor: "rgb(100 100 100)"}} 
 				id={gateProps.id}
-				onContextMenu={e => {
-					e.preventDefault();
-					e.stopPropagation();
-					dispatch(deleteComponent(thisGate.id))}}
+				
 				onMouseEnter={e => {if(preview){
 					e.stopPropagation();
-					print();
 					handlePreviewMouseDown();
 				}}}
 			
@@ -169,7 +157,7 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 						handleMouseDown(e, eleRef, dispatch, offsetRef.current.dx, offsetRef.current.dy, setOffset, setPositions);
 					}}}
 				>
-				{inputs.map((input, idx, array) => {
+				{inputs?.map((input, idx, array) => {
 					return <Input binaryInput={{...input, 
 						style: {
 							top: calculateInputTop(idx, array.length)

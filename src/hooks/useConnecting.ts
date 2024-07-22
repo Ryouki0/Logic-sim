@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { Wire } from '../Interfaces/Wire';
 import { current } from '@reduxjs/toolkit';
@@ -38,7 +38,7 @@ const checkIOEquality = (prev: {[key: string]: BinaryIO}, next: {[key: string]: 
     for(const [key, io] of prevEntries){
         const nextIo = next[key];
         if(io.position?.x !== nextIo.position?.x || io.position?.y !== nextIo.position?.y){
-            isEqual = false;
+            return false;
         }
     }
     return isEqual
@@ -46,16 +46,10 @@ const checkIOEquality = (prev: {[key: string]: BinaryIO}, next: {[key: string]: 
 
 
 export default function useConnecting(){
-    const wires = useSelector((state: RootState) => {return state.entities.wires}, checkWireEquality);
+    const wires = useSelector((state: RootState) => {return state.entities.currentComponent.wires}, checkWireEquality);
     const io = useSelector((state: RootState) => {
-        const globalIO: {[key: string]: BinaryIO} = {};
-        Object.entries(state.entities.binaryIO).forEach(([key, io]) => {
-            if(io.parent === 'global'){
-                globalIO[key] = io;
-            }
-        })
-        return globalIO;
-    }, checkIOEquality);
+        return state.entities.currentComponent.binaryIO;
+    }, checkIOEquality)
     const drawingWire = useSelector((state: RootState) => {return state.mouseEventsSlice.drawingWire}, checkDrawingWireEquality);
     const dispatch = useDispatch();
     

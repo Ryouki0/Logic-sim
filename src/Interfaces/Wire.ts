@@ -5,7 +5,6 @@ export interface Wire{
     diagonalLine: Line,
     connectedToId: {id:string, type: 'input' | 'output', gateId?: string | null}[],
     from?: {id: string, type:'input' | 'output', gateId?: string | null} | null,
-    wirePathConnectedTo?: {id:string, type:'input' | 'output', gateId?: string | null}[],
     id: string,
     state?: 0 | 1,
     error?: boolean | null,

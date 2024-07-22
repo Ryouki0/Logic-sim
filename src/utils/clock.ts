@@ -10,14 +10,14 @@ import { deepCopyComponent } from "./deepCopyComponent";
 export function logic(component: {
     gates: {[key: string]: Gate},
     io: {[key: string]: BinaryIO},
-    level: string
+    level: string,
  })
  {
     let {gates, io} = deepCopyComponent({gates: component.gates, io: component.io});
     const mainOrder = getMainOrder(gates, io, component.level);
     mainOrder.forEach(gateId => {
         const gate = gates[gateId];
-        console.log(`Running: ${gateId.slice(0,5)} -- ${gate.name} in level: ${component.level}`);
+        //console.log(`Running: ${gateId.slice(0,5)} -- ${gate.name} in level: ${component.level}`);
         if(gate.name === 'AND'){
             let areBothTrue = true;
             gate.inputs.forEach(inputId => {
@@ -84,9 +84,9 @@ export function logic(component: {
             }
 
             const order = topologicalSort(currentDelayGate!, gates, io, thisLevel, remainingGateIds);
-            console.log(`order for currentDelayGate: ${currentDelayGate!.id.slice(0,5)}`);
+            //console.log(`order for currentDelayGate: ${currentDelayGate!.id.slice(0,5)}`);
             order.forEach(id => {
-                console.log(`${id.slice(0,5)} -- ${gates[id].name}`);
+                //console.log(`${id.slice(0,5)} -- ${gates[id].name}`);
                 const currentGate = gates[id];
                 if(!currentGate){
                     throw new Error(`There is no gate with ID: ${id}`);
@@ -157,10 +157,10 @@ export function getMainOrder(gates: {[key: string]: Gate}, io: {[key: string]: B
     let currentLayer = getPathRoots(thisLevel, io);
     let nextLayer: string[] = [];
     currentLayer.forEach(gateId =>{
-        console.log(`gateId in the roots: ${gateId.slice(0,5)}`);
+        //console.log(`gateId in the roots: ${gateId.slice(0,5)}`);
     })
     Object.entries(thisLevel).forEach(([key, gate]) => {
-        console.log(`gates in thisLevel: ${gate.id.slice(0,5)} -- ${gate.name}`);
+        //console.log(`gates in thisLevel: ${gate.id.slice(0,5)} -- ${gate.name}`);
     })
     mainOrder.push(...currentLayer);
     while(currentLayer.length > 0){
@@ -207,7 +207,7 @@ export function getMainOrder(gates: {[key: string]: Gate}, io: {[key: string]: B
             currentLayer.push(...nextLayer);
             mainOrder.push(...nextLayer);
             nextLayer.forEach(nextId => {
-                console.log(`next layer: ${nextId.slice(0,5)}`);
+                //console.log(`next layer: ${nextId.slice(0,5)}`);
             })
             nextLayer = [];
         }
@@ -282,7 +282,7 @@ export function propagateSCCIoState(
         currentIo.to?.forEach(to => {
             const toGate = gates[to.gateId!];
             if(toGate && toGate.name === 'DELAY' && !remainingGateIds.has(toGate.id)){
-                console.log(`changed nextTick to: ${newState}`);
+                //console.log(`changed nextTick to: ${newState}`);
                 toGate.nextTick = newState;
             }
 
@@ -335,7 +335,7 @@ export function propagateSCCIoState(
             output.to?.forEach(to => {
                 const toIo = io[to.id];
                 const toGate = thisLevel[toIo.gateId!];
-                console.log(`currentGate: ${currentGate.id.slice(0,5)} -- ${currentGate.name}  to gate: ${toGate?.name}`);
+                //console.log(`currentGate: ${currentGate.id.slice(0,5)} -- ${currentGate.name}  to gate: ${toGate?.name}`);
                 if(toGate){
                     gateIds.push(toIo.gateId!);
                 }
