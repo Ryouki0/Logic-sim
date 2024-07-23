@@ -37,7 +37,7 @@ export default function useRedrawCanvas(){
 		const sourceMap: {[key: string]: BinaryIO|null} = {};
 		for(const [key, wire] of wireEntries){
 			const source = state.entities.currentComponent.binaryIO[wire.from?.id!];
-			sourceMap[key] = source ? source : null;
+			sourceMap[key] = source;
 		}
 		return sourceMap;
 	}, checkWireSourceEquality)

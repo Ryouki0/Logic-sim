@@ -13,41 +13,63 @@ onmessage = async function (event: MessageEvent<{
     hertz: number,
     startTime: number
 }>) {
-    console.log(`worker`);
     const hertz = event.data.hertz;
     const refreshRate = event.data.refreshRate;
     const maxHertzInLoop = hertz / refreshRate;
     const loopTime = 1000 / refreshRate;
-    const workerStartTime = Date.now();
-    console.log(`time elapsed since passing in the data: ${Date.now() - event.data.startTime}`);
-    const avgError = 2;
+    let prevError = 0;
+
     let gates = event.data.gates;
     let io = event.data.io;
     let actualHertz = 0;
-
-    const hertzList:number[] = Array(refreshRate).fill(Math.floor(maxHertzInLoop));
+    let currentLoopNumber = 0;
     
-    const remainder = hertz % refreshRate;
-    for(let i = 0; i< remainder;i++){
-        hertzList[i]++;
+    let hertzList:number[];
+    
+    //Create a hertz list, where the remainders are evenly spread out.
+    if(hertz >= refreshRate){
+        hertzList = Array(refreshRate).fill(Math.floor(maxHertzInLoop));
+
+        const remainder = hertz % refreshRate;
+        const interval = Math.floor(refreshRate / remainder);
+        for(let i = 0; i< remainder;i++){
+            hertzList[i*interval]++;
+        }
+    }else{
+        hertzList = Array(refreshRate).fill(0);
+
+        const interval = Math.floor(refreshRate / hertz);
+
+        for(let i = 0;i<hertz;i++) {
+            hertzList[(i*interval) % refreshRate] = 1;
+        }
     }
+    
+    let measureErrorStart = this.performance.now();
+
     while(true){
         for(const currentMaxHertz of hertzList){
             const thisStartTime = Date.now();
+            measureErrorStart = this.performance.now();
             actualHertz = 0;
             for(let i = 0;i<currentMaxHertz;i++){
-                console.log(`currentMaxHertz: ${currentMaxHertz}`);
                 const newState = logic({gates: gates, io: io, level: 'global'});
                 
                 actualHertz++;
                 gates = newState.gates;
                 io = newState.io;
-                if(Date.now() - thisStartTime >= loopTime - avgError){
+                if(Date.now() - thisStartTime >= loopTime){
                     break;
                 }
             }
             postMessage({gates: gates, binaryIO: io, actualHertz: actualHertz} as WorkerEvent);
-            await pause(loopTime - (Date.now() - thisStartTime) - avgError);
+            await pause(loopTime - (Date.now() - thisStartTime) - prevError);
+
+            //Calculate the previous loop's error
+            const shouldHavePassedTime = loopTime - prevError;
+            const trueTimePassed = this.performance.now() - measureErrorStart;
+            const timeDiff = shouldHavePassedTime - trueTimePassed;
+            prevError = Math.floor(-(timeDiff));
         }
     }
 }

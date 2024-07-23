@@ -4,9 +4,21 @@ import { RootState } from '../state/store';
 import { Wire } from '../Interfaces/Wire';
 import { current } from '@reduxjs/toolkit';
 import isWireConnectedToWire from '../utils/isWireConnectedToWire';
-import { setConnections } from '../state/slices/entities';
+import { raiseShortCircuitError, setConnections } from '../state/slices/entities';
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import checkLineEquality from '../utils/checkLineEquality';
+
+
+class ShortCircuitError extends Error{
+    wireTree: string[];
+    constructor(wireTree: string[]) {
+        super("Short circuit");
+        this.name = "Short circuit";
+        this.wireTree = wireTree;
+        Object.setPrototypeOf(this, ShortCircuitError.prototype);
+    }
+}
+
 //Only trigger re-render when the drawingWire is null, so that the wire won't connect when drawing
 const checkDrawingWireEquality = (prev:string|null,next:string|null) => {
     if(prev && !next){
@@ -73,7 +85,10 @@ export default function useConnecting(){
 
         const connections: {wireTree: string[], outputs: string[], sourceId: string|null}[] = [];
         allWireTrees.forEach(tree => {
-            const {outputs, sourceId} = getConnections(tree);
+            const {outputs, sourceId, error} = getConnections(tree);
+            if(error){
+                return;
+            }
             connections.push({wireTree: tree, outputs: outputs, sourceId: sourceId});
         })
         dispatch(setConnections({connections: connections}));
@@ -118,28 +133,38 @@ export default function useConnecting(){
      * @param wireTree The wire tree
      * @returns {string[]} The IDs of the IOs that are connected to the tree.
      */
-    function getConnections(wireTree: string[]):{outputs:string[], sourceId: string|null}{
+    function getConnections(wireTree: string[]):{outputs:string[], sourceId: string|null, error?: boolean,
+    }{
         const outputs:string[] = [];
         let sourceId: string|null = null;
-        wireTree.forEach(wireId => {
-            const wire = wires[wireId];
-            Object.entries(io).forEach(([key, io]) => {
-                const isOnIo = 
-                (wire.linearLine.startX === io.position?.x && wire.linearLine.startY === io.position?.y) ||
-                (wire.diagonalLine.endX === io.position?.x && wire.diagonalLine.endY === io.position?.y);
-
-                if(isOnIo){
-                    if((io.type === 'input' && !io.gateId) || (io.type === 'output' && io.gateId)){
-                        if(sourceId && sourceId !== key){   
-                            console.warn(`Short circuit! ${sourceId.slice(0,5)} -> ${key.slice(0,5)}`);
+        try{
+            wireTree.forEach(wireId => {
+                const wire = wires[wireId];
+                Object.entries(io).forEach(([key, io]) => {
+                    const isOnIo = 
+                    (wire.linearLine.startX === io.position?.x && wire.linearLine.startY === io.position?.y) ||
+                    (wire.diagonalLine.endX === io.position?.x && wire.diagonalLine.endY === io.position?.y);
+    
+                    if(isOnIo){
+                        if((io.type === 'input' && !io.gateId) || (io.type === 'output' && io.gateId)){
+                            if(sourceId && sourceId !== key){ 
+                                console.warn(`Short circuit! ${sourceId.slice(0,5)} -> ${key.slice(0,5)}`);
+                                throw new ShortCircuitError(wireTree);
+                            }
+                            sourceId = key;
+                            return;
                         }
-                        sourceId = key;
-                        return;
+                        outputs.push(key);
                     }
-                    outputs.push(key);
-                }
+                })
             })
-        })
+        }catch(err){
+            if(err instanceof ShortCircuitError){
+                dispatch(raiseShortCircuitError({wireTree: err.wireTree}));
+            }
+            return {outputs: [], sourceId: null, error: true};
+        }
+        
         return {outputs, sourceId};
     }
 }

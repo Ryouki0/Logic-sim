@@ -31,7 +31,7 @@ const clockSlice = createSlice({
 		setActualRefreshRate: (state, action: PayloadAction<number>) => {
 			state.actualRefreshRate = action.payload;
 		},
-		setActauls: (state, action: PayloadAction<{actualHertz: number, actualRefreshRate: number}>) => {
+		setActuals: (state, action: PayloadAction<{actualHertz: number, actualRefreshRate: number}>) => {
 			state.actualHertz = action.payload.actualHertz;
 			state.actualRefreshRate = action.payload.actualRefreshRate;
 		}
@@ -45,5 +45,5 @@ export const {
 	setIsRunning,
 	setActualHertz,
 	setActualRefreshRate,
-	setActauls
+	setActuals
 } = clockSlice.actions;

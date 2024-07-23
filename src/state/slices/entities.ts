@@ -4,7 +4,6 @@ import { Gate } from "../../Interfaces/Gate";
 import {v4 as uuidv4} from 'uuid';
 
 import { BinaryIO } from "../../Interfaces/BinaryIO";
-import { propagateIoState } from "../../utils/clock";
 import { calculateInputTop } from "../../utils/calculateInputTop";
 import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
 import { propagateIo } from "../../utils/propagateIo";
@@ -245,16 +244,16 @@ const entities = createSlice({
 						parent: parentId
 					};
 				
-					if (parentId === 'global') {
+					if(parentId === 'global') {
 						state.currentComponent.binaryIO[newInputId] = newInput;
-					} else {
+					}else{
 						state.binaryIO[newInputId] = newInput;
 					}
 				
 					let from = state.binaryIO[prevInput.from?.id!] ?? state.currentComponent.binaryIO[prevInput.from?.id!];
-					if (from) {
+					if(from){
 						const idxOfThisInput = from.to?.findIndex(to => to.id === prevInput.id);
-						if (idxOfThisInput !== undefined && idxOfThisInput !== -1) {
+						if(idxOfThisInput !== undefined && idxOfThisInput !== -1) {
 							from.to![idxOfThisInput] = { id: newInputId, gateId: newGateId, type: from.to![idxOfThisInput].type };
 						}
 					}
@@ -283,13 +282,13 @@ const entities = createSlice({
 						const toIo = state.binaryIO[to.id] ?? state.currentComponent.binaryIO[to.id];
 						if(!toIo){
 							Object.entries(state.binaryIO).forEach(([key, io]) => {
-								console.log(`WHOLE STATE: ${key}`);
+								console.log(`whole state: ${key}`);
 							})
 							throw new Error(`No IO at ID: ${to.id}\nWhen prevOutput is: ${prevOutput.id} and gate is: ${gate.name} gateId: ${gate.id}`);
 						}
 						toIo.from = {id: newOutputId, gateId: newGateId, type: toIo.from?.type!};
 					})
-					const from = state.binaryIO[prevOutput.from?.id!] ?? state.currentComponent.gates[prevOutput.from?.id!];
+					const from = state.binaryIO[prevOutput.from?.id!] ?? state.currentComponent.binaryIO[prevOutput.from?.id!];
 					if(from){
 						const idxOfThisInput = from.to?.findIndex(to => to.id === prevOutput.id);
 						if(idxOfThisInput !== undefined && idxOfThisInput !== -1){
@@ -437,9 +436,7 @@ const entities = createSlice({
 					}
 				}
 			}
-			for(const [key, wire] of wireEntries){
-				state.currentComponent.wires[key].from = null;
-			}
+
 			connections.forEach(connection => {
 				const source = state.currentComponent.binaryIO[connection.sourceId!];
 				if(source){
@@ -447,6 +444,7 @@ const entities = createSlice({
 				}
 
 				connection.wireTree.forEach(wireId => {
+					state.currentComponent.wires[wireId].error = false;
 					state.currentComponent.wires[wireId].from = source ? {id: source.id, gateId: source.gateId, type: source.type} : null;
 				})
 				connection.outputs.forEach(outputId => {
@@ -455,6 +453,15 @@ const entities = createSlice({
 					output.state = source?.state ?? 0;
 					propagateIo(output.id, state.binaryIO, state.currentComponent.binaryIO);
 					if(source){
+						let contains = false;
+						source.to?.forEach(to => {
+							if(to.id === output.id){
+								contains = true;
+							}
+						})
+						if(contains){
+							return;
+						}
 						source.to?.push({id: output.id, gateId: output.gateId, type: output.type});
 					}
 				})
@@ -594,7 +601,12 @@ const entities = createSlice({
 			state.gates = {};
 			state.wires = {};
 			state.binaryIO = {};
-		}
+		},
+		raiseShortCircuitError: (state, action: PayloadAction<{wireTree: string[]}>) => {
+			action.payload.wireTree.forEach(wireId => {
+				state.currentComponent.wires[wireId].error = true;
+			})
+		},
 	}
 });
 export default entities.reducer;
@@ -610,7 +622,8 @@ export const {addWire,
 	deleteWire,
 	deleteComponent,
 	updateState,
-	createBluePrint} = entities.actions;
+	createBluePrint,
+	raiseShortCircuitError} = entities.actions;
 // const entities = createSlice({
 // 	name: 'entities',
 // 	initialState: initialState,

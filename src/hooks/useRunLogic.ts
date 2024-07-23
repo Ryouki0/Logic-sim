@@ -4,9 +4,9 @@ import { RootState } from '../state/store';
 import { Gate } from '../Interfaces/Gate';
 import { createSelector } from '@reduxjs/toolkit';
 import { create } from 'domain';
-import { setActauls, setActualHertz, setHertz } from '../state/slices/clock';
+import { setActuals, setActualHertz, setHertz } from '../state/slices/clock';
 import { updateState } from '../state/slices/entities';
-import { WorkerEvent } from '../myWorker.worker';
+import { WorkerEvent } from '../logic.worker';
 const checkGateEquality = (prev: {[key: string]: Gate}, next: {[key: string]: Gate}) => {
     const prevEntires = Object.entries(prev);
     const nextEntries = Object.entries(next);
@@ -55,8 +55,8 @@ export default function useRunLogic(){
     }, [gates, currentComponent, io]);
 
     useEffect(() => {
-        const MyWorker = require('../myWorker.worker.ts').default;
-        importedWorkerRef.current = MyWorker;
+        const logicWorker = require('../logic.worker.ts').default;
+        importedWorkerRef.current = logicWorker;
     }, [])
 
     useEffect(() => {
@@ -67,26 +67,29 @@ export default function useRunLogic(){
 
             workerRef.current!.onmessage = (event: MessageEvent<WorkerEvent>) => {
                 
-                newWorkerData.current = event.data;
-                shouldUpdateWorker.current = false;
-                timeTook.current = Date.now() - timeTookStart.current;
-                
-                console.log(`time took for the web worker: ${timeTook.current}`);
-                
-                const newData = newWorkerData.current;
-                console.log(`newData: ${newData.actualHertz}`);
-                dispatch(updateState({gates: newData!.gates, binaryIO: newData!.binaryIO}));
-                
-                actualRefreshRate.current++;
-                actualHertz.current += newData!.actualHertz;
-                
-                if(Date.now() - startTime.current >= 1000){
-                    dispatch(setActauls({actualHertz: actualHertz.current, actualRefreshRate: actualRefreshRate.current}))
-                    startTime.current = Date.now();
-                    actualHertz.current = 0;
-                    calls.current = 0;
-                    actualRefreshRate.current = 0;
+                function update(){
+                    newWorkerData.current = event.data;
+                    shouldUpdateWorker.current = false;
+                    timeTook.current = Date.now() - timeTookStart.current;
+                    
+                    console.log(`time took for the web worker: ${timeTook.current}`);
+                    
+                    const newData = newWorkerData.current;
+                    console.log(`newData: ${newData.actualHertz}`);
+                    dispatch(updateState({gates: newData!.gates, binaryIO: newData!.binaryIO}));
+                    
+                    actualRefreshRate.current++;
+                    actualHertz.current += newData!.actualHertz;
+                    
+                    if(Date.now() - startTime.current >= 1000){
+                        dispatch(setActuals({actualHertz: actualHertz.current, actualRefreshRate: actualRefreshRate.current}))
+                        startTime.current = Date.now();
+                        actualHertz.current = 0;
+                        calls.current = 0;
+                        actualRefreshRate.current = 0;
+                    }
                 }
+                update();
             };
             
             const refreshTime = Math.trunc(1000 / refreshRate);
