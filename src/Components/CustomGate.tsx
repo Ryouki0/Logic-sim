@@ -8,13 +8,14 @@ import { Gate } from '../Interfaces/Gate';
 import { RootState } from '../state/store';
 import './../gate.css';
 import { calculateInputTop } from '../utils/calculateInputTop';
-import { setSelectedEntity } from '../state/slices/mouseEventsSlice';
+import { setSelectedEntity } from '../state/slices/mouseEvents';
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import { createSelector } from '@reduxjs/toolkit';
 import { addGate, changeGatePosition, changeIOPosition, changeInputState, deleteComponent } from '../state/slices/entities';
+import calculateGateHeight from '../utils/calculateGateHeight';
 interface CustomGateProps{
     gateProps: Gate,
-	preview: boolean,
+	isBluePrint: boolean,
 	disableFunctionality?: boolean,
 	position?: 'absolute' | 'relative'
 }
@@ -22,18 +23,7 @@ interface CustomGateProps{
 function checkInputEquality(prev:BinaryIO[], next:BinaryIO[]){
 	return prev?.length === next?.length;
 }
-function checkOutputEquality(prev: BinaryIO[], next: BinaryIO[]){
-	// //console.time(`oEquality`);
-	// let isEqual = true;
-	// prev?.forEach((prev,idx,array) => {
-	// 	if(prev?.state !== next[idx]?.state){
-	// 		isEqual = false;
-	// 	}
-	// });
-	// //console.timeEnd(`oEquality`);
-	// return isEqual;
-	return true;
-}
+
 function checkGateEquality(prev: Gate, next: Gate){
 	if(!prev || !next){
 		return true;
@@ -44,11 +34,16 @@ function checkGateEquality(prev: Gate, next: Gate){
 	return prev.position?.x === next.position?.x && prev.position?.y === next.position?.y;
 }
 
-function CustomGate({gateProps, preview, position, disableFunctionality}:CustomGateProps){
-	const eleRef = React.useRef<HTMLDivElement>(null);
+function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:CustomGateProps){
+	const eleRef = useRef<HTMLDivElement>(null);
+	const spanRef = useRef<HTMLSpanElement>(null);
 	const dispatch = useDispatch();
 	
-	const thisGate = useSelector((state: RootState) => {return state.entities.gates[gateProps.id] ?? 
+	const thisGate = useSelector((state: RootState) => {
+		if(isBluePrint){
+			return state.entities.bluePrints.gates[gateProps.id];
+		}
+		return state.entities.gates[gateProps.id] ?? 
 		state.entities.currentComponent.gates[gateProps.id];}, checkGateEquality);
     
 	const offsetRef = useRef({dx: 
@@ -60,7 +55,7 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 	};
 
 	const inputs = useSelector((state: RootState) => {
-		if(preview){
+		if(isBluePrint){
 			return gateProps.inputs.map(inputId => {
 				return state.entities.bluePrints.io[inputId];
 			})
@@ -69,11 +64,11 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 			return gateProps.inputs.map(input => {
 				return state.entities.binaryIO[input] ?? state.entities.currentComponent.binaryIO[input];
 			});
-
 		}
-	}, checkInputEquality);
+	}, () => true);
+
 	const outputs = useSelector((state: RootState) => {
-		if(preview){
+		if(isBluePrint){
 			return gateProps.outputs.map(outputId => {
 				return state.entities.bluePrints.io[outputId];
 			})
@@ -82,24 +77,20 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 				return state.entities.binaryIO[outputId] ?? state.entities.currentComponent.binaryIO[outputId];
 			});
 		}
-		
-	}, checkOutputEquality);
-	const inputLength = gateProps.inputs.length;
-	const outputLength = gateProps.outputs.length;
+	}, () => true);
+
 	function setPositions(x: number, y: number){
-		console.time(`setPositions`);
 		dispatch(changeGatePosition({gate: thisGate, position: {x: x,y: y}}));
-		console.timeEnd(`setPositions`);
 	};
 
-	
-	const calculateDivHeight = () => {
-		const longest = inputLength > outputLength ? inputLength : outputLength;
-		if(inputLength <= 1 && outputLength <= 1){
-			return 2*MINIMAL_BLOCKSIZE + LINE_WIDTH;
+	const handleMouseDownEvent = (e: MouseEvent) => {
+		if(e.target !== eleRef.current && e.target !== spanRef.current) return;
+		if(!isBluePrint){
+			e.preventDefault();
+			dispatch(setSelectedEntity({ type: 'Gate', entity: thisGate }));
+			handleMouseDown(e as any, eleRef, dispatch, offsetRef.current.dx, offsetRef.current.dy, setOffset, setPositions);
 		}
-		return longest % 2 === 0 ? (longest * MINIMAL_BLOCKSIZE) + LINE_WIDTH : ((longest-1) * MINIMAL_BLOCKSIZE) +LINE_WIDTH;
-	};
+	  };
 
 	const handleContextMenu = (e: MouseEvent) => {
 		e.preventDefault();
@@ -107,20 +98,23 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 		dispatch(deleteComponent(thisGate.id))
 	}
 
-	const handlePreviewMouseDown = () => {
-		dispatch(addGate({...gateProps, position: {
-			x: eleRef.current?.getBoundingClientRect() ? eleRef.current.getBoundingClientRect().x : 0,
-			y: eleRef.current?.getBoundingClientRect() ? eleRef.current.getBoundingClientRect().y : 0,
-		}}));
+	const handleBluePrintContextMenu = (e:MouseEvent) => {
+		e.preventDefault();
 		
-		console.log('created gate');
-	};
-
+	}
 	useEffect(() => {
-		eleRef.current?.addEventListener('contextmenu', handleContextMenu);
+		if(!isBluePrint){
+			eleRef.current?.addEventListener('contextmenu', handleContextMenu);
+			eleRef.current?.addEventListener('mousedown', handleMouseDownEvent)
+		}else{
+			eleRef.current?.addEventListener('contextmenu', handleBluePrintContextMenu);
+		}
 
 		return () => {
 			eleRef.current?.removeEventListener('contextmenu', handleContextMenu);
+			eleRef.current?.removeEventListener('mousedown', handleMouseDownEvent);
+			eleRef.current?.removeEventListener('contextmenu', handleBluePrintContextMenu);
+			
 		}
 	}, [inputs, outputs, thisGate])
 
@@ -129,7 +123,7 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 			<div ref={eleRef}
 			className='Gate-container'
 				style={{width: 3*MINIMAL_BLOCKSIZE, 
-					height: calculateDivHeight(),
+					height: calculateGateHeight(thisGate),
 					position: position ? position : 'relative',
 					top: thisGate?.position ? thisGate.position.y : 0,
 					left: thisGate?.position ? thisGate.position.x : 0,
@@ -140,29 +134,13 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 					cursor: 'pointer',
 					backgroundColor: "rgb(100 100 100)"}} 
 				id={gateProps.id}
-				
-				onMouseEnter={e => {if(preview){
-					e.stopPropagation();
-					handlePreviewMouseDown();
-				}}}
-			
-				onMouseDown={e => {
-					e.preventDefault();
-					if(preview){ 
-
-					}
-					else{
-						e.stopPropagation();
-						dispatch(setSelectedEntity({type: 'Gate', entity: thisGate}));
-						handleMouseDown(e, eleRef, dispatch, offsetRef.current.dx, offsetRef.current.dy, setOffset, setPositions);
-					}}}
-				>
+			>
 				{inputs?.map((input, idx, array) => {
 					return <Input binaryInput={{...input, 
 						style: {
 							top: calculateInputTop(idx, array.length)
 						}}} 
-						gateId={gateProps.id} 
+						gateId={gateProps.id}
 						key={input?.id}></Input>;
 				})}
 				<div 
@@ -172,7 +150,8 @@ function CustomGate({gateProps, preview, position, disableFunctionality}:CustomG
 					top: "50%", 
 					transform: "translate(-50%, -50%)"
 				}}> 
-					<span style={{fontSize: 23, 
+					<span ref={spanRef}
+					style={{fontSize: 23, 
         				userSelect: 'none', 
 				        color: 'white'}}>
 						{gateProps.name}

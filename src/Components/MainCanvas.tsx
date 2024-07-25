@@ -2,14 +2,11 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import useDrawWire from '../hooks/useDrawWire';
 import useRedrawCanvas from '../hooks/useRedrawCanvas';
-import { CANVAS_OFFSET_LEFT, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { CANVAS_OFFSET_LEFT, getClosestBlock, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import useIsWireClicked from '../hooks/useIsWireClicked';
 import { throttle } from '../utils/throttle';
-import { Wire } from '../Interfaces/Wire';
-import { setHoveringOverWire, setSelectedEntity } from '../state/slices/mouseEventsSlice';
-import { getClosestBlock } from '../Constants/defaultDimensions';
-import { deleteWire } from '../state/slices/entities';
-import { FRENCH_GREY } from '../Constants/colors';
+import { setHoveringOverWire, setSelectedEntity, setSelectedGateId } from '../state/slices/mouseEvents';
+import { changeBluePrintPosition, deleteWire } from '../state/slices/entities';
 import { RootState } from '../state/store';
 export default function MainCanvas(){
 	const canvasRef = useRedrawCanvas();
@@ -55,15 +52,20 @@ export default function MainCanvas(){
 		startDrawing(e as unknown as React.MouseEvent<HTMLCanvasElement, MouseEvent>, wire.from, wire);
 	};
 
+	
+
 	useEffect(() => {
 		canvasRef.current?.addEventListener('mousedown', drawWireFromWire)
 		canvasRef.current?.addEventListener('contextmenu', handleContextMenu)
-		canvasRef.current?.addEventListener('mousemove', throttledCheckWire)
+		canvasRef.current?.addEventListener('mousemove', throttledCheckWire)			
+		
 
 		return () => {
 			canvasRef.current?.removeEventListener('mousedown', drawWireFromWire);
 			canvasRef.current?.removeEventListener('contextmenu', handleContextMenu);
 			canvasRef.current?.removeEventListener('mousemove', throttledCheckWire);
+			
+			
 		}
 	}, [hoveringOverWire, canvasRef, startDrawing])
 
@@ -80,6 +82,7 @@ export default function MainCanvas(){
 				}}
 			>
 			</canvas>
+			
 		</>
 	);
 }

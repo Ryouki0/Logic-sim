@@ -6,7 +6,7 @@ import { getClosestBlock } from "../Constants/defaultDimensions";
 import { v4 as uuidv4 } from 'uuid';
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
-import { setDrawingWire } from "../state/slices/mouseEventsSlice";
+import { setDrawingWire } from "../state/slices/mouseEvents";
 import useIsWireClicked from "./useIsWireClicked";
 
 const checkWireLenghtEquality = (prev: Wire[], next: Wire[]) => {

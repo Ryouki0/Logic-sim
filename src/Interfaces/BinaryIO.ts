@@ -4,6 +4,7 @@ export interface BinaryIO{
     style?: React.CSSProperties | null,
     gateId?: string,
     id: string,
+    name: string,
     isGlobalIo: boolean,
     parent: string,
     type: 'input' | 'output',

@@ -56,6 +56,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 		[ANDInputId1]: {
 			id: ANDInputId1,
 			gateId: ANDId,
+			name: 'input 1',
 			parent: 'global',
 			to: [],
 			type: 'input',
@@ -66,6 +67,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 		[ANDInputId2]: {
 			id: ANDInputId2,
 			gateId: ANDId,
+			name: 'input 2',
 			to: [],
 			parent: 'global',
 			state: 0,
@@ -77,6 +79,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 			id: ANDOutputId1,
 			parent: 'global',
 			gateId: ANDId,
+			name: 'output 1',
 			state: 0,
 			to: [],
 			isGlobalIo: false,
@@ -87,6 +90,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 			id: NOInputId1,
 			parent: 'global',
 			gateId: NOId,
+			name: 'input 1',
 			state: 0,
 			to: [],
 			isGlobalIo: false,
@@ -98,6 +102,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 			parent: 'global',
 			state: 0,
 			gateId: NOId,
+			name: 'output 1',
 			to: [],
 			isGlobalIo: false,
 			type: 'output',
@@ -108,6 +113,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 			state: 0,
 			parent: 'global',
 			gateId: DELAYId,
+			name: 'input 1',
 			to: [],
 			isGlobalIo: false,
 			type: 'input',
@@ -117,6 +123,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 			id: DELAYOutputId1,
 			state: 0,
 			gateId: DELAYId,
+			name: 'output 1',
 			to: [],
 			parent: 'global',
 			isGlobalIo: false,
@@ -146,7 +153,7 @@ const entities = createSlice({
 		 * Adds a gate to the state.
 		 * 
 		 * Copy the blueprint into the state 1:1
-		 * then change the IDs of every gate and IO in the actual state 
+		 * then change the IDs of every gate and IO in the actual state, while keeping the connections
 		 */
 		addGate: (state, action: PayloadAction<Gate>) => {
 			/**
@@ -197,10 +204,10 @@ const entities = createSlice({
 				const newGateId = uuidv4();
 				let newGate: Gate;
 				if(parentId === 'global'){
-					state.currentComponent.gates[newGateId] = {...gate, id: newGateId, inputs: [], outputs: [], position: {x: 120, y: 210}};
+					state.currentComponent.gates[newGateId] = {...gate, id: newGateId, inputs: [], outputs: [], position: {...gate.position!}};
 					newGate = state.currentComponent.gates[newGateId];
 				}else{
-					state.gates[newGateId] = {...gate, id: newGateId, inputs: [], outputs: [], position: {x: 120, y: 210}};
+					state.gates[newGateId] = {...gate, id: newGateId, inputs: [], outputs: [], position: {...gate.position!}};
 					newGate = state.gates[newGateId];
 				}
 
@@ -240,6 +247,7 @@ const entities = createSlice({
 					const newInput = {
 						...prevInput,
 						id: newInputId,
+						position: {...prevInput.position!},
 						gateId: newGateId,
 						parent: parentId
 					};
@@ -298,7 +306,8 @@ const entities = createSlice({
 					newGate.outputs.push(newOutputId);
 					const newOutput = {
 						...prevOutput, 
-						id: newOutputId, 
+						id: newOutputId,
+						position: {...prevOutput.position!},
 						gateId: newGateId, 
 						parent: parentId
 					};
@@ -603,10 +612,32 @@ const entities = createSlice({
 			state.binaryIO = {};
 		},
 		raiseShortCircuitError: (state, action: PayloadAction<{wireTree: string[]}>) => {
+			
 			action.payload.wireTree.forEach(wireId => {
 				state.currentComponent.wires[wireId].error = true;
 			})
 		},
+		changeBluePrintPosition: (state, action:PayloadAction<{gateId: string, position: {x: number, y: number}}>) => {
+			const gateId = action.payload.gateId;
+			const topLevelGate = state.bluePrints.gates[gateId];
+			const newPosition = action.payload.position;
+			topLevelGate.position = action.payload.position;
+
+			topLevelGate.inputs.forEach((inputId, idx, array) => {
+				state.bluePrints.io[inputId].position = {
+					x: newPosition.x,
+					y: newPosition.y + calculateInputTop(idx, array.length) + DEFAULT_INPUT_DIM.height/2 + idx*DEFAULT_INPUT_DIM.height
+				}
+			})
+
+			topLevelGate.outputs.forEach((outputId, idx, array) => {
+				state.bluePrints.io[outputId].position = {
+					x: newPosition.x + 3*MINIMAL_BLOCKSIZE,
+					y: newPosition.y + calculateInputTop(idx, array.length) + 
+					(idx*DEFAULT_INPUT_DIM.height) + DEFAULT_INPUT_DIM.height/2
+				}
+			})
+		}
 	}
 });
 export default entities.reducer;
@@ -623,7 +654,9 @@ export const {addWire,
 	deleteComponent,
 	updateState,
 	createBluePrint,
-	raiseShortCircuitError} = entities.actions;
+	raiseShortCircuitError,
+	changeBluePrintPosition
+} = entities.actions;
 // const entities = createSlice({
 // 	name: 'entities',
 // 	initialState: initialState,

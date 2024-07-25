@@ -9,28 +9,18 @@ import EmptyComponent from "./Components/EmptyComponent";
 import Toolbar from "./Components/toolbar/Toolbar";
 import CanvasTop from "./Components/CanvasTop";
 import BootstrapLogic from "./Components/bootstrapLogic";
+import SelectedGate from "./Components/SelectedGate";
+import HoveringOverIO from "./Components/HoveringOverIO";
 function App() {
-	const [hello, setHello] = useState<any>();
-	useEffect(() => {
-		const factory = require ('./hello_react.js');
-		//@ts-ignore
-		factory().then((instance) => {
-			instance._hello_react();
-			setHello(instance);
-			instance.ccall("hello_react", null, null, null);
-			
-			const printNumber = instance.cwrap('print_number', null, ['number']);
-      
-      		// Call the wrapped function
-      		printNumber(5);
-
-			// Check the value of global_var
-			const globalVar = instance.ccall('get_global_var', 'number', [], []);
-			console.log('Global variable:', globalVar);
-			return instance;
-  	});
-	}, []);
 	
+	useEffect(() => {
+		document.body.style.overflow = 'hidden';
+
+		return () => {
+			document.body.style.overflow = 'auto';
+		};
+	}, [])
+
 	return (
 		<>
 			{console.log("rendering whole App...")}
@@ -44,6 +34,8 @@ function App() {
 			<EmptyComponent></EmptyComponent>
 			<Toolbar></Toolbar>
 			<BootstrapLogic></BootstrapLogic>
+			<SelectedGate></SelectedGate>
+			<HoveringOverIO></HoveringOverIO>
 		</>
 	);
 }

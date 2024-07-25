@@ -7,6 +7,7 @@ import isWireConnectedToWire from '../utils/isWireConnectedToWire';
 import { raiseShortCircuitError, setConnections } from '../state/slices/entities';
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import checkLineEquality from '../utils/checkLineEquality';
+import { setError } from '../state/slices/clock';
 
 
 class ShortCircuitError extends Error{
@@ -69,7 +70,7 @@ export default function useConnecting(){
         const ioEntries = Object.entries(io);
         const wireEntries = Object.entries(wires);
         const allWireTrees: string[][] = [];
-
+        dispatch(setError({isError: false, extraInfo: ''}));
         for(const [key, wire] of wireEntries){
             let wireInTree = false;
             allWireTrees.forEach(tree => {
@@ -161,6 +162,7 @@ export default function useConnecting(){
         }catch(err){
             if(err instanceof ShortCircuitError){
                 dispatch(raiseShortCircuitError({wireTree: err.wireTree}));
+                dispatch(setError({isError: true, extraInfo: 'Short circuit error! A wire has multiple sources.'}));
             }
             return {outputs: [], sourceId: null, error: true};
         }

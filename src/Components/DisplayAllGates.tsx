@@ -1,10 +1,12 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
 import { CustomGate } from "./CustomGate";
 import useRedrawCanvas from "../hooks/useRedrawCanvas";
 import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, MINIMAL_BLOCKSIZE } from "../Constants/defaultDimensions";
 import { Gate } from "../Interfaces/Gate";
+import { setSelectedGateId } from "../state/slices/mouseEvents";
+import { changeBluePrintPosition } from "../state/slices/entities";
 
 const checkAllGatesEquality = (prev: {[key: string]: Gate}, next: {[key: string]: Gate}) => {
 	const prevEntries = Object.entries(prev);
@@ -26,31 +28,49 @@ export default function DisplayAllGates(){
 		return topLevelComponents;
 	}, checkAllGatesEquality);
 
+	const dispatch = useDispatch();
+
 	return console.log('rendering allgates'),
 	<div style={{display: 'flex', top: CANVAS_HEIGHT,
 		position: 'absolute',
 		width: CANVAS_WIDTH,
-		height: '10%',
+		height: 2*MINIMAL_BLOCKSIZE,
 		zIndex: 0,
 		backgroundColor: 'rgb(140 140 140)',
 		borderColor: 'rgb(60 60 60)',
 		borderWidth: DEFAULT_BORDER_WIDTH,
 		padding: 10,
+		alignContent: 'center',
 		paddingLeft: 2*MINIMAL_BLOCKSIZE,
-		borderStyle: 'solid'}}
+		borderStyle: 'solid'
+	}}
 		onMouseDown={e => e.preventDefault()}
 		>
 		{Object.entries(allGates)?.map(([key, gate]) => {
-			return <div style={{
-				borderColor: 'rgb (200 200 200)',
-				borderWidth: 2,
-				marginRight: 30,
+			return <div
+			onMouseDown={e => {
+				if(e.button !== 0) return;
+				e.stopPropagation();
+				dispatch(setSelectedGateId(key));
+				dispatch(changeBluePrintPosition({gateId: key, position: {x: e.pageX, y: e.pageY}}))}}
+			style={{
+				backgroundColor: 'rgb(70 70 70)',
+				height: 40,
+				marginRight: 7,
+				alignSelf: 'center',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+				cursor: 'pointer',
+				width: 3*MINIMAL_BLOCKSIZE,
 			}} key={key}>
-			<CustomGate
-				key={gate.id}
-				gateProps={gate}
-				preview={true}></CustomGate>
+				<span style={{
+					color: 'white',
+					fontSize: 18,
+					userSelect: 'none',
+				}}>{gate.name}</span>
 			</div>
-		})}
+			})
+		}
 	</div>;
 }

@@ -61,10 +61,11 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 					width: DEFAULT_INPUT_DIM.width,
 					height: DEFAULT_INPUT_DIM.height,
 					position: 'relative',
+					userSelect: 'none',
 					left: -(DEFAULT_INPUT_DIM.width / 2),
 					...binaryInput?.style,
 				}}
-				onMouseDown={e => {handleMouseDown(e);}}>
+				onMouseDown={e => {e.stopPropagation(); handleMouseDown(e);}}>
 				<CircularProgressbar
 					value={100}
 					background={true}

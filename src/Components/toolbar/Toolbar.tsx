@@ -4,6 +4,7 @@ import CreateButton from './CreateButton';
 import SelectedComponent from './SelectedComponent';
 import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH } from '../../Constants/defaultDimensions';
 import TestButton from './TestButton';
+import DisplayError from './DisplayError';
 
 export default function Toolbar() {
     return <div style={{
@@ -18,6 +19,7 @@ export default function Toolbar() {
         backgroundColor: 'rgb(100 100 100)',
     }}>
          <SelectedComponent></SelectedComponent>
+         <DisplayError></DisplayError>
          <Clock></Clock>
          <CreateButton></CreateButton>
          <TestButton></TestButton>

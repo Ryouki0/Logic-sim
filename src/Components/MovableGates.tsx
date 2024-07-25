@@ -17,7 +17,7 @@ export default function MovableGates(){
 	const currentGates = useSelector((state: RootState) => {return state.entities.currentComponent.gates}, checkEquality);
 	return <>
 		{Object.entries(currentGates)?.map(([key, gate]) => {
-			return <CustomGate gateProps={gate} preview={false} key={gate.id} position='absolute'></CustomGate>;
+			return <CustomGate gateProps={gate} isBluePrint={false} key={gate.id} position='absolute'></CustomGate>;
 		})}
 	</>;
 }

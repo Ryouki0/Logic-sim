@@ -2,12 +2,22 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { isRegularExpressionLiteral } from "typescript";
 
 
-const initialState = {
+export interface Clock{
+	hertz: number,
+	refreshRate: number,
+	isRunning: boolean,
+	actualHertz: number,
+	actualRefreshRate: number,
+	error: {isError: boolean, extraInfo:string}
+}
+
+const initialState: Clock = {
 	hertz: 100, 
 	refreshRate: 30,
 	isRunning: false,
 	actualHertz: 0,
 	actualRefreshRate: 0,
+	error: {isError: false, extraInfo: ''}
 };
 
 const clockSlice = createSlice({
@@ -34,6 +44,9 @@ const clockSlice = createSlice({
 		setActuals: (state, action: PayloadAction<{actualHertz: number, actualRefreshRate: number}>) => {
 			state.actualHertz = action.payload.actualHertz;
 			state.actualRefreshRate = action.payload.actualRefreshRate;
+		},
+		setError: (state, action: PayloadAction<{isError: boolean, extraInfo: string}>) => {
+			state.error = action.payload;
 		}
 	}
 });
@@ -45,5 +58,6 @@ export const {
 	setIsRunning,
 	setActualHertz,
 	setActualRefreshRate,
-	setActuals
+	setActuals,
+	setError
 } = clockSlice.actions;

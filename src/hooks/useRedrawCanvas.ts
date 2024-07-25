@@ -62,12 +62,12 @@ export default function useRedrawCanvas(){
 			
 			
 			context.strokeStyle = 'rgb(255, 170, 51)';
-			if(wire.error){
-				context.strokeStyle = DARK_RED;
-			}if(hoveringOverWire?.id === wire.id){
+			if(hoveringOverWire?.id === wire.id){
 				line_width = LINE_WIDTH +2;
 			}if(wireSources[key]?.state){
 				context.strokeStyle = RED_ORANGE;
+			}if(wire.error){
+				context.strokeStyle = DARK_RED;
 			}
 			
 			drawLine(wire.linearLine, context, line_width);

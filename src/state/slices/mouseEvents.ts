@@ -4,12 +4,20 @@ import { Gate } from "../../Interfaces/Gate";
 import { BinaryIO } from "../../Interfaces/BinaryIO";
 
 export type EntityClicked = {type: 'Gate' | 'Wire' | 'BinaryInput' | null, entity: Gate | BinaryIO | Wire | null}
-interface IEntityClicked {
+interface MouseEvents {
 	entityClicked: EntityClicked,
 	hoveringOverWire: Wire | null,
     drawingWire: string | null,
+	selectedGate: string | null,
+	hoveringOverIo: BinaryIO | null,
 }
-const initialState: IEntityClicked = { entityClicked: {type: null, entity: null}, hoveringOverWire: null, drawingWire:null};
+const initialState: MouseEvents = { 
+	entityClicked: {type: null, entity: null}, 
+	hoveringOverWire: null, 
+	drawingWire:null,
+	selectedGate: null,
+	hoveringOverIo: null,
+};
 
 const mouseEventsSlice = createSlice({
 	name: "mouseEventsSlice",
@@ -23,6 +31,12 @@ const mouseEventsSlice = createSlice({
 		},
 		setDrawingWire: (state, action: PayloadAction<string | null>) => {
 			state.drawingWire = action.payload;
+		},
+		setSelectedGateId: (state, action: PayloadAction<string | null>) => {
+			state.selectedGate = action.payload;
+		},
+		setHoveringOverIo: (state, action: PayloadAction<BinaryIO | null>) => {
+			state.hoveringOverIo = action.payload;
 		}
 	},
 });
@@ -30,6 +44,9 @@ const mouseEventsSlice = createSlice({
 export const {
 	setSelectedEntity,
 	setHoveringOverWire,
-	setDrawingWire} = mouseEventsSlice.actions;
+	setDrawingWire,
+	setSelectedGateId,
+	setHoveringOverIo
+} = mouseEventsSlice.actions;
     
 export default mouseEventsSlice.reducer;

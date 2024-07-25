@@ -3,7 +3,7 @@ import { getClosestBlock } from "./Constants/defaultDimensions";
 import { transform } from "typescript";
 
 const handleMouseDown = (
-	e: React.MouseEvent, 
+	e: MouseEvent, 
 	eleRef:React.MutableRefObject<HTMLDivElement | null>, 
 	dispatch:Dispatch<UnknownAction>,
 	dx: number,

@@ -28,6 +28,7 @@ export default function GlobalOutputs() {
 				type: 'output',
  		 		id: uuidv4(),
 				parent: 'global',
+				name: 'output 1',
 				to: [],
 				isGlobalIo: true,
  		 		position: {
