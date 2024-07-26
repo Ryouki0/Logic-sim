@@ -41,6 +41,7 @@ export default function useRunLogic(){
     let shouldUpdateNextFrame = false;
 
     const { copiedGates, copiedIo } = useMemo(() => {
+        if(!isRunning) return {copiedGates: null, copiedIo: null};
         const copiedGates = JSON.parse(JSON.stringify(gates));
         Object.entries(currentComponent.gates).forEach(([key, gate]) => {
             copiedGates[key] = gate;
@@ -52,7 +53,7 @@ export default function useRunLogic(){
         });
     
         return {copiedGates, copiedIo};
-    }, [gates, currentComponent, io]);
+    }, [gates, currentComponent, io, isRunning]);
 
     useEffect(() => {
         const logicWorker = require('../logic.worker.ts').default;
@@ -76,8 +77,9 @@ export default function useRunLogic(){
                     
                     const newData = newWorkerData.current;
                     console.log(`newData: ${newData.actualHertz}`);
+                    console.time(`update`);
                     dispatch(updateState({gates: newData!.gates, binaryIO: newData!.binaryIO}));
-                    
+                    console.timeEnd(`update`);
                     actualRefreshRate.current++;
                     actualHertz.current += newData!.actualHertz;
                     
@@ -94,13 +96,16 @@ export default function useRunLogic(){
             
             const refreshTime = Math.trunc(1000 / refreshRate);
             timeTookStart.current = Date.now();
-            workerRef.current?.postMessage({
+            console.time(`post message on main thread`);
+            const message = JSON.stringify({
                 gates: copiedGates,
                 io: copiedIo,
                 refreshRate: refreshRate,
                 hertz: hertz,
                 startTime: timeTookStart.current
-            });
+            })
+            workerRef.current?.postMessage(message);
+            console.timeEnd(`post message on main thread`);
         }
         return () => {
             if(workerRef.current && shouldUpdateWorker.current) {

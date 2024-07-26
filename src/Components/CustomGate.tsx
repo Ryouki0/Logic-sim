@@ -80,7 +80,9 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 	}, () => true);
 
 	function setPositions(x: number, y: number){
+		console.time(`pos`);
 		dispatch(changeGatePosition({gate: thisGate, position: {x: x,y: y}}));
+		console.timeEnd(`pos`);
 	};
 
 	const handleMouseDownEvent = (e: MouseEvent) => {
@@ -120,6 +122,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 
 	return	(
 		<>
+		{/* {console.log(`rendering customgate: ${thisGate?.id.slice(0,6)}`)} */}
 			<div ref={eleRef}
 			className='Gate-container'
 				style={{width: 3*MINIMAL_BLOCKSIZE, 

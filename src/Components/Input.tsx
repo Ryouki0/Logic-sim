@@ -6,8 +6,6 @@ import {
 } from "../Constants/defaultDimensions";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
-import { AMBER, RED_ORANGE, SEA_MID_GREEN } from "../Constants/colors";
-import useDrawWire from "../hooks/useDrawWire";
 import { BinaryIO } from "../Interfaces/BinaryIO";
 
 interface InputProps{
@@ -17,7 +15,7 @@ interface InputProps{
 	
 }
 
-const inputEquality = (prev: BinaryIO, next:BinaryIO) => {
+export const ioEquality = (prev: BinaryIO, next:BinaryIO) => {
 	if(prev?.from?.id !== next?.from?.id){
 		return false;
 	}
@@ -32,11 +30,8 @@ const inputEquality = (prev: BinaryIO, next:BinaryIO) => {
 
 export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 	const eleRef = useRef<HTMLDivElement>(null);
-	//const objectClicked = useSelector((state: RootState) => {return state.mouseEventsSlice.objectClicked;});
-	const startDrawing = useDrawWire();
 	const thisInput = useSelector((state: RootState) => {
-		return state.entities.binaryIO[binaryInput.id] ?? state.entities.currentComponent.binaryIO[binaryInput.id];}, inputEquality);
-	//const allInputs = useSelector((state:RootState) => {return state.entities.currentInputs});
+		return state.entities.binaryIO[binaryInput.id] ?? state.entities.currentComponent.binaryIO[binaryInput.id];}, ioEquality);
 	
 	const handleMouseDown = (e:React.MouseEvent<any>) => {
 		e.stopPropagation();
@@ -49,7 +44,6 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 		thisInput?.to?.forEach(to => {
 			console.log(`this input is to: ${to.id.slice(0,5)}`);
 		})
-		startDrawing(e, {id:binaryInput.id, type: 'input', gateId: gateId});
 	};
 	
 	
@@ -62,6 +56,7 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 					height: DEFAULT_INPUT_DIM.height,
 					position: 'relative',
 					userSelect: 'none',
+					pointerEvents: 'none',
 					left: -(DEFAULT_INPUT_DIM.width / 2),
 					...binaryInput?.style,
 				}}

@@ -8,7 +8,7 @@ import GhostInput from './GhostInput';
 import { throttle } from '../utils/throttle';
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import { addInput, changeInputState } from '../state/slices/entities';
-import { DEFAULT_BORDER_COLOR } from '../Constants/colors';
+import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../Constants/colors';
 
 function checkInputs(prev:BinaryIO[],next:BinaryIO[]){
 	if(prev?.length !== next?.length){
@@ -35,7 +35,7 @@ export default function GlobalInputs(){
 		})
 			.filter((io): io is NonNullable<typeof io> => io !== null);
 	}, checkInputs);
- 	const [{x, y}, setGhostInputPosition] = useState({x:0,y:0});
+ 	const [ghostInputPosition, setGhostInputPosition] = useState({x:0,y:0});
  	const [showGhostInput,setShowGhostInput] = useState(false);
  	const dispatch = useDispatch();
  	const handleRightClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -60,15 +60,21 @@ export default function GlobalInputs(){
  		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY);
  		for(const [key, input] of inputEntries){
  			if(input?.position?.y === roundedY){
- 				setShowGhostInput(false);
+				if(showGhostInput){
+					setShowGhostInput(false);
+				}
  				return;
  			}
  		}
- 		setShowGhostInput(true);
- 		setGhostInputPosition({x:2*MINIMAL_BLOCKSIZE, y: roundedY});
+		if(!showGhostInput){
+			setShowGhostInput(true);
+		}
+		if(ghostInputPosition.y !== roundedY){
+			setGhostInputPosition({x:2*MINIMAL_BLOCKSIZE, y: roundedY});
+		}
  	}, 16);
  	return <div id='current-inputs'
- 		style={{backgroundColor: 'rgb(100 100 100)', 
+ 		style={{backgroundColor: 'rgb(70 70 70)', 
  			width: 2*MINIMAL_BLOCKSIZE, 
  			height: CANVAS_HEIGHT,
  			position: 'absolute',
@@ -76,6 +82,7 @@ export default function GlobalInputs(){
 			borderColor: DEFAULT_BORDER_COLOR,
 			borderWidth: DEFAULT_BORDER_WIDTH,
 			borderBottom: 0,
+			pointerEvents: 'revert-layer',
  			zIndex: 1,
  			marginLeft: CANVAS_OFFSET_LEFT
 		}}
@@ -96,13 +103,13 @@ export default function GlobalInputs(){
 				borderRight: 0,
 				borderBottom: 0,
 				borderStyle: 'solid',
-				backgroundColor: 'rgb(100 100 100)',
+				backgroundColor: DEFAULT_BACKGROUND_COLOR,
 				zIndex: 0,
 			}}></div>
 			<div style={{
 				position: 'absolute',
 				top: CANVAS_HEIGHT + DEFAULT_BORDER_WIDTH - 2*MINIMAL_BLOCKSIZE,
-				background: 'linear-gradient(rgb(100 100 100), rgb(140 140 140))',
+				background: `linear-gradient(${DEFAULT_BACKGROUND_COLOR}, rgb(140 140 140))`,
 				height: 2*MINIMAL_BLOCKSIZE,
 				width: 2*MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
 
@@ -137,6 +144,6 @@ export default function GlobalInputs(){
  				</div>
  			);
  		})}
- 		{showGhostInput && <GhostInput x={x} y={y}></GhostInput>}
+ 		{showGhostInput && <GhostInput x={ghostInputPosition.x} y={ghostInputPosition.y}></GhostInput>}
  	</div>;
 }

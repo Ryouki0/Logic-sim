@@ -6,6 +6,7 @@ import { getClosestBlock } from '../Constants/defaultDimensions';
 import {v4 as uuidv4} from 'uuid';
 import { Output } from './Output';
 import { addGlobalOutput } from '../state/slices/entities';
+import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../Constants/colors';
 
 export default function GlobalOutputs() {
 	const outputs = useSelector((state: RootState) => {
@@ -49,17 +50,17 @@ export default function GlobalOutputs() {
  			width: MINIMAL_BLOCKSIZE,
  			height: CANVAS_HEIGHT,
  			zIndex: 1,
- 			backgroundColor: 'rgb(100, 100, 100)',
+ 			backgroundColor: DEFAULT_BACKGROUND_COLOR,
  			position: 'absolute',
 			borderWidth: DEFAULT_BORDER_WIDTH,
-			borderColor: 'rgb(60 60 60)',
+			borderColor: DEFAULT_BORDER_COLOR,
 			borderStyle: 'solid',
 			borderBottom: 0,
  			left: CANVAS_WIDTH - MINIMAL_BLOCKSIZE, 
  		}}
  		onContextMenu={e=> {handleRightClick(e);}}>
 			<div style={{
-				background: 'linear-gradient(rgb(100, 100, 100), rgb(140, 140, 140))',
+				background: `linear-gradient(${DEFAULT_BACKGROUND_COLOR}, rgb(140, 140, 140))`,
 				width: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
 				position: 'absolute',
 				height: 2*MINIMAL_BLOCKSIZE,
@@ -67,7 +68,7 @@ export default function GlobalOutputs() {
 			}}>
 			</div>
 			<div style={{
-				backgroundColor: 'rgb(100 100 100)',
+				backgroundColor: DEFAULT_BACKGROUND_COLOR,
 				position: 'absolute',
 				width: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
 				height: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,

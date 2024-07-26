@@ -61,7 +61,7 @@ export default function useRedrawCanvas(){
 			line_width = LINE_WIDTH;
 			
 			
-			context.strokeStyle = 'rgb(255, 170, 51)';
+			context.strokeStyle = 'rgb(255, 155, 30)'; //'rgb(255, 170, 51)';
 			if(hoveringOverWire?.id === wire.id){
 				line_width = LINE_WIDTH +2;
 			}if(wireSources[key]?.state){

@@ -13,19 +13,22 @@ onmessage = async function (event: MessageEvent<{
     hertz: number,
     startTime: number
 }>) {
-    const hertz = event.data.hertz;
-    const refreshRate = event.data.refreshRate;
+    console.time(`parse`);
+    const parsedData = JSON.parse(event.data as unknown as string);
+    console.timeEnd(`parse`);
+    const hertz = parsedData.hertz;
+    const refreshRate = parsedData.refreshRate;
     const maxHertzInLoop = hertz / refreshRate;
     const loopTime = 1000 / refreshRate;
     let prevError = 0;
 
-    let gates = event.data.gates;
-    let io = event.data.io;
+    let gates = parsedData.gates;
+    let io = parsedData.io;
     let actualHertz = 0;
     let currentLoopNumber = 0;
     
     let hertzList:number[];
-    
+    console.log(``)
     //Create a hertz list, where the remainders are evenly spread out.
     if(hertz >= refreshRate){
         hertzList = Array(refreshRate).fill(Math.floor(maxHertzInLoop));

@@ -8,12 +8,14 @@ import { throttle } from '../utils/throttle';
 import { setHoveringOverWire, setSelectedEntity, setSelectedGateId } from '../state/slices/mouseEvents';
 import { changeBluePrintPosition, deleteWire } from '../state/slices/entities';
 import { RootState } from '../state/store';
+import { createImportSpecifier } from 'typescript';
 export default function MainCanvas(){
 	const canvasRef = useRedrawCanvas();
 	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire});
 	const {checkWire} = useIsWireClicked();
 	const startDrawing = useDrawWire();
 	const dispatch = useDispatch();
+
 	const throttledCheckWire = throttle((e: MouseEvent) => {
 		const x = e.x;
 		const y = e.y;
@@ -39,17 +41,19 @@ export default function MainCanvas(){
 	};
 
 	const drawWireFromWire = (e: MouseEvent) => {
+		console.log(`mousedown`);
 		if(e.button !== 0){
 			return;
+
 		}
 		e.preventDefault();
+		startDrawing(e as unknown as React.MouseEvent<HTMLCanvasElement, MouseEvent>);
 		const wire = checkWire(e.pageX, e.pageY);
 		if(!wire){
 			return;
 		}
 		dispatch(setSelectedEntity({type:'Wire', entity: wire}));
 		
-		startDrawing(e as unknown as React.MouseEvent<HTMLCanvasElement, MouseEvent>, wire.from, wire);
 	};
 
 	
@@ -64,8 +68,6 @@ export default function MainCanvas(){
 			canvasRef.current?.removeEventListener('mousedown', drawWireFromWire);
 			canvasRef.current?.removeEventListener('contextmenu', handleContextMenu);
 			canvasRef.current?.removeEventListener('mousemove', throttledCheckWire);
-			
-			
 		}
 	}, [hoveringOverWire, canvasRef, startDrawing])
 
@@ -75,7 +77,7 @@ export default function MainCanvas(){
 				id="main-canvas"
 				ref={canvasRef}
 				style={{
-					backgroundColor: 'rgb(208 204 208 / 80%)',
+					backgroundColor: 'rgb(160 160 160 / 80%)',
 					marginLeft: CANVAS_OFFSET_LEFT,
 					position: 'absolute',
 					zIndex: 0,

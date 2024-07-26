@@ -6,9 +6,9 @@ import {
 } from "../Constants/defaultDimensions";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
-import useDrawWire from "../hooks/useDrawWire";
-import { AMBER, ORANGE } from "../Constants/colors";
+import { AMBER, DEFAULT_WIRE_COLOR, ORANGE } from "../Constants/colors";
 import { BinaryIO } from "../Interfaces/BinaryIO";
+import { ioEquality } from "./Input";
 
 interface BinaryOutputProps {
 	output: BinaryIO;
@@ -18,9 +18,8 @@ interface BinaryOutputProps {
 
 export function Output({style = null, output}:BinaryOutputProps) {
 
-	const startDrawing = useDrawWire();
 	const thisOutput = useSelector((state:RootState) => {
-		return state.entities.binaryIO[output?.id] ?? state.entities.currentComponent.binaryIO[output?.id]})
+		return state.entities.binaryIO[output?.id] ?? state.entities.currentComponent.binaryIO[output?.id]}, ioEquality)
 	const handleMouseDown = (e: React.MouseEvent<any>) => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -31,7 +30,6 @@ export function Output({style = null, output}:BinaryOutputProps) {
 			console.log(`this output is to: ${to.id.slice(0,5)}`);
 		})
 		
-		startDrawing(e);
 	}
 	
 	
@@ -41,6 +39,7 @@ export function Output({style = null, output}:BinaryOutputProps) {
 			<div style={{...style,
 				width: DEFAULT_INPUT_DIM.width,
 				height: DEFAULT_INPUT_DIM.height,
+				pointerEvents: 'none',
 				cursor: 'arrow',
 			}}
 			onMouseDown={handleMouseDown}>

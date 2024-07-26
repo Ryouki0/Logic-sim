@@ -33,24 +33,17 @@ export default function HoveringOverIO(){
                     return;
                 }
             }
+            if(!currentlyHoveringOverIo) return;
             dispatch(setHoveringOverIo(null));
         }
 
         document.addEventListener('mousemove', handleMouseMove);
-        
-
 
         return () => {
             document.removeEventListener('mousemove', handleMouseMove);
         }
-    }, [io])
-    const [leftPosition, setLeftPosition] = useState(0);
-    useEffect(() => {
-        if (spanRef.current) {
-            const spanWidth = spanRef.current.offsetWidth;
-            setLeftPosition(currentlyHoveringOverIo!.position!.x - (spanWidth / 3));
-        }
-    }, [currentlyHoveringOverIo]);
+    }, [io, currentlyHoveringOverIo])
+   
 
     return <>
         {currentlyHoveringOverIo && 

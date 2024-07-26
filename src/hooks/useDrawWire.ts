@@ -18,9 +18,7 @@ export default function useDrawWire() {
 	const dispatch = useDispatch();
 	const {getAllWire} = useIsWireClicked();
 	function startDrawing(
-		e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
-		from: {id: string, type: 'input' | 'output', gateId?: string | null | undefined} | null = null,
-		wire?: Wire
+		e: React.MouseEvent<any>,
 	){
 		const canvasEle = document.getElementById("main-canvas") as HTMLCanvasElement;
 		if (!canvasEle) {

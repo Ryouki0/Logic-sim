@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { Wire } from '../Interfaces/Wire';
@@ -63,11 +63,10 @@ export default function useConnecting(){
     const io = useSelector((state: RootState) => {
         return state.entities.currentComponent.binaryIO;
     }, checkIOEquality)
-    const drawingWire = useSelector((state: RootState) => {return state.mouseEventsSlice.drawingWire}, checkDrawingWireEquality);
+    const drawingWire = useSelector((state: RootState) => {return state.mouseEventsSlice.drawingWire});
     const dispatch = useDispatch();
-    
     useEffect(() => {
-        const ioEntries = Object.entries(io);
+        if(drawingWire) return;
         const wireEntries = Object.entries(wires);
         const allWireTrees: string[][] = [];
         dispatch(setError({isError: false, extraInfo: ''}));

@@ -18,16 +18,15 @@ const checkAllGatesEquality = (prev: {[key: string]: Gate}, next: {[key: string]
 }
 
 export default function DisplayAllGates(){
-	const allGates = useSelector((state: RootState) => {
-		const topLevelComponents:{[key: string]: Gate}= {};
-		Object.entries(state.entities.bluePrints.gates).forEach(([key, gate]) => {
-			if(gate.parent === 'global'){
-				topLevelComponents[key] = gate;
-			}
-		})
-		return topLevelComponents;
-	}, checkAllGatesEquality);
-
+	// const allGates = useSelector((state: RootState) => {
+	// 	const topLevelComponents:{[key: string]: Gate}= {};
+	// 	Object.entries(state.entities.bluePrints.gates).forEach(([key, gate]) => {
+	// 		if(gate.parent === 'global'){
+	// 			topLevelComponents[key] = gate;
+	// 		}
+	// 	})
+	// 	return topLevelComponents;
+	// }, checkAllGatesEquality);
 	const dispatch = useDispatch();
 
 	return console.log('rendering allgates'),
@@ -46,7 +45,7 @@ export default function DisplayAllGates(){
 	}}
 		onMouseDown={e => e.preventDefault()}
 		>
-		{Object.entries(allGates)?.map(([key, gate]) => {
+		{/* {Object.entries(allGates)?.map(([key, gate]) => {
 			return <div
 			onMouseDown={e => {
 				if(e.button !== 0) return;
@@ -71,6 +70,6 @@ export default function DisplayAllGates(){
 				}}>{gate.name}</span>
 			</div>
 			})
-		}
+		} */}
 	</div>;
 }
