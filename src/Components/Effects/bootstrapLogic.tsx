@@ -1,5 +1,5 @@
 import React from 'react';
-import useRunLogic from '../hooks/useRunLogic';
+import useRunLogic from '../../hooks/useRunLogic';
 
 export default function BootstrapLogic(){
     useRunLogic();

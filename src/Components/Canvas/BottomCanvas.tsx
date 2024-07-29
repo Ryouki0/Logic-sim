@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, MINIMAL_BLOCKSIZE } from '../../Constants/defaultDimensions';
 
 export default function BottomCanvas(){
 	const bottomCanvasRef = useRef<HTMLCanvasElement>(null);

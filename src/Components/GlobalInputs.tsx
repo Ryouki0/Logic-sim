@@ -24,6 +24,7 @@ function checkInputs(prev:BinaryIO[],next:BinaryIO[]){
 }
 export default function GlobalInputs(){
 	const currentInputsRef = useRef<HTMLDivElement | null>(null);
+	const [pointerEvents, setPointerEvents] = useState<'auto' | 'none'>('auto');
 	const inputs = useSelector((state: RootState) => {
 		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => 
 		{
@@ -35,10 +36,11 @@ export default function GlobalInputs(){
 		})
 			.filter((io): io is NonNullable<typeof io> => io !== null);
 	}, checkInputs);
+	const eleRef = useRef<HTMLDivElement | null>(null);
  	const [ghostInputPosition, setGhostInputPosition] = useState({x:0,y:0});
  	const [showGhostInput,setShowGhostInput] = useState(false);
  	const dispatch = useDispatch();
- 	const handleRightClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+ 	const handleRightClick = (e: MouseEvent) => {
  		e.preventDefault();
  		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY);
  		dispatch(addInput({
@@ -54,7 +56,11 @@ export default function GlobalInputs(){
  		} as BinaryIO));
  	};
 
-	
+	const passEventsThrough = () => {
+		console.log(`setting it from: ${pointerEvents}`);
+		setPointerEvents(prev => prev === 'auto' ? 'none' : 'auto');
+	}
+
  	const throttledMouseMove = throttle((e:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
  		const inputEntries = Object.entries(inputs);
  		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY);
@@ -73,6 +79,23 @@ export default function GlobalInputs(){
 			setGhostInputPosition({x:2*MINIMAL_BLOCKSIZE, y: roundedY});
 		}
  	}, 16);
+
+	const handleMouseLeave = (e: MouseEvent) => {
+		setShowGhostInput(false);
+	}
+
+	useEffect(() => {
+		eleRef.current?.addEventListener('contextmenu', handleRightClick);
+		eleRef.current?.addEventListener('mousemove', throttledMouseMove);
+		eleRef.current?.addEventListener('mouseleave', handleMouseLeave);
+
+		return () => {
+			eleRef.current?.removeEventListener('contextmenu', handleRightClick);
+			eleRef.current?.removeEventListener('mousemove', throttledMouseMove);
+			eleRef.current?.removeEventListener('mouseleave', handleMouseLeave);
+		}
+	}, [ghostInputPosition, showGhostInput, pointerEvents])
+
  	return <div id='current-inputs'
  		style={{backgroundColor: 'rgb(70 70 70)', 
  			width: 2*MINIMAL_BLOCKSIZE, 
@@ -82,15 +105,12 @@ export default function GlobalInputs(){
 			borderColor: DEFAULT_BORDER_COLOR,
 			borderWidth: DEFAULT_BORDER_WIDTH,
 			borderBottom: 0,
-			pointerEvents: 'revert-layer',
+			pointerEvents: pointerEvents,
  			zIndex: 1,
  			marginLeft: CANVAS_OFFSET_LEFT
 		}}
-		onMouseDown={e=> e.preventDefault()}
- 		onContextMenu={handleRightClick}
- 		onMouseLeave={e => setShowGhostInput(false)}
- 		onMouseMove={e => {throttledMouseMove(e);}}
- 		ref = {currentInputsRef}>
+		ref={eleRef}
+ 		>
 			<div style={{
 				position: 'absolute',
 				width: 2*MINIMAL_BLOCKSIZE,
@@ -125,8 +145,15 @@ export default function GlobalInputs(){
 					userSelect: 'none', 
 					zIndex: 1}}
 					>
- 					<Input binaryInput={{...input,
-						style: {top: (input.style?.top as number) - DEFAULT_BORDER_WIDTH, position: 'relative', left: 2*MINIMAL_BLOCKSIZE - (DEFAULT_INPUT_DIM.width/2) - (1*DEFAULT_BORDER_WIDTH)}, }} 
+ 					<Input binaryInput={{
+						...input,
+						style: {
+							top: (input.style?.top as number) - DEFAULT_BORDER_WIDTH, 
+							position: 'relative', 
+							left: 2*MINIMAL_BLOCKSIZE - (DEFAULT_INPUT_DIM.width/2) - (1*DEFAULT_BORDER_WIDTH)}, 
+						}}
+						extraFn={passEventsThrough}
+						pointerEvents={pointerEvents}
  					></Input>
  					<button style={{
 						top: input.style?.top, 

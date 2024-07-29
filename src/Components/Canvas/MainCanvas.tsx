@@ -1,14 +1,13 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import useDrawWire from '../hooks/useDrawWire';
-import useRedrawCanvas from '../hooks/useRedrawCanvas';
-import { CANVAS_OFFSET_LEFT, getClosestBlock, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
-import useIsWireClicked from '../hooks/useIsWireClicked';
-import { throttle } from '../utils/throttle';
-import { setHoveringOverWire, setSelectedEntity, setSelectedGateId } from '../state/slices/mouseEvents';
-import { changeBluePrintPosition, deleteWire } from '../state/slices/entities';
-import { RootState } from '../state/store';
-import { createImportSpecifier } from 'typescript';
+import useDrawWire from '../../hooks/useDrawWire';
+import useRedrawCanvas from '../../hooks/useRedrawCanvas';
+import { CANVAS_OFFSET_LEFT, } from '../../Constants/defaultDimensions';
+import useIsWireClicked from '../../hooks/useIsWireClicked';
+import { throttle } from '../../utils/throttle';
+import { setHoveringOverWire, setSelectedEntity, setSelectedGateId } from '../../state/slices/mouseEvents';
+import { changeBluePrintPosition, deleteWire } from '../../state/slices/entities';
+import { RootState } from '../../state/store';
 export default function MainCanvas(){
 	const canvasRef = useRedrawCanvas();
 	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire});

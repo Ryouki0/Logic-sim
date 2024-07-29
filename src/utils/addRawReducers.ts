@@ -1,4 +1,4 @@
-import { AnyAction, Slice } from '@reduxjs/toolkit'
+import { Action, AnyAction, PayloadAction, Slice, UnknownAction } from '@reduxjs/toolkit'
 
 /* The redux-toolkit maintainers refuse to add a way to disable immer.js for
  * specific reducers, therefore we need to create an escape hatch by ourselves.
@@ -9,7 +9,7 @@ import { AnyAction, Slice } from '@reduxjs/toolkit'
 /** Add reducers without immer.js to a redux-toolkit slice */
 export function addRawReducers<S>(
   slice: Slice<S>,
-  reducers: Record<string, ((state: S, action: AnyAction) => S)>
+  reducers: Record<string, ((state: S, action: UnknownAction) => S)>
 ) {
 
   const originalReducer = slice.reducer
@@ -18,7 +18,7 @@ export function addRawReducers<S>(
       Object.entries(reducers)
       .map(([name, fn]) => [`${slice.name}/${name}`, fn]))
 
-  slice.reducer = (state: S | undefined, action: AnyAction) => {
+  slice.reducer = (state: S | undefined, action: UnknownAction) => {
     const fn = actionMap[action.type]
     if (fn)
       return fn(state!, action)

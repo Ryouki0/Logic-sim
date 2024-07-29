@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import {
@@ -10,9 +10,8 @@ import { BinaryIO } from "../Interfaces/BinaryIO";
 
 interface InputProps{
 	binaryInput: BinaryIO,
-	gateId?: string,
-	inputIdx?: number,
-	
+	extraFn?: () => void;
+	pointerEvents?: 'auto' | 'none',
 }
 
 export const ioEquality = (prev: BinaryIO, next:BinaryIO) => {
@@ -28,13 +27,12 @@ export const ioEquality = (prev: BinaryIO, next:BinaryIO) => {
 	return true;
 };
 
-export function Input({binaryInput,gateId,inputIdx}: InputProps) {
+export function Input({binaryInput }: InputProps) {
 	const eleRef = useRef<HTMLDivElement>(null);
 	const thisInput = useSelector((state: RootState) => {
 		return state.entities.binaryIO[binaryInput.id] ?? state.entities.currentComponent.binaryIO[binaryInput.id];}, ioEquality);
 	
-	const handleMouseDown = (e:React.MouseEvent<any>) => {
-		e.stopPropagation();
+	const handleMouseDown = (e:MouseEvent) => {
 		console.log(`\n\n`);
 		console.log(`this input ID: ${thisInput?.id.slice(0,5)}`);
 		console.log(`this input state: ${thisInput?.state}`);
@@ -46,7 +44,14 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 		})
 	};
 	
-	
+	useEffect(() => {
+		eleRef.current?.addEventListener('mousedown', handleMouseDown);
+
+		return () => {
+			eleRef.current?.removeEventListener('mousedown', handleMouseDown);
+		}
+	}, [thisInput])
+
 	return (
 		<>
 			{/* {console.log(`RENDER INPUT -- ${thisInput?.gateId?.slice(0,5)}`)} */}
@@ -56,11 +61,10 @@ export function Input({binaryInput,gateId,inputIdx}: InputProps) {
 					height: DEFAULT_INPUT_DIM.height,
 					position: 'relative',
 					userSelect: 'none',
-					pointerEvents: 'none',
 					left: -(DEFAULT_INPUT_DIM.width / 2),
 					...binaryInput?.style,
 				}}
-				onMouseDown={e => {e.stopPropagation(); handleMouseDown(e);}}>
+				>
 				<CircularProgressbar
 					value={100}
 					background={true}

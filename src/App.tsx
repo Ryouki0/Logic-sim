@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
-import MainCanvas from "./Components/MainCanvas";
-import BottomCanvas from "./Components/BottomCanvas";
+import MainCanvas from "./Components/Canvas/MainCanvas";
+import BottomCanvas from "./Components/Canvas/BottomCanvas";
 import DisplayAllGates from "./Components/DisplayAllGates";
 import MovableGates from "./Components/MovableGates";
 import GlobalInputs from "./Components/GlobalInputs";
 import GlobalOutputs from "./Components/GlobalOutputs";
-import EmptyComponent from "./Components/EmptyComponent";
+import EmptyComponent from "./Components/Effects/ConnectLogic";
 import Toolbar from "./Components/toolbar/Toolbar";
-import CanvasTop from "./Components/CanvasTop";
-import BootstrapLogic from "./Components/bootstrapLogic";
+import CanvasTop from "./Components/Canvas/CanvasTop";
+import BootstrapLogic from "./Components/Effects/bootstrapLogic";
 import SelectedGate from "./Components/SelectedGate";
-import HoveringOverIO from "./Components/HoveringOverIO";
+import HoveringOverIO from "./Components/Effects/HoveringOverIO";
+import DrawWireFromIo from "./Components/Effects/DrawWireFromIo";
 function App() {
 	
 	useEffect(() => {
@@ -36,6 +37,7 @@ function App() {
 			<BootstrapLogic></BootstrapLogic>
 			<SelectedGate></SelectedGate>
 			<HoveringOverIO></HoveringOverIO>
+			<DrawWireFromIo></DrawWireFromIo>
 		</>
 	);
 }

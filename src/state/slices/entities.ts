@@ -1,4 +1,4 @@
-import { PayloadAction, createSlice, current } from "@reduxjs/toolkit";
+import { Action, AnyAction, PayloadAction, createSlice, current } from "@reduxjs/toolkit";
 import { Wire } from "../../Interfaces/Wire";
 import { Gate } from "../../Interfaces/Gate";
 import {v4 as uuidv4} from 'uuid';
@@ -7,6 +7,7 @@ import { BinaryIO } from "../../Interfaces/BinaryIO";
 import { calculateInputTop } from "../../utils/calculateInputTop";
 import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
 import { propagateIo } from "../../utils/propagateIo";
+import { addRawReducers } from "../../utils/addRawReducers";
 
 
 const ANDInputId1 = uuidv4();
@@ -133,6 +134,8 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 	}}, 
 	binaryIO: {}
 } as entities;
+
+
 
 const entities = createSlice({
 	name: 'entities',
@@ -640,6 +643,8 @@ const entities = createSlice({
 		}
 	}
 });
+
+
 export default entities.reducer;
 export const {addWire, 
 	changeWirePosition, 

@@ -7,6 +7,7 @@ import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, 
 import { Gate } from "../Interfaces/Gate";
 import { setSelectedGateId } from "../state/slices/mouseEvents";
 import { changeBluePrintPosition } from "../state/slices/entities";
+import { createSelector } from "@reduxjs/toolkit";
 
 const checkAllGatesEquality = (prev: {[key: string]: Gate}, next: {[key: string]: Gate}) => {
 	const prevEntries = Object.entries(prev);
@@ -18,15 +19,22 @@ const checkAllGatesEquality = (prev: {[key: string]: Gate}, next: {[key: string]
 }
 
 export default function DisplayAllGates(){
-	// const allGates = useSelector((state: RootState) => {
-	// 	const topLevelComponents:{[key: string]: Gate}= {};
-	// 	Object.entries(state.entities.bluePrints.gates).forEach(([key, gate]) => {
-	// 		if(gate.parent === 'global'){
-	// 			topLevelComponents[key] = gate;
-	// 		}
-	// 	})
-	// 	return topLevelComponents;
-	// }, checkAllGatesEquality);
+	const selectGates = (state: RootState) => state.entities.bluePrints.gates;
+
+	const bluePrintsSelector = createSelector(
+  		[selectGates],
+  		(gates) => {
+    	const topLevelComponents: { [key: string]: Gate } = {};
+    	Object.entries(gates).forEach(([key, gate]) => {
+      	if(gate.parent === 'global') {
+        	topLevelComponents[key] = gate;
+      	}
+    });
+    return topLevelComponents;
+	}
+);
+
+	const bluePrints = useSelector(bluePrintsSelector);
 	const dispatch = useDispatch();
 
 	return console.log('rendering allgates'),
@@ -45,7 +53,7 @@ export default function DisplayAllGates(){
 	}}
 		onMouseDown={e => e.preventDefault()}
 		>
-		{/* {Object.entries(allGates)?.map(([key, gate]) => {
+		{Object.entries(bluePrints)?.map(([key, gate]) => {
 			return <div
 			onMouseDown={e => {
 				if(e.button !== 0) return;
@@ -70,6 +78,6 @@ export default function DisplayAllGates(){
 				}}>{gate.name}</span>
 			</div>
 			})
-		} */}
+		}
 	</div>;
 }

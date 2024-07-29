@@ -143,7 +143,6 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 						style: {
 							top: calculateInputTop(idx, array.length)
 						}}} 
-						gateId={gateProps.id}
 						key={input?.id}></Input>;
 				})}
 				<div 
