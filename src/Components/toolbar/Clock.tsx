@@ -124,7 +124,7 @@ export default function Clock() {
 			Object.entries(currentIo).forEach(([key, io]) => {
 				copiedIo[key] = io
 			})
-			const newState = logic({gates:copiedGates,io: copiedIo, level: 'global'});
+			const newState = logic({gates:copiedGates,io: copiedIo, level: 'global', serialize: true});
 			dispatch(updateState({gates: newState.gates, binaryIO: newState.io}));
 			console.timeEnd('tick');
 		}
