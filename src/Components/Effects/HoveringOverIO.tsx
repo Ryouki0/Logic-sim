@@ -7,49 +7,49 @@ import isOnIo from '../../utils/isOnIo';
 
 export default function HoveringOverIO(){
 
-    const io = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO});
-    const dispatch = useDispatch();
-    const currentlyHoveringOverIo = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverIo});
-    const spanRef = useRef<HTMLSpanElement | null>(null);
+	const io = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO;});
+	const dispatch = useDispatch();
+	const currentlyHoveringOverIo = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverIo;});
+	const spanRef = useRef<HTMLSpanElement | null>(null);
 
-    useEffect(() => {
-        const ioEntries = Object.entries(io);
+	useEffect(() => {
+		const ioEntries = Object.entries(io);
 
-        const handleMouseMove = (e:MouseEvent) => {
-            for(const [key, io] of ioEntries){
+		const handleMouseMove = (e:MouseEvent) => {
+			for(const [key, io] of ioEntries){
                 
-                if(isOnIo(e.x, e.y, io)){
-                    if(currentlyHoveringOverIo?.id === key){
-                        return;
-                    }
-                    dispatch(setHoveringOverIo(io));
-                    return;
-                }
-            }
-            if(!currentlyHoveringOverIo) return;
-            dispatch(setHoveringOverIo(null));
-        }
+				if(isOnIo(e.x, e.y, io)){
+					if(currentlyHoveringOverIo?.id === key){
+						return;
+					}
+					dispatch(setHoveringOverIo(io));
+					return;
+				}
+			}
+			if(!currentlyHoveringOverIo) return;
+			dispatch(setHoveringOverIo(null));
+		};
 
-        document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mousemove', handleMouseMove);
 
-        return () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-        }
-    }, [io, currentlyHoveringOverIo])
+		return () => {
+			document.removeEventListener('mousemove', handleMouseMove);
+		};
+	}, [io, currentlyHoveringOverIo]);
    
 
-    return <>
-        {currentlyHoveringOverIo && 
+	return <>
+		{currentlyHoveringOverIo && 
         <span ref={spanRef}
-        style={{
-            fontSize: 20,
-            fontWeight: 400,
-            color: 'white', 
-            position: 'absolute', 
-            zIndex: 2, 
-            top: currentlyHoveringOverIo.position!.y - 1.5*MINIMAL_BLOCKSIZE,
-            left: currentlyHoveringOverIo.position!.x,
-            transform: 'translateX(-40%)'
-            }}>{currentlyHoveringOverIo.name}</span>}
-    </>;
+        	style={{
+        		fontSize: 20,
+        		fontWeight: 400,
+        		color: 'white', 
+        		position: 'absolute', 
+        		zIndex: 2, 
+        		top: currentlyHoveringOverIo.position!.y - 1.5*MINIMAL_BLOCKSIZE,
+        		left: currentlyHoveringOverIo.position!.x,
+        		transform: 'translateX(-40%)'
+        	}}>{currentlyHoveringOverIo.name}</span>}
+	</>;
 }

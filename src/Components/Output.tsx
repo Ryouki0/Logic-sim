@@ -19,7 +19,7 @@ interface BinaryOutputProps {
 export function Output({style = null, output}:BinaryOutputProps) {
 
 	const thisOutput = useSelector((state:RootState) => {
-		return state.entities.binaryIO[output?.id] ?? state.entities.currentComponent.binaryIO[output?.id]}, ioEquality)
+		return state.entities.binaryIO[output?.id] ?? state.entities.currentComponent.binaryIO[output?.id];}, ioEquality);
 	const handleMouseDown = (e: React.MouseEvent<any>) => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -28,9 +28,9 @@ export function Output({style = null, output}:BinaryOutputProps) {
 		console.log(`this output is from? : ${thisOutput?.from?.id.slice(0,5)}`);
 		thisOutput?.to?.forEach(to => {
 			console.log(`this output is to: ${to.id.slice(0,5)}`);
-		})
+		});
 		
-	}
+	};
 	
 	
 

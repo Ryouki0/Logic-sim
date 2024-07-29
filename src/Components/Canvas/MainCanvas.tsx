@@ -10,7 +10,7 @@ import { changeBluePrintPosition, deleteWire } from '../../state/slices/entities
 import { RootState } from '../../state/store';
 export default function MainCanvas(){
 	const canvasRef = useRedrawCanvas();
-	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire});
+	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire;});
 	const {checkWire} = useIsWireClicked();
 	const startDrawing = useDrawWire();
 	const dispatch = useDispatch();
@@ -58,20 +58,21 @@ export default function MainCanvas(){
 	
 
 	useEffect(() => {
-		canvasRef.current?.addEventListener('mousedown', drawWireFromWire)
-		canvasRef.current?.addEventListener('contextmenu', handleContextMenu)
-		canvasRef.current?.addEventListener('mousemove', throttledCheckWire)			
+		canvasRef.current?.addEventListener('mousedown', drawWireFromWire);
+		canvasRef.current?.addEventListener('contextmenu', handleContextMenu);
+		canvasRef.current?.addEventListener('mousemove', throttledCheckWire);			
 		
 
 		return () => {
 			canvasRef.current?.removeEventListener('mousedown', drawWireFromWire);
 			canvasRef.current?.removeEventListener('contextmenu', handleContextMenu);
 			canvasRef.current?.removeEventListener('mousemove', throttledCheckWire);
-		}
-	}, [hoveringOverWire, canvasRef, startDrawing])
+		};
+	}, [hoveringOverWire, canvasRef, startDrawing]);
 
 	return (
 		<>
+		{console.log(`render canvas`)}
 			<canvas
 				id="main-canvas"
 				ref={canvasRef}

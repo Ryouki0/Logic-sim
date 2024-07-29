@@ -11,7 +11,7 @@ export default function CreateButton(){
 		flexDirection: 'column',
 		flex: '1 1',
 		width: '100%',
-	}} onClick={e=>{console.log(``)}}>
+	}} onClick={e=>{console.log(``);}}>
 		<div style={{
 			width: '100%',
 			height: 50,
@@ -21,7 +21,7 @@ export default function CreateButton(){
 				height: 20,
 				fontSize: 18,
 				color: 'black'}}
-			onChange={e => {setName(e.target.value)}} 
+			onChange={e => {setName(e.target.value);}} 
 			value={name}
 			placeholder='Component name'></input>
 		</div>
@@ -38,7 +38,7 @@ export default function CreateButton(){
 			display: 'flex',
 			transition: 'all 0.3s ease'
 		}}
-		onClick={e => {dispatch(createBluePrint({name: name}))}}
+		onClick={e => {dispatch(createBluePrint({name: name}));}}
 		onMouseEnter={e=>{
 			e.currentTarget.style.backgroundColor = '#218838';
 			e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.3)';
@@ -57,5 +57,5 @@ export default function CreateButton(){
 			}}>Create component</span>
 		</div>
 		
-	</div>
+	</div>;
 }

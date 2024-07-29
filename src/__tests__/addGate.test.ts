@@ -280,7 +280,7 @@ describe('addGate', () => {
 		Object.entries(newState.gates).forEach(([key, gate]) => {
 			andGateId = key;
 			supposedAndGate = gate;
-		})
+		});
 		expect(Object.keys(newState.gates).length).toBe(1);
 		expect(supposedAndGate!.id).not.toBe('and1');
 		expect(supposedAndGate!.name).toBe('AND');
@@ -297,12 +297,12 @@ describe('addGate', () => {
 	});
 	it('should add a NO gate to the state', () => {
 		const newState = reducer(initialState, addGate(initialState.bluePrints.gates['no1']));
-		let noGateId = ''
+		let noGateId = '';
 		let supposedNoGate: Gate | null = null;
 		Object.entries(newState.gates).forEach(([key, gate]) => {
 			noGateId = key;
 			supposedNoGate = gate;
-		})
+		});
 		expect(Object.keys(newState.gates).length).toBe(1);
 		expect(noGateId).not.toBe('no1');
 		expect(supposedNoGate!.name).toBe('NO');
@@ -330,7 +330,7 @@ describe('addGate', () => {
 			}else if(gate.name === 'layer1_SubAndGate'){
 				supposedAndGate = gate;
 			}
-		})
+		});
 		const ioEntries = Object.entries(newState.binaryIO);
 		
 		const mainGateInputIds: string[] = [];
@@ -354,11 +354,11 @@ describe('addGate', () => {
 			}else if(io.type === 'output' && io.gateId === supposedNoGate!.id){
 				noGateOutput = key;
 			}
-		})
+		});
 
 		const connectedMainGateOutput = newState.binaryIO[mainGateOutputs[0]].from 
-		? newState.binaryIO[mainGateOutputs[0]] 
-		: newState.binaryIO[mainGateOutputs[1]];
+			? newState.binaryIO[mainGateOutputs[0]] 
+			: newState.binaryIO[mainGateOutputs[1]];
 
 		//The IDs of the gates are changed
 		expect(supposedAndGate).toBeDefined();
@@ -382,7 +382,7 @@ describe('addGate', () => {
 		expect(newState.binaryIO[supposedAndGate!.inputs[1]].gateId).toBe(supposedAndGate!.id);
 
 		//The main gate's inputs are connected to the and gate's inputs
-		expect(mainGateInputIds).toContain(newState.binaryIO[supposedAndGate!.inputs[0]].from!.id)
+		expect(mainGateInputIds).toContain(newState.binaryIO[supposedAndGate!.inputs[0]].from!.id);
 		expect(mainGateInputIds).toContain(newState.binaryIO[supposedAndGate!.inputs[1]].from!.id);
 		expect(newState.binaryIO[supposedAndGate!.inputs[0]].from?.type).toBe('input');
 		expect(newState.binaryIO[supposedAndGate!.inputs[1]].from?.type).toBe('input');
@@ -459,7 +459,7 @@ describe('addGate', () => {
 			}else if(gate.name === 'layer1_SubNoGate'){
 				layer1SubNoGate = gate;
 			}
-		})
+		});
 		
 		const layer2MainGate_InputIds:string[] = [];
 		const layer2MainGate_OutputIds: string[] = [];
@@ -509,7 +509,7 @@ describe('addGate', () => {
 					layer1SubNoGate_OutputIds.push(key);
 				}
 			}
-		})
+		});
 
 		//The gates are added to the state
 		expect(layer1MainGate).toBeDefined();
@@ -667,5 +667,5 @@ describe('addGate', () => {
 		expect(newState.binaryIO[layer2MainGate_OutputIds[0]].from).toBeDefined();
 		expect(newState.binaryIO[layer2MainGate_OutputIds[0]].from?.id).toBe(layer2SubNoGate_OutputIds[0]);
 		expect(newState.binaryIO[layer2MainGate_OutputIds[0]].from?.type).toBe('output');
-	})
-})
+	});
+});

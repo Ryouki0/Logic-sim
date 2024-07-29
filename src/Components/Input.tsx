@@ -41,7 +41,7 @@ export function Input({binaryInput }: InputProps) {
 		console.log(`this input parent: ${thisInput?.parent}`);
 		thisInput?.to?.forEach(to => {
 			console.log(`this input is to: ${to.id.slice(0,5)}`);
-		})
+		});
 	};
 	
 	useEffect(() => {
@@ -49,8 +49,8 @@ export function Input({binaryInput }: InputProps) {
 
 		return () => {
 			eleRef.current?.removeEventListener('mousedown', handleMouseDown);
-		}
-	}, [thisInput])
+		};
+	}, [thisInput]);
 
 	return (
 		<>
@@ -64,7 +64,7 @@ export function Input({binaryInput }: InputProps) {
 					left: -(DEFAULT_INPUT_DIM.width / 2),
 					...binaryInput?.style,
 				}}
-				>
+			>
 				<CircularProgressbar
 					value={100}
 					background={true}

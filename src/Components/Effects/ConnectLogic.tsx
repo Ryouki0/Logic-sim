@@ -3,6 +3,6 @@ import useConnecting from '../../hooks/useConnecting';
 import useRunLogic from '../../hooks/useRunLogic';
 
 export default function EmptyComponent() {
-    useConnecting();
+	useConnecting();
  	return null;
 }

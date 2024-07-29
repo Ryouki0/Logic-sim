@@ -40,7 +40,7 @@ export default function useRedrawCanvas(){
 			sourceMap[key] = source;
 		}
 		return sourceMap;
-	}, checkWireSourceEquality)
+	}, checkWireSourceEquality);
 
 	useEffect(() => {
 		const canvasEle = canvasRef.current;

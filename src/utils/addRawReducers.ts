@@ -1,4 +1,4 @@
-import { Action, AnyAction, PayloadAction, Slice, UnknownAction } from '@reduxjs/toolkit'
+import { Action, AnyAction, PayloadAction, Slice, UnknownAction } from '@reduxjs/toolkit';
 
 /* The redux-toolkit maintainers refuse to add a way to disable immer.js for
  * specific reducers, therefore we need to create an escape hatch by ourselves.
@@ -8,28 +8,28 @@ import { Action, AnyAction, PayloadAction, Slice, UnknownAction } from '@reduxjs
 
 /** Add reducers without immer.js to a redux-toolkit slice */
 export function addRawReducers<S>(
-  slice: Slice<S>,
-  reducers: Record<string, ((state: S, action: UnknownAction) => S)>
+	slice: Slice<S>,
+	reducers: Record<string, ((state: S, action: UnknownAction) => S)>
 ) {
 
-  const originalReducer = slice.reducer
-  const actionMap =
+	const originalReducer = slice.reducer;
+	const actionMap =
     Object.fromEntries(
-      Object.entries(reducers)
-      .map(([name, fn]) => [`${slice.name}/${name}`, fn]))
+    	Object.entries(reducers)
+    		.map(([name, fn]) => [`${slice.name}/${name}`, fn]));
 
-  slice.reducer = (state: S | undefined, action: UnknownAction) => {
-    const fn = actionMap[action.type]
-    if (fn)
-      return fn(state!, action)
-    return originalReducer(state, action)
-  }
+	slice.reducer = (state: S | undefined, action: UnknownAction) => {
+		const fn = actionMap[action.type];
+		if (fn)
+			return fn(state!, action);
+		return originalReducer(state, action);
+	};
 
-  const actionCreators =
+	const actionCreators =
     Object.fromEntries(
-      Object.entries(reducers)
-      .map(([name]) =>
-        [name, (payload: any) => ({ type: `${slice.name}/${name}`, payload })]))
+    	Object.entries(reducers)
+    		.map(([name]) =>
+    			[name, (payload: any) => ({ type: `${slice.name}/${name}`, payload })]));
 
-  return actionCreators
+	return actionCreators;
 }

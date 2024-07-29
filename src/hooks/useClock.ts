@@ -7,15 +7,15 @@ import { BinaryIO } from '../Interfaces/BinaryIO';
 import { Gate } from '../Interfaces/Gate';
 
 export default function useClock(){
-    const gates = useSelector((state: RootState) => {return state.entities.gates});
-    const io = useSelector((state: RootState) => {return state.entities.binaryIO});
+	const gates = useSelector((state: RootState) => {return state.entities.gates;});
+	const io = useSelector((state: RootState) => {return state.entities.binaryIO;});
 
-    useEffect(() => {
+	useEffect(() => {
        
-        const copiedComponent = deepCopyComponent({gates: gates, io: io});
+		const copiedComponent = deepCopyComponent({gates: gates, io: io});
 
         
-    }, [gates, io])
+	}, [gates, io]);
 
    
 

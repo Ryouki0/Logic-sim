@@ -59,23 +59,23 @@ export default function GlobalOutputs() {
  			left: CANVAS_WIDTH - MINIMAL_BLOCKSIZE, 
  		}}
  		onContextMenu={e=> {handleRightClick(e);}}>
-			<div style={{
-				background: `linear-gradient(${DEFAULT_BACKGROUND_COLOR}, rgb(140, 140, 140))`,
-				width: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
-				position: 'absolute',
-				height: 2*MINIMAL_BLOCKSIZE,
-				top: CANVAS_HEIGHT + DEFAULT_BORDER_WIDTH -2*MINIMAL_BLOCKSIZE
-			}}>
-			</div>
-			<div style={{
-				backgroundColor: DEFAULT_BACKGROUND_COLOR,
-				position: 'absolute',
-				width: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
-				height: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
-				left: -DEFAULT_BORDER_WIDTH
-			}}>
+		<div style={{
+			background: `linear-gradient(${DEFAULT_BACKGROUND_COLOR}, rgb(140, 140, 140))`,
+			width: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
+			position: 'absolute',
+			height: 2*MINIMAL_BLOCKSIZE,
+			top: CANVAS_HEIGHT + DEFAULT_BORDER_WIDTH -2*MINIMAL_BLOCKSIZE
+		}}>
+		</div>
+		<div style={{
+			backgroundColor: DEFAULT_BACKGROUND_COLOR,
+			position: 'absolute',
+			width: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
+			height: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
+			left: -DEFAULT_BORDER_WIDTH
+		}}>
 
-			</div>
+		</div>
  		{outputEntries.map(([key, output], idx, array) => {
  			return <Output output={output} style={output.style} key={output.id}></Output>;
  		})}

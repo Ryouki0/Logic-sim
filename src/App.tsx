@@ -20,7 +20,7 @@ function App() {
 		return () => {
 			document.body.style.overflow = 'auto';
 		};
-	}, [])
+	}, []);
 
 	return (
 		<>

@@ -10,7 +10,7 @@ export const store = configureStore({
 	},
 	middleware: (getDefaultMiddleWare) => {return getDefaultMiddleWare({
 		serializableCheck: false,
-	})},
+	});},
 });
 
 export type RootState = ReturnType<typeof store.getState>;

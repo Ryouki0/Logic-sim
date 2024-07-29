@@ -58,7 +58,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 		if(isBluePrint){
 			return gateProps.inputs.map(inputId => {
 				return state.entities.bluePrints.io[inputId];
-			})
+			});
 
 		}else{
 			return gateProps.inputs.map(input => {
@@ -71,7 +71,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 		if(isBluePrint){
 			return gateProps.outputs.map(outputId => {
 				return state.entities.bluePrints.io[outputId];
-			})
+			});
 		}else{
 			return gateProps.outputs.map(outputId => {
 				return state.entities.binaryIO[outputId] ?? state.entities.currentComponent.binaryIO[outputId];
@@ -80,13 +80,12 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 	}, () => true);
 
 	function setPositions(x: number, y: number){
-		console.time(`pos`);
 		dispatch(changeGatePosition({gate: thisGate, position: {x: x,y: y}}));
-		console.timeEnd(`pos`);
 	};
 
 	const handleMouseDownEvent = (e: MouseEvent) => {
 		if(e.target !== eleRef.current && e.target !== spanRef.current) return;
+		if(e.button !== 0) return;
 		if(!isBluePrint){
 			e.preventDefault();
 			dispatch(setSelectedEntity({ type: 'Gate', entity: thisGate }));
@@ -97,17 +96,17 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 	const handleContextMenu = (e: MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
-		dispatch(deleteComponent(thisGate.id))
-	}
+		dispatch(deleteComponent(thisGate.id));
+	};
 
 	const handleBluePrintContextMenu = (e:MouseEvent) => {
 		e.preventDefault();
 		
-	}
+	};
 	useEffect(() => {
 		if(!isBluePrint){
 			eleRef.current?.addEventListener('contextmenu', handleContextMenu);
-			eleRef.current?.addEventListener('mousedown', handleMouseDownEvent)
+			eleRef.current?.addEventListener('mousedown', handleMouseDownEvent);
 		}else{
 			eleRef.current?.addEventListener('contextmenu', handleBluePrintContextMenu);
 		}
@@ -117,14 +116,14 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 			eleRef.current?.removeEventListener('mousedown', handleMouseDownEvent);
 			eleRef.current?.removeEventListener('contextmenu', handleBluePrintContextMenu);
 			
-		}
-	}, [inputs, outputs, thisGate])
+		};
+	}, [inputs, outputs, thisGate]);
 
 	return	(
 		<>
-		{/* {console.log(`rendering customgate: ${thisGate?.id.slice(0,6)}`)} */}
+			{/* {console.log(`rendering customgate: ${thisGate?.id.slice(0,6)}`)} */}
 			<div ref={eleRef}
-			className='Gate-container'
+				className='Gate-container'
 				style={{width: 3*MINIMAL_BLOCKSIZE, 
 					height: calculateGateHeight(thisGate),
 					position: position ? position : 'relative',
@@ -143,17 +142,17 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 						style: {
 							top: calculateInputTop(idx, array.length)
 						}}} 
-						key={input?.id}></Input>;
+					key={input?.id}></Input>;
 				})}
 				<div 
-				style={{
-					position: "absolute", 
-					left: "50%", 
-					top: "50%", 
-					transform: "translate(-50%, -50%)"
-				}}> 
+					style={{
+						position: "absolute", 
+						left: "50%", 
+						top: "50%", 
+						transform: "translate(-50%, -50%)"
+					}}> 
 					<span ref={spanRef}
-					style={{fontSize: 23, 
+						style={{fontSize: 23, 
         				userSelect: 'none', 
 				        color: 'white'}}>
 						{gateProps.name}
@@ -162,9 +161,9 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 				{outputs.map((output,idx,array) => {
 					return <Output output={output} style={
 						{
-						top: calculateInputTop(idx, array.length) + (idx*DEFAULT_INPUT_DIM.height),
-						position:'absolute',
-						left:3*MINIMAL_BLOCKSIZE - DEFAULT_INPUT_DIM.height/2}} key={output?.id}></Output>;
+							top: calculateInputTop(idx, array.length) + (idx*DEFAULT_INPUT_DIM.height),
+							position:'absolute',
+							left:3*MINIMAL_BLOCKSIZE - DEFAULT_INPUT_DIM.height/2}} key={output?.id}></Output>;
 				})}
 			</div>
 		</>

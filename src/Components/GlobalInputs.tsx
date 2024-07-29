@@ -19,7 +19,7 @@ function checkInputs(prev:BinaryIO[],next:BinaryIO[]){
 		if(io.state !== next[idx].state){
 			didStateChange = true;
 		}
-	})
+	});
 	return !didStateChange;
 }
 export default function GlobalInputs(){
@@ -59,7 +59,7 @@ export default function GlobalInputs(){
 	const passEventsThrough = () => {
 		console.log(`setting it from: ${pointerEvents}`);
 		setPointerEvents(prev => prev === 'auto' ? 'none' : 'auto');
-	}
+	};
 
  	const throttledMouseMove = throttle((e:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
  		const inputEntries = Object.entries(inputs);
@@ -82,7 +82,7 @@ export default function GlobalInputs(){
 
 	const handleMouseLeave = (e: MouseEvent) => {
 		setShowGhostInput(false);
-	}
+	};
 
 	useEffect(() => {
 		eleRef.current?.addEventListener('contextmenu', handleRightClick);
@@ -93,8 +93,8 @@ export default function GlobalInputs(){
 			eleRef.current?.removeEventListener('contextmenu', handleRightClick);
 			eleRef.current?.removeEventListener('mousemove', throttledMouseMove);
 			eleRef.current?.removeEventListener('mouseleave', handleMouseLeave);
-		}
-	}, [ghostInputPosition, showGhostInput, pointerEvents])
+		};
+	}, [ghostInputPosition, showGhostInput, pointerEvents]);
 
  	return <div id='current-inputs'
  		style={{backgroundColor: 'rgb(70 70 70)', 
@@ -102,6 +102,7 @@ export default function GlobalInputs(){
  			height: CANVAS_HEIGHT,
  			position: 'absolute',
 			borderStyle: 'solid',
+			userSelect: 'none',
 			borderColor: DEFAULT_BORDER_COLOR,
 			borderWidth: DEFAULT_BORDER_WIDTH,
 			borderBottom: 0,
@@ -111,31 +112,31 @@ export default function GlobalInputs(){
 		}}
 		ref={eleRef}
  		>
-			<div style={{
-				position: 'absolute',
-				width: 2*MINIMAL_BLOCKSIZE,
-				height: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
-				top: 0,
-				left: -DEFAULT_BORDER_WIDTH,
-				borderColor: DEFAULT_BORDER_COLOR,
-				borderLeftWidth: DEFAULT_BORDER_WIDTH,
-				borderTop: 0,
-				borderRight: 0,
-				borderBottom: 0,
-				borderStyle: 'solid',
-				backgroundColor: DEFAULT_BACKGROUND_COLOR,
-				zIndex: 0,
-			}}></div>
-			<div style={{
-				position: 'absolute',
-				top: CANVAS_HEIGHT + DEFAULT_BORDER_WIDTH - 2*MINIMAL_BLOCKSIZE,
-				background: `linear-gradient(${DEFAULT_BACKGROUND_COLOR}, rgb(140 140 140))`,
-				height: 2*MINIMAL_BLOCKSIZE,
-				width: 2*MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
+		<div style={{
+			position: 'absolute',
+			width: 2*MINIMAL_BLOCKSIZE,
+			height: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
+			top: 0,
+			left: -DEFAULT_BORDER_WIDTH,
+			borderColor: DEFAULT_BORDER_COLOR,
+			borderLeftWidth: DEFAULT_BORDER_WIDTH,
+			borderTop: 0,
+			borderRight: 0,
+			borderBottom: 0,
+			borderStyle: 'solid',
+			backgroundColor: DEFAULT_BACKGROUND_COLOR,
+			zIndex: 0,
+		}}></div>
+		<div style={{
+			position: 'absolute',
+			top: CANVAS_HEIGHT + DEFAULT_BORDER_WIDTH - 2*MINIMAL_BLOCKSIZE,
+			background: `linear-gradient(${DEFAULT_BACKGROUND_COLOR}, rgb(140 140 140))`,
+			height: 2*MINIMAL_BLOCKSIZE,
+			width: 2*MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
 
-			}}>
+		}}>
 
-			</div>
+		</div>
  		{inputs.map(( input, idx) => {
  			return (
  				<div key={uuidv4()} style={{
@@ -144,16 +145,16 @@ export default function GlobalInputs(){
 					position: 'absolute', 
 					userSelect: 'none', 
 					zIndex: 1}}
-					>
+				>
  					<Input binaryInput={{
 						...input,
 						style: {
 							top: (input.style?.top as number) - DEFAULT_BORDER_WIDTH, 
 							position: 'relative', 
 							left: 2*MINIMAL_BLOCKSIZE - (DEFAULT_INPUT_DIM.width/2) - (1*DEFAULT_BORDER_WIDTH)}, 
-						}}
-						extraFn={passEventsThrough}
-						pointerEvents={pointerEvents}
+					}}
+					extraFn={passEventsThrough}
+					pointerEvents={pointerEvents}
  					></Input>
  					<button style={{
 						top: input.style?.top, 
@@ -165,7 +166,7 @@ export default function GlobalInputs(){
 						userSelect: 'none'
 					}} onClick={e => {
 						e.preventDefault();
-						dispatch(changeInputState(input.id))}}>
+						dispatch(changeInputState(input.id));}}>
  						{input.state ? 'ON' : 'OFF'}
  					</button>
  				</div>

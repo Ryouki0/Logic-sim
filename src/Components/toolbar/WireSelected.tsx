@@ -11,7 +11,7 @@ export default function WireSelected({wire} : {wire:Wire}){
 		<span style={{
 			color: 'white', 
 			fontSize: 16,
-			marginTop: 10,
+			marginTop: 10
 		}}>ID: {wire.id.slice(0,6)}...</span>
 		<span style={{
 			color: 'white', 

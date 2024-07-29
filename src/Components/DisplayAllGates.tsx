@@ -16,7 +16,7 @@ const checkAllGatesEquality = (prev: {[key: string]: Gate}, next: {[key: string]
 		return false;
 	}
 	return true;
-}
+};
 
 export default function DisplayAllGates(){
 	const selectGates = (state: RootState) => state.entities.bluePrints.gates;
@@ -29,10 +29,10 @@ export default function DisplayAllGates(){
       	if(gate.parent === 'global') {
         	topLevelComponents[key] = gate;
       	}
-    });
-    return topLevelComponents;
-	}
-);
+			});
+			return topLevelComponents;
+		}
+	);
 
 	const bluePrints = useSelector(bluePrintsSelector);
 	const dispatch = useDispatch();
@@ -51,33 +51,33 @@ export default function DisplayAllGates(){
 		paddingLeft: 2*MINIMAL_BLOCKSIZE,
 		borderStyle: 'solid'
 	}}
-		onMouseDown={e => e.preventDefault()}
-		>
+	onMouseDown={e => e.preventDefault()}
+	>
 		{Object.entries(bluePrints)?.map(([key, gate]) => {
 			return <div
-			onMouseDown={e => {
-				if(e.button !== 0) return;
-				e.stopPropagation();
-				dispatch(setSelectedGateId(key));
-				dispatch(changeBluePrintPosition({gateId: key, position: {x: e.pageX, y: e.pageY}}))}}
-			style={{
-				backgroundColor: 'rgb(70 70 70)',
-				height: 40,
-				marginRight: 7,
-				alignSelf: 'center',
-				display: 'flex',
-				justifyContent: 'center',
-				alignItems: 'center',
-				cursor: 'pointer',
-				width: 3*MINIMAL_BLOCKSIZE,
-			}} key={key}>
+				onMouseDown={e => {
+					if(e.button !== 0) return;
+					e.stopPropagation();
+					dispatch(setSelectedGateId(key));
+					dispatch(changeBluePrintPosition({gateId: key, position: {x: e.pageX, y: e.pageY}}));}}
+				style={{
+					backgroundColor: 'rgb(70 70 70)',
+					height: 40,
+					marginRight: 7,
+					alignSelf: 'center',
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					cursor: 'pointer',
+					width: 3*MINIMAL_BLOCKSIZE,
+				}} key={key}>
 				<span style={{
 					color: 'white',
 					fontSize: 18,
 					userSelect: 'none',
 				}}>{gate.name}</span>
-			</div>
-			})
+			</div>;
+		})
 		}
 	</div>;
 }
