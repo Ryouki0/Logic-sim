@@ -37,8 +37,7 @@ export default function DisplayAllGates(){
 	const bluePrints = useSelector(bluePrintsSelector);
 	const dispatch = useDispatch();
 
-	return console.log('rendering allgates'),
-	<div style={{display: 'flex', top: CANVAS_HEIGHT,
+	return <div style={{display: 'flex', top: CANVAS_HEIGHT,
 		position: 'absolute',
 		width: CANVAS_WIDTH,
 		height: 2*MINIMAL_BLOCKSIZE,

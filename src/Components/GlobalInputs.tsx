@@ -154,7 +154,6 @@ export default function GlobalInputs(){
 							left: 2*MINIMAL_BLOCKSIZE - (DEFAULT_INPUT_DIM.width/2) - (1*DEFAULT_BORDER_WIDTH)}, 
 					}}
 					extraFn={passEventsThrough}
-					pointerEvents={pointerEvents}
  					></Input>
  					<button style={{
 						top: input.style?.top, 

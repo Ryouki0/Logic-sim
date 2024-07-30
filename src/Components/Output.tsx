@@ -22,7 +22,6 @@ export function Output({style = null, output}:BinaryOutputProps) {
 		return state.entities.binaryIO[output?.id] ?? state.entities.currentComponent.binaryIO[output?.id];}, ioEquality);
 	const handleMouseDown = (e: React.MouseEvent<any>) => {
 		e.preventDefault();
-		e.stopPropagation();
 		console.log(`\n\nthisOutput state: ${thisOutput?.state}`);
 		console.log(`thisOutput ID: ${thisOutput?.id.slice(0,5)}`);
 		console.log(`this output is from? : ${thisOutput?.from?.id.slice(0,5)}`);
@@ -39,7 +38,6 @@ export function Output({style = null, output}:BinaryOutputProps) {
 			<div style={{...style,
 				width: DEFAULT_INPUT_DIM.width,
 				height: DEFAULT_INPUT_DIM.height,
-				pointerEvents: 'none',
 				cursor: 'arrow',
 			}}
 			onMouseDown={handleMouseDown}>

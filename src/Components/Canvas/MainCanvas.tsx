@@ -45,7 +45,6 @@ export default function MainCanvas(){
 			return;
 
 		}
-		e.preventDefault();
 		startDrawing(e as unknown as React.MouseEvent<HTMLCanvasElement, MouseEvent>);
 		const wire = checkWire(e.pageX, e.pageY);
 		if(!wire){

@@ -33,6 +33,7 @@ export function Input({binaryInput }: InputProps) {
 		return state.entities.binaryIO[binaryInput.id] ?? state.entities.currentComponent.binaryIO[binaryInput.id];}, ioEquality);
 	
 	const handleMouseDown = (e:MouseEvent) => {
+		e.preventDefault();
 		console.log(`\n\n`);
 		console.log(`this input ID: ${thisInput?.id.slice(0,5)}`);
 		console.log(`this input state: ${thisInput?.state}`);

@@ -14,9 +14,9 @@ export function logic(component: {
     serialize?: boolean
  })
 {
-	let {gates, io} = component.serialize ?
-		deepCopyComponent({gates: component.gates, io: component.io}) :
-		{gates: component.gates, io: component.io};
+	let { gates, io } = component.serialize
+  		? deepCopyComponent({ gates: component.gates, io: component.io })
+  		: { gates: component.gates, io: component.io };
 
 	const mainOrder = getMainOrder(gates, io, component.level);
 	mainOrder.forEach(gateId => {
