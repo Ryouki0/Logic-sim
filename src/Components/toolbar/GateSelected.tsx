@@ -123,7 +123,7 @@ export default function GateSelected({gate}: {gate: Gate}){
       </label>
       <textarea
 		rows={1}
-		
+		spellCheck={false}
 		ref={textareaRef}
 		value={currentText.current}
 		onChange={handleChange}

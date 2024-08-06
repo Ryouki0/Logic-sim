@@ -1,12 +1,14 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { CANVAS_WIDTH } from "../../Constants/defaultDimensions";
+import { CANVAS_WIDTH, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
 import WireSelected from "./WireSelected";
 import { Wire } from "../../Interfaces/Wire";
 import { Gate } from "../../Interfaces/Gate";
 import GateSelected from "./GateSelected";
-import { ONYX } from "../../Constants/colors";
+import { DEFAULT_BUTTON_COLOR, ONYX } from "../../Constants/colors";
+import { switchCurrentComponent } from "../../state/slices/entities";
+import { setCurrentComponentId } from "../../state/slices/misc";
 
 const checkCurrentEntity = (prev: Wire | Gate | undefined, next: Wire | Gate | undefined) => {
 	if(prev && !next){
@@ -22,13 +24,22 @@ export default function SelectedComponent(){
 	const selectedComponent = useSelector((state: RootState) => {
  		return state.mouseEventsSlice.entityClicked;
  	});
+
 	const currentEntity = useSelector((state: RootState) => {
 		if(selectedComponent?.type === 'Gate'){
 			return state.entities.currentComponent.gates[selectedComponent.entity!.id];
 		}else if(selectedComponent?.type === 'Wire'){
 			return state.entities.currentComponent.wires[selectedComponent.entity!.id];
 		}
-	}, checkCurrentEntity)
+	}, checkCurrentEntity);
+
+	const dispatch = useDispatch();
+
+	const handleClick = (e: React.MouseEvent<any>) => {
+		dispatch(switchCurrentComponent({componentId: selectedComponent.entity!.id}));
+		dispatch(setCurrentComponentId(selectedComponent.entity!.id));
+	}
+
  	return console.log(`rendering selectedComponent`),
 	<div style={{
  		width: '100%',
@@ -46,12 +57,20 @@ export default function SelectedComponent(){
 			flexDirection: 'column'
 		}}>
 			<GateSelected gate={selectedComponent.entity as Gate}></GateSelected>
-			{(selectedComponent.entity as Gate).gates && <div style={{
-				backgroundColor:'white',
-				width: '100%',
-				height: 30,
-				marginTop: 'auto'
-		}}></div>}
+			{(selectedComponent.entity as Gate).gates && <div 
+			onClick={handleClick}
+			className="button"
+			style={{
+				width: '80%',
+				marginBottom: 0.5*MINIMAL_BLOCKSIZE
+			}}>
+			<span style={{
+				color: 'white',
+				fontSize: 20
+			}}>
+				View
+			</span>
+			</div>}
 		</div>}
  	</div>;
 }

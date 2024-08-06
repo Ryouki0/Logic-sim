@@ -23,6 +23,6 @@ export default function WireSelected({wire} : {wire:Wire}){
 		<span style={{
 			color: 'white', 
 			fontSize: 16,
-			marginTop: 10}}>CONNECTED TO: {wire.connectedToId?.map(to => to.id.slice(0,6)).join('')}</span>
+			marginTop: 10}}>Parent: {wire.parent}</span>
 	</div>;
 }

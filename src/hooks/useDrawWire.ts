@@ -28,7 +28,6 @@ export default function useDrawWire() {
 		if (!context) {
 			return;
 		}
-		//console.log('drawline from: ', from);
 		const line: Line = {startX: 0, startY: 0, endX: 0, endY: 0};
 		const lastPosition = {x: 0, y: 0};
 		const thisWireId = uuidv4();
@@ -36,6 +35,7 @@ export default function useDrawWire() {
 			linearLine: {...line},
 			diagonalLine: {...line},
 			id: thisWireId,
+			parent: 'global',
 			connectedToId: [],
 		};
 		dispatch(setDrawingWire(thisWireId));
@@ -50,7 +50,6 @@ export default function useDrawWire() {
 
 		const mouseDownListener = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 
-			//dispatch(setObjectClicked("Wire"));
 			const {x, y} = getClientOffset(event);
 			const {roundedX, roundedY} = getClosestBlock(x,y);
 			line.startX = roundedX;
@@ -58,8 +57,6 @@ export default function useDrawWire() {
 			lastPosition.x = roundedX;
 
 			lastPosition.y = roundedY;
-		//currentWire.linearLine.startX = roundedX;
-		//currentWire.linearLine.startY = roundedY;
 		};
     
 		mouseDownListener(e);
@@ -79,7 +76,6 @@ export default function useDrawWire() {
 				line.endY = line.startY;
 				currentWire.linearLine = {...line};
 				currentWire.diagonalLine = {startX: line.endX,startY:line.startY, endX: tempLine.endX, endY: tempLine.endY} as Line;
-			//drawLine(currentWire.diagonalLine, context);
 			}
 			else if(Math.abs(diffY) > Math.abs(diffX)){
 
@@ -91,7 +87,6 @@ export default function useDrawWire() {
 				line.endX = line.startX;
 				currentWire.linearLine ={...line};
 				currentWire.diagonalLine = {startX: line.endX,startY:line.endY, endX: tempLine.endX, endY: tempLine.endY} as Line;
-			//drawLine(currentWire.diagonalLine, context);
 			}
 		};
 
@@ -100,9 +95,7 @@ export default function useDrawWire() {
 			const {x, y} = getClientOffset((event as unknown) as React.MouseEvent<HTMLCanvasElement, MouseEvent>);
 			const {roundedX, roundedY} = getClosestBlock(x,y);
       
-			//console.log(`X: ${x} roundedX: ${roundedX} lastPosY: ${lastPosition.y} roundedY: ${roundedY}`);
 			if(lastPosition.x !== roundedX || lastPosition.y !== roundedY){
-			//console.log('bigger than min block size');
 				line.endX = roundedX;
 				line.endY = roundedY;
 				lastPosition.x = roundedX;
@@ -116,6 +109,7 @@ export default function useDrawWire() {
 					diagonalLine: {...currentWire.diagonalLine}, 
 					id: currentWire.id,
 					from: currentWire.from,
+					parent: currentWire.parent,
 					connectedToId: currentWire.connectedToId,
 				};
 				dispatch(changeWirePosition(newWire));
@@ -127,19 +121,6 @@ export default function useDrawWire() {
 			document.removeEventListener("mousemove", mouseMoveListener);
 			document.removeEventListener("mouseup", mouseupListener);
 			dispatch(setDrawingWire(null));
-
-		// 	let endPoint: {x:number,y:number};
-		// 	if(currentWire.diagonalLine.startX === currentWire.diagonalLine.endX){
-		// 		endPoint = {x:currentWire.linearLine.endX,y:currentWire.linearLine.endY};
-		// 	}else{
-		// 		endPoint = {x:currentWire.diagonalLine.endX, y:currentWire.diagonalLine.endY};
-		// 	}
-		// 	const wireToConnect = getAllWire(endPoint.x,endPoint.y);
-		// 	wireToConnect?.forEach(w => {
-		// 		if(w.id !== currentWire.id){
-		// 			dispatch(connectWireToWire({wire1: w, wire2: currentWire}));
-		// 		}
-		// 	});
 		};
     
 		document.addEventListener("mousemove", mouseMoveListener);

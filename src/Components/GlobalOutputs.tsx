@@ -9,9 +9,10 @@ import { addGlobalOutput } from '../state/slices/entities';
 import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../Constants/colors';
 
 export default function GlobalOutputs() {
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
 	const outputs = useSelector((state: RootState) => {
 		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => {
-			if(io.type === 'output' && !io.gateId){
+			if((io.type === 'output' && !io.gateId) || (io.type === 'output' && io.gateId === currentComponentId)){
 				return io;
 			}else{
 				return null;

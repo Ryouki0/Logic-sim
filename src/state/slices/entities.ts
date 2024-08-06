@@ -5,7 +5,7 @@ import {v4 as uuidv4} from 'uuid';
 
 import { BinaryIO } from "../../Interfaces/BinaryIO";
 import { calculateInputTop } from "../../utils/calculateInputTop";
-import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
+import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
 import { propagateIo } from "../../utils/propagateIo";
 import { addRawReducers } from "../../utils/addRawReducers";
 
@@ -23,7 +23,7 @@ const DELAYId = uuidv4();
 export interface entities{
     wires: {[key: string]: Wire};
     gates: {[key: string]: Gate};
-	bluePrints: {gates: {[key: string]:Gate}, io: {[key: string]: BinaryIO}};
+	bluePrints: {gates: {[key: string]:Gate}, io: {[key: string]: BinaryIO}, wires: {[key: string]: Wire}};
 	binaryIO: {[key: string]:BinaryIO};
 	currentComponent: {wires: {[key: string]: Wire}, gates: {[key: string]: Gate}, binaryIO: {[key: string]: BinaryIO}}
 }
@@ -131,7 +131,9 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 			type: 'output',
 			style: {},
 		}
-	}}, 
+	}, 
+	wires: {}
+}, 
 	binaryIO: {}
 } as entities;
 
@@ -166,20 +168,32 @@ const entities = createSlice({
 			function copyGateIntoState(gate: Gate, isGlobal: boolean = false){
 				if(isGlobal){
 					state.currentComponent.gates[gate.id] = JSON.parse(JSON.stringify(gate));
+					
 					gate.inputs.forEach(inputId => {
 						state.currentComponent.binaryIO[inputId] = JSON.parse(JSON.stringify(state.bluePrints.io[inputId]));
 					});
+					
 					gate.outputs.forEach(outputId => {
 						state.currentComponent.binaryIO[outputId] = JSON.parse(JSON.stringify(state.bluePrints.io[outputId]));
 					});
+					
+					gate.wires?.forEach(wireId => {
+						state.wires[wireId] = JSON.parse(JSON.stringify(state.bluePrints.wires[wireId]));
+					})
 				}else{
 					state.gates[gate.id] = JSON.parse(JSON.stringify(gate));
+					
 					gate.inputs.forEach(inputId => {
 						state.binaryIO[inputId] = JSON.parse(JSON.stringify(state.bluePrints.io[inputId]));
 					});
+					
 					gate.outputs.forEach(outputId => {
 						state.binaryIO[outputId] = JSON.parse(JSON.stringify(state.bluePrints.io[outputId]));
 					});
+
+					gate.wires?.forEach(wireId => {
+						state.wires[wireId] = JSON.parse(JSON.stringify(state.bluePrints.wires[wireId]));
+					})
 				}
 				
 			}
@@ -202,21 +216,37 @@ const entities = createSlice({
 			/**
 			 * Replace the IDs of a gate, and it's IO's; and change the "to" and "from" of the connected IOs.
 			 * @param gate The gate to replace
+			 * @param parentId The parent's ID
 			 */
 			function replaceIdsInGate(gate:Gate, parentId: string){
 				const newGateId = uuidv4();
 				let newGate: Gate;
 				if(parentId === 'global'){
-					state.currentComponent.gates[newGateId] = {...gate, id: newGateId, inputs: [], outputs: [], position: {...gate.position!}};
+					state.currentComponent.gates[newGateId] = {
+						...gate, 
+						id: newGateId, 
+						inputs: [], 
+						outputs: [],
+						wires: [],
+						position: {...gate.position!}
+					};
 					newGate = state.currentComponent.gates[newGateId];
 				}else{
-					state.gates[newGateId] = {...gate, id: newGateId, inputs: [], outputs: [], position: {...gate.position!}};
+					state.gates[newGateId] = {
+						...gate, 
+						id: newGateId, 
+						inputs: [], 
+						outputs: [],
+						wires: [], 
+						position: {...gate.position!}
+					};
 					newGate = state.gates[newGateId];
 				}
 
 
 				/**
 				 * Replace the gate ID in the parent gate, and add the parent gateId as the parent in this gate
+				 * @param parentGates Either state.gates or state.currentComponent.gates, depending on where the parent gate is located
 				 */
 				function updateParent(parentGates: {[key: string]: Gate}){
 					const prevGateIdx = parentGates[parentId].gates?.findIndex(gateId => gateId === gate.id);
@@ -227,6 +257,7 @@ const entities = createSlice({
 					parentGates[parentId].gates![prevGateIdx] = newGateId;
 					newGate.parent = parentId;
 				}
+
 				if(parentId !== 'global'){
 					if(state.gates[parentId]){
 						updateParent(state.gates);
@@ -243,8 +274,8 @@ const entities = createSlice({
 					const newInputId = uuidv4();
 					const prevInput = state.binaryIO[inputId] ?? state.currentComponent.binaryIO[inputId];
 					
-					if (!prevInput) {
-						throw new Error(`No input found for ID: ${inputId}`);
+					if(!prevInput) {
+						throw new Error(`No input at ID: ${inputId}`);
 					}
 				
 					const newInput = {
@@ -282,6 +313,9 @@ const entities = createSlice({
 					}
 				});
 
+				/**
+				 * Create the new outputs
+				 */
 				gate.outputs.forEach(outputId => {
 					const newOutputId = uuidv4();
 					const prevOutput = state.binaryIO[outputId] ?? state.currentComponent.binaryIO[outputId];
@@ -322,8 +356,24 @@ const entities = createSlice({
 						delete state.binaryIO[outputId];
 					}
 				});
-				//console.log(`prev Gate ID: ${gate.id.slice(0,5)}   next gate ID: ${newGateId.slice(0,5)}`);
 				
+				gate.wires?.forEach(wireId => {
+					const newWireId = uuidv4();
+					const prevWire = state.wires[wireId];
+					const newWire = {
+						...prevWire,
+						id: newWireId,
+						from: null,
+						to: null,
+						parent: newGateId
+					}
+
+					newGate.wires!.push(newWireId);
+					state.wires[newWireId] = newWire;
+					console.log(`Changed parent of ${newGateId.slice(0,6)} to ${parentId.slice(0,6)}`);
+					delete state.wires[wireId];
+				})
+
 				if(parentId === 'global'){
 					delete state.currentComponent.gates[gate.id];
 				}else{
@@ -467,7 +517,7 @@ const entities = createSlice({
 					if(source){
 						let contains = false;
 						source.to?.forEach(to => {
-							if(to.id === output.id){
+							if(to.id === output.id){	
 								contains = true;
 							}
 						});
@@ -580,12 +630,22 @@ const entities = createSlice({
 				gates: Object.entries(topLevelGates).map(([key, gate]) => key),
 				name: action.payload.name,
 				id: newGateId,
+				wires: Object.keys(state.currentComponent.wires),
 				parent: 'global',
 				inputs: globalInputs.map(input => input.id),
 				outputs: globalOutputs.map(output => output.id)
 			};
 			state.bluePrints.gates[newGateId] = newGate;
-			
+		
+			const wireEntries = Object.entries(state.currentComponent.wires);
+			const subWireEntries = Object.entries(state.wires);
+			wireEntries.forEach(([key, wire]) => {
+				state.bluePrints.wires[key] = wire;
+			});
+
+			subWireEntries.forEach(([key, wire]) => {
+				state.bluePrints.wires[key] = wire;
+			})
 			globalInputs.forEach(input => {
 				input.to?.forEach(to => {
 					console.log(`global input to: ${to.id}`);
@@ -601,12 +661,11 @@ const entities = createSlice({
 
 			globalOutputs.forEach(output => {
 				state.bluePrints.io[output.id].gateId = newGateId;
-				
 			});
 			globalInputs.forEach(input => {
 				state.bluePrints.io[input.id].gateId = newGateId;
-				
 			});
+
 			state.currentComponent.gates = {};
 			state.currentComponent.binaryIO = {};
 			state.currentComponent.wires = {};
@@ -648,6 +707,85 @@ const entities = createSlice({
 			}
 
 			gate.description = action.payload.description;
+		},
+		switchCurrentComponent: (state, action: PayloadAction<{componentId: string}>) => {
+			const componentId = action.payload.componentId;
+			const component = state.currentComponent.gates[componentId];
+
+			const currentGateEntries = Object.entries(state.currentComponent.gates);
+			const currentIoEntries = Object.entries(state.currentComponent.binaryIO);
+			
+			const subGateEntries = Object.entries(state.gates);
+			const subIoEntries = Object.entries(state.binaryIO);
+
+			state.currentComponent = {gates:{}, binaryIO: {}, wires: {}};
+			
+			currentGateEntries.forEach(([key, gate]) => {
+				state.gates[key] = gate;
+				delete state.currentComponent.gates[key];
+			})
+
+			currentIoEntries.forEach(([key, io]) => {
+				state.binaryIO[key] = io;
+				delete state.currentComponent.binaryIO[key];
+			});
+			
+			const newCurrentComponentGates = subGateEntries.map(([key, gate]) => {
+				if(gate.parent === componentId){
+					return gate;
+				}
+			}).filter((gate): gate is Gate => gate !== undefined);
+
+			const newCurrentComponentIo = subIoEntries.map(([key, io]) => {
+    			if (io.parent === componentId) {
+      				return io;
+    			}
+    			return undefined;
+  			}).filter((io): io is BinaryIO => io !== undefined);
+			
+			component.inputs.forEach(inputId => {
+				const prevInput = state.binaryIO[inputId];
+				const newInput = {
+					...prevInput,
+					position: {
+						x:2*MINIMAL_BLOCKSIZE,
+						y: (prevInput.style?.top as number) + DEFAULT_INPUT_DIM.height/2}} as BinaryIO;
+				newCurrentComponentIo.push(newInput);
+			});
+
+			component.outputs.forEach(outputId => {
+				const prevOutput = state.binaryIO[outputId];
+				const newOutput = {
+					...prevOutput,
+					position: {
+						x: CANVAS_WIDTH - MINIMAL_BLOCKSIZE,
+						y: (prevOutput.style?.top as number) + DEFAULT_INPUT_DIM.height - DEFAULT_BORDER_WIDTH
+					}
+				} as BinaryIO;
+				newCurrentComponentIo.push(newOutput);
+			});
+
+			console.log(`length of io: ${newCurrentComponentIo.length}`);
+
+			newCurrentComponentIo.forEach(io => {
+ 					state.currentComponent.binaryIO[io.id] = io;
+					console.log(`IO: ${io.id.slice(0,6)} -- ${io.gateId?.slice(0,6)}`);
+					delete state.binaryIO[io.id];
+				});
+				
+			newCurrentComponentGates.forEach(gate => {
+				state.currentComponent.gates[gate.id] = gate;
+				delete state.gates[gate.id];
+			})
+			
+			const newCurrentComponentWires = component.wires?.map(wireId => {
+				return state.wires[wireId];
+			})
+			
+			newCurrentComponentWires?.forEach(wire => {
+				state.currentComponent.wires[wire.id] = wire;
+				delete state.wires[wire.id];
+			})
 		}
 	}
 });
@@ -669,5 +807,6 @@ export const {addWire,
 	createBluePrint,
 	raiseShortCircuitError,
 	changeBluePrintPosition,
-	setGateDescription
+	setGateDescription,
+	switchCurrentComponent
 } = entities.actions;

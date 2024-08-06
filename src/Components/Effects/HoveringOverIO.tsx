@@ -4,12 +4,14 @@ import { RootState } from '../../state/store';
 import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../../Constants/defaultDimensions';
 import { setHoveringOverIo } from '../../state/slices/mouseEvents';
 import isOnIo from '../../utils/isOnIo';
+import { BinaryIO } from '../../Interfaces/BinaryIO';
 
 export default function HoveringOverIO(){
 
 	const io = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO;});
 	const dispatch = useDispatch();
 	const currentlyHoveringOverIo = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverIo;});
+	const currentComponent = useSelector((state: RootState) => {return state.misc.currentComponentId});
 	const spanRef = useRef<HTMLSpanElement | null>(null);
 
 	useEffect(() => {

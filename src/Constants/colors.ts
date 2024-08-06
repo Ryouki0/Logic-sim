@@ -10,3 +10,4 @@ export const FRENCH_GREY = 'rgb(208 204 208)';
 export const DEFAULT_BORDER_COLOR = 'rgb(60 60 60)';
 export const DEFAULT_BACKGROUND_COLOR = 'rgb(70 70 70)';
 export const DEFAULT_WIRE_COLOR = 'rgb(255, 155, 30)';
+export const DEFAULT_BUTTON_COLOR = '#28A745';

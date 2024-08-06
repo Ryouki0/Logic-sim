@@ -25,10 +25,11 @@ function checkInputs(prev:BinaryIO[],next:BinaryIO[]){
 export default function GlobalInputs(){
 	const currentInputsRef = useRef<HTMLDivElement | null>(null);
 	const [pointerEvents, setPointerEvents] = useState<'auto' | 'none'>('auto');
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
 	const inputs = useSelector((state: RootState) => {
 		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => 
 		{
-			if(io.type === 'input' && !io.gateId){
+			if((io.type === 'input' && !io.gateId) || (io.type === 'input' && io.gateId === currentComponentId)){
 				return io;
 			}else{
 				return null;
@@ -48,18 +49,13 @@ export default function GlobalInputs(){
  			id: uuidv4(),
 			type: 'input',
 			parent: 'global',
-			name: 'input 1',
+			name: `input ${inputs.length + 1}`,
 			to: [],
 			isGlobalIo: true,
  			style: {top: roundedY - DEFAULT_INPUT_DIM.height/2},
  			position: {x: 2*MINIMAL_BLOCKSIZE, y: roundedY}
  		} as BinaryIO));
  	};
-
-	const passEventsThrough = () => {
-		console.log(`setting it from: ${pointerEvents}`);
-		setPointerEvents(prev => prev === 'auto' ? 'none' : 'auto');
-	};
 
  	const throttledMouseMove = throttle((e:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
  		const inputEntries = Object.entries(inputs);
@@ -106,7 +102,6 @@ export default function GlobalInputs(){
 			borderColor: DEFAULT_BORDER_COLOR,
 			borderWidth: DEFAULT_BORDER_WIDTH,
 			borderBottom: 0,
-			pointerEvents: pointerEvents,
  			zIndex: 1,
  			marginLeft: CANVAS_OFFSET_LEFT
 		}}
@@ -153,7 +148,6 @@ export default function GlobalInputs(){
 							position: 'relative', 
 							left: 2*MINIMAL_BLOCKSIZE - (DEFAULT_INPUT_DIM.width/2) - (1*DEFAULT_BORDER_WIDTH)}, 
 					}}
-					extraFn={passEventsThrough}
  					></Input>
  					<button style={{
 						top: input.style?.top, 

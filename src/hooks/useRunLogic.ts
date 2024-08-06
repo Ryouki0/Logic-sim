@@ -38,7 +38,6 @@ export default function useRunLogic(){
 	const calls = useRef(0);
 	const newWorkerData = useRef<WorkerEvent | null>(null);
 	const dispatch = useDispatch();
-	const shouldUpdateNextFrame = false;
 
 	const { copiedGates, copiedIo } = useMemo(() => {
 		if(!isRunning) return {copiedGates: null, copiedIo: null};
@@ -73,13 +72,8 @@ export default function useRunLogic(){
             		shouldUpdateWorker.current = false;
             		timeTook.current = Date.now() - timeTookStart.current;
                     
-            		console.log(`time took for the web worker: ${timeTook.current}`);
-                    
             		const newData = newWorkerData.current;
-            		console.log(`newData: ${newData.actualHertz}`);
-            		console.time(`update`);
             		dispatch(updateState({gates: newData!.gates, binaryIO: newData!.binaryIO}));
-            		console.timeEnd(`update`);
             		actualRefreshRate.current++;
             		actualHertz.current += newData!.actualHertz;
                     

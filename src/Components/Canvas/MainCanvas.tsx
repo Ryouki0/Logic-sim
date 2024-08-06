@@ -71,7 +71,6 @@ export default function MainCanvas(){
 
 	return (
 		<>
-		{console.log(`render canvas`)}
 			<canvas
 				id="main-canvas"
 				ref={canvasRef}

@@ -6,6 +6,7 @@ export interface Wire{
     connectedToId: {id:string, type: 'input' | 'output', gateId?: string | null}[],
     from?: {id: string, type:'input' | 'output', gateId?: string | null} | null,
     id: string,
+    parent: string,
     state?: 0 | 1,
     error?: boolean | null,
 }
