@@ -14,13 +14,12 @@ function checkInputs(prev:BinaryIO[],next:BinaryIO[]){
 	if(prev?.length !== next?.length){
 		return false;
 	}
-	let didStateChange = false;
-	prev.forEach((io, idx) => {
-		if(io.state !== next[idx].state){
-			didStateChange = true;
+	for(const [idx, io] of prev.entries()){
+		if((io.state !== next[idx].state) || (io.id !== next[idx].id)){
+			return false;
 		}
-	});
-	return !didStateChange;
+	}
+	return true;
 }
 export default function GlobalInputs(){
 	const currentInputsRef = useRef<HTMLDivElement | null>(null);
@@ -149,7 +148,7 @@ export default function GlobalInputs(){
 							left: 2*MINIMAL_BLOCKSIZE - (DEFAULT_INPUT_DIM.width/2) - (1*DEFAULT_BORDER_WIDTH)}, 
 					}}
  					></Input>
- 					<button style={{
+ 					{currentComponentId === 'global' && <button style={{
 						top: input.style?.top, 
 						
 						position: 'absolute',
@@ -161,7 +160,7 @@ export default function GlobalInputs(){
 						e.preventDefault();
 						dispatch(changeInputState(input.id));}}>
  						{input.state ? 'ON' : 'OFF'}
- 					</button>
+ 					</button>}
  				</div>
  			);
  		})}

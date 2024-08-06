@@ -20,14 +20,6 @@ class ShortCircuitError extends Error{
 	}
 }
 
-//Only trigger re-render when the drawingWire is null, so that the wire won't connect when drawing
-const checkDrawingWireEquality = (prev:string|null,next:string|null) => {
-	if(prev && !next){
-		return false;
-	}else{
-		return true;
-	}
-};
 const checkWireEquality = (prev: {[key: string]: Wire}, next:{[key: string]:Wire}) => {
 	const prevEntries = Object.entries(prev);
 	if(Object.entries(next).length !== prevEntries?.length){
@@ -35,14 +27,14 @@ const checkWireEquality = (prev: {[key: string]: Wire}, next:{[key: string]:Wire
 	}
 	for(const [key, wire] of prevEntries){
 		if(!(checkLineEquality(wire.linearLine, next[key]?.linearLine)) 
-        || !(checkLineEquality(wire.diagonalLine, next[key]?.diagonalLine))){
+        || !(checkLineEquality(wire.diagonalLine, next[key]?.diagonalLine)) 
+		|| (wire && !next[key])){
 			return false;
 		}
 	}
 	return true;
 };
 const checkIOEquality = (prev: {[key: string]: BinaryIO}, next: {[key: string]: BinaryIO}) => {
-	const isEqual = true;
 	const prevEntries = Object.entries(prev);
 	const nextEntries = Object.entries(next);
 	if(prevEntries?.length !== nextEntries?.length){
@@ -54,7 +46,7 @@ const checkIOEquality = (prev: {[key: string]: BinaryIO}, next: {[key: string]: 
 			return false;
 		}
 	}
-	return isEqual;
+	return true;
 };
 
 
@@ -64,6 +56,7 @@ export default function useConnecting(){
 		return state.entities.currentComponent.binaryIO;
 	}, checkIOEquality);
 	const drawingWire = useSelector((state: RootState) => {return state.mouseEventsSlice.drawingWire;});
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
 	const dispatch = useDispatch();
 	useEffect(() => {
 		if(drawingWire) return;
@@ -91,8 +84,9 @@ export default function useConnecting(){
 			}
 			connections.push({wireTree: tree, outputs: outputs, sourceId: sourceId});
 		});
-		dispatch(setConnections({connections: connections}));
-	}, [wires,io, drawingWire]);
+
+		dispatch(setConnections({connections: connections, componentId: currentComponentId}));
+	}, [wires,io, drawingWire, currentComponentId]);
 
 
 	/**
@@ -129,10 +123,18 @@ export default function useConnecting(){
 	}
 
 	/**
-     * Get the IDs of the inputs and outputs that are connected to the wire tree.
-     * @param wireTree The wire tree
-     * @returns {string[]} The IDs of the IOs that are connected to the tree.
-     */
+ 	* Get the IDs of the inputs and outputs that are connected to the wire tree.
+ 	* 
+ 	* This function traverses the given wire tree, checks if the inputs/outputs are on the wire tree,
+ 	* and determines the source ID. It handles short circuit errors by checking for multiple sources.
+ 	* 
+ 	* @param {string[]} wireTree - An array of wire IDs representing the wire tree.
+ 	* @returns {{outputs: string[], sourceId: string | null, error?: boolean}} 
+ 	* - An object containing:
+ 	*    - `outputs`: An array of output IDs connected to the wire tree.
+ 	*    - `sourceId`: The ID of the source input if one is found, otherwise null.
+ 	*    - `error`: A boolean flag indicating if a short circuit error occurred.
+ 	*/
 	function getConnections(wireTree: string[]):{outputs:string[], sourceId: string|null, error?: boolean,
     }{
 		const outputs:string[] = [];
@@ -146,7 +148,11 @@ export default function useConnecting(){
                     (wire.diagonalLine.endX === io.position?.x && wire.diagonalLine.endY === io.position?.y);
     
 					if(isOnIo){
-						if((io.type === 'input' && !io.gateId) || (io.type === 'output' && io.gateId)){
+						if(
+							(io.type === 'input' && !io.gateId) 
+							|| (io.type === 'output' && io.gateId)
+							|| (io.type === 'input' && io.gateId && io.gateId === currentComponentId)
+						){
 							if(sourceId && sourceId !== key){ 
 								console.warn(`Short circuit! ${sourceId.slice(0,5)} -> ${key.slice(0,5)}`);
 								throw new ShortCircuitError(wireTree);

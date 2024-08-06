@@ -476,21 +476,23 @@ const entities = createSlice({
 		changeIOPosition: (state, action:PayloadAction<{id: string, position: {x:number, y:number}}>) => {
 			state.currentComponent.binaryIO[action.payload.id].position = action.payload.position;
 		},
-		setConnections: (state, action:PayloadAction<{connections: {wireTree: string[], outputs: string[], sourceId: string|null}[]}>) => {
+		setConnections: (state, action:PayloadAction<{
+			connections: {wireTree: string[], outputs: string[], sourceId: string|null}[], 
+			componentId?: string}>) => {
 			const connections = action.payload.connections;
 			const ioEntires = Object.entries(state.currentComponent.binaryIO);
 			const wireEntries = Object.entries(state.currentComponent.wires);
-			
+			const currentComponentId = action.payload.componentId ?? 'global';
 			
 
 			for(const [key, io] of ioEntires){
 				if((io.type === 'output' && !io.isGlobalIo) 
 					|| (io.type === 'input' && io.isGlobalIo && !io.gateId) 
-					|| (io.type === 'output' && io.isGlobalIo && io.gateId)){
+					|| (io.type === 'output' && io.isGlobalIo && io.gateId && io.gateId !== currentComponentId)){
 					io.to = [];
 				}else if((io.type === 'input' && !io.isGlobalIo) 
 					|| (io.type === 'output' && io.isGlobalIo && !io.gateId) 
-					|| (io.type === 'input' && io.isGlobalIo && io.gateId)){
+					|| (io.type === 'input' && io.isGlobalIo && io.gateId && io.gateId !== currentComponentId)){
 					io.from = null;
 					io.state = 0;
 					if(io.to!.length > 0){
