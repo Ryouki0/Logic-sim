@@ -29,3 +29,4 @@ export const CANVAS_OFFSET_LEFT = 0*MINIMAL_BLOCKSIZE;
 export const CANVAS_WIDTH = getClosestBlock(0.8*window.innerWidth,0).roundedX;
 export const CANVAS_HEIGHT = window.innerHeight - 2*MINIMAL_BLOCKSIZE;
 export const DEFAULT_BORDER_WIDTH = 5;
+export const CANVASTOP_HEIGHT = 2*MINIMAL_BLOCKSIZE;

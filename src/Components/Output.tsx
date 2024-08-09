@@ -25,6 +25,7 @@ export function Output({style = null, output}:BinaryOutputProps) {
 		console.log(`\n\nthisOutput state: ${thisOutput?.state}`);
 		console.log(`thisOutput ID: ${thisOutput?.id.slice(0,5)}`);
 		console.log(`this output is from? : ${thisOutput?.from?.id.slice(0,5)}`);
+		console.log(`this output position x: ${thisOutput?.position?.x} y: ${thisOutput?.position?.y}`);
 		thisOutput?.to?.forEach(to => {
 			console.log(`this output is to: ${to.id.slice(0,5)}`);
 		});

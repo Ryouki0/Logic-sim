@@ -59,7 +59,7 @@ code {
   align-items: center;
   justify-content: center;
   margin-top: auto;
-  transition: background-color 0.3s, box-shadow 0.3s; /* Add transition for smooth effect */
+  transition: background-color 0.3s, box-shadow 0.3s; 
 }
 
 .button:hover {
@@ -70,4 +70,43 @@ code {
 .button span {
   color: white;
   font-size: 18px;
+}
+
+.arrow-left {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 10px solid black;
+}
+
+.back-arrow {
+  transition: background-color 0.3s, transform 0.1s;
+  cursor: pointer;
+}
+
+.back-arrow:hover {
+  background-color: #0056b3;
+}
+
+.back-arrow:active {
+  transform: scale(0.95);
+}
+
+.input-box {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Focused state for the input box */
+.input-box:focus {
+  border-color: #66afe9;
+  box-shadow: 0 0 8px rgba(102, 175, 233, 0.6);
+  outline: none;
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CANVAS_WIDTH } from '../../Constants/defaultDimensions';
+import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH } from '../../Constants/defaultDimensions';
 import { RootState } from '../../state/store';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { logic } from '../../utils/clock';
@@ -7,32 +7,10 @@ import { updateState } from '../../state/slices/entities';
 import { BinaryIO } from '../../Interfaces/BinaryIO';
 import { Gate } from '../../Interfaces/Gate';
 import { setHertz, setIsRunning } from '../../state/slices/clock';
-import { Root } from 'react-dom/client';
+import { DEFAULT_BORDER_COLOR } from '../../Constants/colors';
+import '../../index.css';
 
-const checkGateEquality = (prev: {[key: string]: Gate}, next: {[key: string]: Gate}) => {
-	const prevEntries = Object.entries(prev);
-	const nextEntries = Object.entries(next);
-	if(prevEntries?.length !== nextEntries?.length){
-		return false;
-	}
-	return true;
-};
 
-const checkIoEquality = (prev: {[key:string]:BinaryIO}, next: {[key: string] : BinaryIO}) => {
-	const prevEntries = Object.entries(prev);
-	const nextEntries = Object.entries(next);
-	if(prevEntries.length !== nextEntries.length){
-		return false;
-	}
-	for(const [key, io] of prevEntries){
-		if(io.state !== next[key].state){
-			return false;
-		}if(io.from?.id !== next[key]?.from?.id){
-			return false;
-		}
-	}
-	return true;
-};
 export default function Clock() {
 	const hertz = useSelector((state: RootState) => {return state.clock.hertz;});
 	const gates = useSelector((state: RootState) => {return state.entities.gates;}, shallowEqual);
@@ -66,6 +44,13 @@ export default function Clock() {
 		backgroundColor: 'rgb(100 100 100)',
 		width:'100%',
 		height: '30%',
+		borderStyle: 'solid',
+		borderWidth: DEFAULT_BORDER_WIDTH,
+		borderColor: DEFAULT_BORDER_COLOR,
+		borderRight: 'none',
+		borderLeft: 'none',
+		borderTop: 'none',
+		padding: 10,
 		flex: '1 1',
 		marginTop: 10,
 	}}>
@@ -79,7 +64,8 @@ export default function Clock() {
 			</span>
 			<input 
 				type="number" 
-				value={value} 
+				value={value}
+				className='input-box'
 				onChange={handleHertzChange} 
 				style={{ 
 					marginLeft: '8px',
@@ -102,10 +88,13 @@ export default function Clock() {
 			<span style={{
 				color: 'white',
 				fontSize: 18,
+				marginLeft: 5,
+				marginTop: 10,
 			}}>Actual hz: {actualHertz}</span>
 			<span style={{
 				color: 'white',
 				fontSize: 18,
+				marginLeft: 5,
 			}}>Actual refresh rate: {actualRefreshRate}</span>
 		</div>
 	

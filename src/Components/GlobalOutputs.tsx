@@ -1,5 +1,5 @@
 import React from 'react';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, CANVASTOP_HEIGHT, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { getClosestBlock } from '../Constants/defaultDimensions';
@@ -72,7 +72,7 @@ export default function GlobalOutputs() {
 			backgroundColor: DEFAULT_BACKGROUND_COLOR,
 			position: 'absolute',
 			width: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
-			height: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
+			height: CANVASTOP_HEIGHT - 2*DEFAULT_BORDER_WIDTH,
 			left: -DEFAULT_BORDER_WIDTH
 		}}>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE,getClosestBlock } from '../Constants/defaultDimensions';
+import { CANVASTOP_HEIGHT, CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE,getClosestBlock } from '../Constants/defaultDimensions';
 import { Input } from './Input';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
@@ -43,6 +43,10 @@ export default function GlobalInputs(){
  	const handleRightClick = (e: MouseEvent) => {
  		e.preventDefault();
  		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY);
+		if(roundedY < CANVASTOP_HEIGHT){
+			
+			return;
+		}
  		dispatch(addInput({
  			state: 0,
  			id: uuidv4(),
@@ -57,8 +61,11 @@ export default function GlobalInputs(){
  	};
 
  	const throttledMouseMove = throttle((e:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY);
+		if(roundedY < CANVASTOP_HEIGHT){
+			return;
+		}
  		const inputEntries = Object.entries(inputs);
- 		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY);
  		for(const [key, input] of inputEntries){
  			if(input?.position?.y === roundedY){
 				if(showGhostInput){
@@ -109,7 +116,7 @@ export default function GlobalInputs(){
 		<div style={{
 			position: 'absolute',
 			width: 2*MINIMAL_BLOCKSIZE,
-			height: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
+			height: CANVASTOP_HEIGHT - 2*DEFAULT_BORDER_WIDTH,
 			top: 0,
 			left: -DEFAULT_BORDER_WIDTH,
 			borderColor: DEFAULT_BORDER_COLOR,

@@ -1,12 +1,12 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { CANVAS_WIDTH, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
+import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
 import WireSelected from "./WireSelected";
 import { Wire } from "../../Interfaces/Wire";
 import { Gate } from "../../Interfaces/Gate";
 import GateSelected from "./GateSelected";
-import { DEFAULT_BUTTON_COLOR, ONYX } from "../../Constants/colors";
+import { DEFAULT_BORDER_COLOR, DEFAULT_BUTTON_COLOR, ONYX } from "../../Constants/colors";
 import { switchCurrentComponent } from "../../state/slices/entities";
 import { setCurrentComponentId } from "../../state/slices/misc";
 
@@ -36,7 +36,7 @@ export default function SelectedComponent(){
 	const dispatch = useDispatch();
 
 	const handleClick = (e: React.MouseEvent<any>) => {
-		dispatch(switchCurrentComponent({componentId: selectedComponent.entity!.id}));
+		dispatch(switchCurrentComponent({componentId: selectedComponent.entity!.id, prevComponent: null}));
 		dispatch(setCurrentComponentId(selectedComponent.entity!.id));
 	}
 
@@ -45,6 +45,12 @@ export default function SelectedComponent(){
  		width: '100%',
  		height: '30%',
 		display: 'flex',
+		borderStyle: 'solid',
+		borderWidth: DEFAULT_BORDER_WIDTH,
+		borderColor: DEFAULT_BORDER_COLOR,
+		borderLeft: 'none',
+		borderTop: 'none',
+		borderRight: 'none',
  		backgroundColor: 'rgb(70 70 70)',
 		flexDirection: 'column',
  		zIndex: -2,

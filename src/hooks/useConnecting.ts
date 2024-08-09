@@ -8,6 +8,7 @@ import { raiseShortCircuitError, setConnections } from '../state/slices/entities
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import checkLineEquality from '../utils/checkLineEquality';
 import { setError } from '../state/slices/clock';
+import isOnIo from '../utils/isOnIo';
 
 
 class ShortCircuitError extends Error{
@@ -42,6 +43,9 @@ const checkIOEquality = (prev: {[key: string]: BinaryIO}, next: {[key: string]: 
 	}
 	for(const [key, io] of prevEntries){
 		const nextIo = next[key];
+		if(!nextIo){
+			return false;
+		}
 		if(io.position?.x !== nextIo?.position?.x || io.position?.y !== nextIo?.position?.y){
 			return false;
 		}
@@ -84,6 +88,21 @@ export default function useConnecting(){
 			}
 			connections.push({wireTree: tree, outputs: outputs, sourceId: sourceId});
 		});
+
+		// connections.forEach((connection, idx) => {
+		// 	console.log(`\n${idx}-Connection:\n`);
+		// 	console.log(`OUTPUTS:`);
+		// 	connection.outputs.forEach((outputId,idx) => {
+		// 		console.log(`${idx}--${outputId.slice(0,6)}`);
+		// 	})
+
+		// 	console.log(`source ID: ${connection.sourceId?.slice(0,6)}`);
+
+		// 	console.log(`wires: `);
+		// 	connection.wireTree.forEach((wire,idx) => {
+		// 		console.log(`${idx}--${wire.slice(0,6)}`);
+		// 	})
+		// })
 
 		dispatch(setConnections({connections: connections, componentId: currentComponentId}));
 	}, [wires,io, drawingWire, currentComponentId]);
@@ -143,16 +162,17 @@ export default function useConnecting(){
 			wireTree.forEach(wireId => {
 				const wire = wires[wireId];
 				Object.entries(io).forEach(([key, io]) => {
-					const isOnIo = 
-                    (wire.linearLine.startX === io.position?.x && wire.linearLine.startY === io.position?.y) ||
-                    (wire.diagonalLine.endX === io.position?.x && wire.diagonalLine.endY === io.position?.y);
-    
-					if(isOnIo){
+					const isOnWire = 
+					(isOnIo(wire.linearLine.startX, wire.linearLine.startY, io)) ||
+					(isOnIo(wire.diagonalLine.endX, wire.diagonalLine.endY, io))
+					
+					if(isOnWire){
 						if(
 							(io.type === 'input' && !io.gateId) 
-							|| (io.type === 'output' && io.gateId)
+							|| (io.type === 'output' && io.gateId && io.gateId !== currentComponentId) 
 							|| (io.type === 'input' && io.gateId && io.gateId === currentComponentId)
 						){
+							console.log(`source: ${key.slice(0,6)}`);
 							if(sourceId && sourceId !== key){ 
 								console.warn(`Short circuit! ${sourceId.slice(0,5)} -> ${key.slice(0,5)}`);
 								throw new ShortCircuitError(wireTree);

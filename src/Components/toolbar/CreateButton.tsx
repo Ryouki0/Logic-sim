@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CANVAS_WIDTH } from '../../Constants/defaultDimensions';
 import { useDispatch } from 'react-redux';
 import { createBluePrint } from '../../state/slices/entities';
-
+import '../../index.css';
 export default function CreateButton(){
 	const dispatch = useDispatch();
 	const [name, setName] = useState<string>('');
@@ -11,14 +11,21 @@ export default function CreateButton(){
 		flexDirection: 'column',
 		flex: '1 1',
 		width: '100%',
-	}} onClick={e=>{console.log(``);}}>
+	}}>
 		<div style={{
 			width: '100%',
 			height: 50,
+			display:'flex',
+			justifyContent: 'center',
+			alignItems: 'center',
 		}}>
-			<input style={{
+			<input 
+			className='input-box'
+			style={{
 				width: '50%', 
-				height: 20,
+				alignSelf: 'center',
+				height: 24,
+				justifySelf:'center',
 				fontSize: 18,
 				color: 'black'}}
 			onChange={e => {setName(e.target.value);}} 
