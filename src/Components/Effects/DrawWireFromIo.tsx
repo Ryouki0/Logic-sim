@@ -7,11 +7,11 @@ import isOnIo from '../../utils/isOnIo';
 export default function DrawWireFromIo(){
 	const startDrawing = useDrawWire();
 	const io = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO;});
-
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
     
 
 	useEffect(() => {
-
+		if(currentComponentId !== 'global') return;
 		const handleMouseDown = (e: MouseEvent) => {
 			console.log(`clicked`);
 			for(const [key, io] of ioEntries){
@@ -27,7 +27,7 @@ export default function DrawWireFromIo(){
 		return () => {
 			document.removeEventListener('mousedown', handleMouseDown);
 		};
-	}, [startDrawing, io]);
+	}, [startDrawing, io, currentComponentId]);
 
 	return null;
 }

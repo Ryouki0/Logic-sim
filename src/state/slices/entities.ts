@@ -34,12 +34,14 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 		[ANDId]: {
 			name: 'AND',
 			parent: 'global',
+			complexity: 1,
 			inputs: [ANDInputId1, ANDInputId2],
 			outputs: [ANDOutputId1],
 			id: ANDId
 		},
 		[NOId]: {
 			name: 'NO',
+			complexity: 1,
 			parent: 'global',
 			inputs: [NOInputId1],
 			outputs: [NOOutputId1],
@@ -47,6 +49,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 		},
 		[DELAYId]: {
 			name: 'DELAY',
+			complexity: 1,
 			parent: 'global',
 			inputs: [DELAYInputId1],
 			outputs: [DELAYOutputId1],
@@ -559,6 +562,7 @@ const entities = createSlice({
 				deleteBaseGate(component.id);
 				while(nextGateIds.length > 0){
 					const currentGate = state.gates[nextGateIds.pop()!];
+					if(!currentGate) continue;
 					if(currentGate.gates){
 						nextGateIds.push(...currentGate.gates);
 					}
@@ -591,12 +595,16 @@ const entities = createSlice({
 		
 		createBluePrint: (state, action: PayloadAction<{name: string}>) => {
 			const allGates: {[key: string]: Gate} = {};
+			let complexity = 0;
+
 			Object.entries(state.currentComponent.gates).forEach(([key, gate]) => {
+				complexity += gate.complexity;
 				allGates[key] = gate;
 			});
 			Object.entries(state.gates).forEach(([key, gate]) => {
 				allGates[key] = gate;
 			});
+
 			const gateEntries = Object.entries(allGates);
 			const allIo: {[key: string]: BinaryIO} = {};
 			Object.entries(state.binaryIO).forEach(([key, io]) => {
@@ -620,11 +628,15 @@ const entities = createSlice({
 			const globalOutputs = ioEntries.map(([key, io]) => io.isGlobalIo && !io.gateId && io.type === 'output' ? io : undefined)
 				.filter(io => io !== undefined) as Exclude<typeof ioEntries[0][1], undefined>[];
 
+			globalInputs.sort((a, b) => a.position!.y - b.position!.y);
+			globalOutputs.sort((a,b) => a.position!.y - b.position!.y);
+			
 			const newGateId = uuidv4();
 			const newGate:Gate = {
 				gates: Object.entries(topLevelGates).map(([key, gate]) => key),
 				name: action.payload.name,
 				id: newGateId,
+				complexity: complexity,
 				wires: Object.keys(state.currentComponent.wires),
 				parent: 'global',
 				inputs: globalInputs.map(input => input.id),
@@ -641,12 +653,7 @@ const entities = createSlice({
 			subWireEntries.forEach(([key, wire]) => {
 				state.bluePrints.wires[key] = wire;
 			})
-			globalInputs.forEach(input => {
-				input.to?.forEach(to => {
-					console.log(`global input to: ${to.id}`);
-				});
-			});
-
+			
 			gateEntries.forEach(([key, gate]) => {
 				state.bluePrints.gates[key] = {...gate, parent: newGateId};
 			});
@@ -815,8 +822,6 @@ const entities = createSlice({
 				state.currentComponent.gates[gate.id] = gate;
 				delete state.gates[gate.id];
 			})
-			
-			
 			
 			newCurrentComponentWires?.forEach(wire => {
 				state.currentComponent.wires[wire.id] = wire;

@@ -10,6 +10,7 @@ import { RootState } from '../../state/store';
 import { setGateDescription } from '../../state/slices/entities';
 import { prependOnceListener } from 'process';
 import { createSelector, current } from '@reduxjs/toolkit';
+import { textStlye } from '../../Constants/commonStyles';
 const checkGateEquality = (prev: Gate, next: Gate) => {
 	if(prev?.nextTick !== next?.nextTick){
 		return false;
@@ -79,29 +80,22 @@ export default function GateSelected({gate}: {gate: Gate}){
 		display: 'flex', 
 		flexDirection: 'column',
 		marginTop: 10}}>
-		<span style={{
-			color: 'white',
-			fontSize: 16,
-			marginTop: 5
-		}}>{thisGate?.id.slice(0,6)}</span>
+			<span style={
+				textStlye
+			}>
+				Name: {thisGate?.name}
+			</span>
 		<span
-			style={{
-				color: 'white',
-				fontSize: 16,
-				marginTop: 5
-			}}>{`\n`}parent: {thisGate?.parent.slice(0,6)}</span>
-		<span style={{
-			color: 'white',
-			fontSize: 16,
-			marginTop: 5,
-		}}>Inputs: {thisGate?.inputs.map(inputId => inputId.slice(0,5)).join(' ')}</span>
+			style={textStlye}
+			>
+				Parent: {thisGate?.parent.slice(0,6)}
+			</span>
+		<span style={textStlye}>
+			Complexity: {thisGate?.complexity}
+		</span>
 		{thisGate?.nextTick != null && (
         <span
-          style={{
-            color: 'white',
-            fontSize: 16,
-            marginTop: 5,
-          }}
+          style={textStlye}
         >
           NextTick: {thisGate?.nextTick}
         </span>)}
@@ -117,6 +111,7 @@ export default function GateSelected({gate}: {gate: Gate}){
         style={{ 
 			marginRight: '10px',
 			alignSelf: 'center',
+			marginTop: 10,
 			fontSize: 16}}
       >
         Description:
@@ -132,6 +127,7 @@ export default function GateSelected({gate}: {gate: Gate}){
 			color: 'white',
 			fontSize: 16,
 			border: 'none',
+			marginTop: 10,
 			outline: 'none',
 			resize: 'none',
 		}}

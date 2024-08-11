@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH } from '../../Constants/defaultDimensions';
 import { RootState } from '../../state/store';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
@@ -9,6 +9,7 @@ import { Gate } from '../../Interfaces/Gate';
 import { setHertz, setIsRunning } from '../../state/slices/clock';
 import { DEFAULT_BORDER_COLOR } from '../../Constants/colors';
 import '../../index.css';
+import { textStlye } from '../../Constants/commonStyles';
 
 
 export default function Clock() {
@@ -36,9 +37,13 @@ export default function Clock() {
 		setRunning(!running);
 	};
 
-	useEffect(() => {
-        
-	}, []);
+	const totalComplexity = useMemo(() => {
+		let total = 0;
+		Object.entries(currentGates).forEach(([key, gate]) => {
+			total += gate.complexity;
+		});
+		return total;
+	}, [currentGates]);
 
 	return <div style={{
 		backgroundColor: 'rgb(100 100 100)',
@@ -55,11 +60,7 @@ export default function Clock() {
 		marginTop: 10,
 	}}>
 		<div style={{ display: 'flex', alignItems: 'center' }}>
-    	<span style={{
-				color: 'white',
-				fontSize: 18,
-				marginLeft: 5
-	 	}}>
+    	<span style={textStlye}>
 			Hz:
 			</span>
 			<input 
@@ -80,29 +81,9 @@ export default function Clock() {
 	  }}
 	  onClick={handleRunChange}>
 	  {running ? 'Stop' : 'Run'}</button>
-		</div>
-		<div style={{
-			display: 'flex',
-			flexDirection: 'column',
-		}}>
-			<span style={{
-				color: 'white',
-				fontSize: 18,
-				marginLeft: 5,
-				marginTop: 10,
-			}}>Actual hz: {actualHertz}</span>
-			<span style={{
-				color: 'white',
-				fontSize: 18,
-				marginLeft: 5,
-			}}>Actual refresh rate: {actualRefreshRate}</span>
-		</div>
-	
-		<button style={{
-			marginTop: 10, 
+	  <button style={{
 			fontSize: 18,
 			height: 26,
-			marginLeft: 5
 		}} onClick={e => {
 			console.time('tick');
 			const copiedGates = JSON.parse(JSON.stringify(gates));
@@ -118,6 +99,17 @@ export default function Clock() {
 			console.timeEnd('tick');
 		}
 		}>Tick</button>
+		</div>
+		<div style={{
+			display: 'flex',
+			flexDirection: 'column',
+		}}>
+			<span style={textStlye}>Actual hz: {actualHertz}</span>
+			<span style={textStlye}>Actual refresh rate: {actualRefreshRate}</span>
+			<span style={textStlye}>Total complexity: {totalComplexity}</span>
+		</div>
+	
+		
 		 <div style={{ display: 'flex', alignItems: 'center' }}>
       
 		</div>

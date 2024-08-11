@@ -36,7 +36,8 @@ export default function DisplayAllGates(){
 
 	const bluePrints = useSelector(bluePrintsSelector);
 	const dispatch = useDispatch();
-
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
+	const isDisabled = currentComponentId !== 'global';
 	return <div style={{display: 'flex', top: CANVAS_HEIGHT,
 		position: 'absolute',
 		width: CANVAS_WIDTH,
@@ -55,19 +56,20 @@ export default function DisplayAllGates(){
 		{Object.entries(bluePrints)?.map(([key, gate]) => {
 			return <div
 				onMouseDown={e => {
-					if(e.button !== 0) return;
+					if(isDisabled || e.button !== 0) return;
 					e.stopPropagation();
 					dispatch(setSelectedGateId(key));
 					dispatch(changeBluePrintPosition({gateId: key, position: {x: e.pageX, y: e.pageY}}));}}
 				style={{
-					backgroundColor: 'rgb(70 70 70)',
+					backgroundColor: isDisabled ? 'rgb(90 90 90)': 'rgb(70 70 70)',
 					height: 40,
+					opacity: isDisabled ? 0.5 : 1,
 					marginRight: 7,
 					alignSelf: 'center',
 					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
-					cursor: 'pointer',
+					cursor: isDisabled ? 'not-allowed' : 'pointer',
 					width: 3*MINIMAL_BLOCKSIZE,
 				}} key={key}>
 				<span style={{

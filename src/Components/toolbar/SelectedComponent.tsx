@@ -43,7 +43,8 @@ export default function SelectedComponent(){
  	return console.log(`rendering selectedComponent`),
 	<div style={{
  		width: '100%',
- 		height: '30%',
+ 		minHeight: '30%',
+		maxHeight: '50%',
 		display: 'flex',
 		borderStyle: 'solid',
 		borderWidth: DEFAULT_BORDER_WIDTH,

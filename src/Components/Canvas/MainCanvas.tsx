@@ -8,13 +8,14 @@ import { throttle } from '../../utils/throttle';
 import { setHoveringOverWire, setSelectedEntity, setSelectedGateId } from '../../state/slices/mouseEvents';
 import { changeBluePrintPosition, deleteWire } from '../../state/slices/entities';
 import { RootState } from '../../state/store';
+import { current } from '@reduxjs/toolkit';
 export default function MainCanvas(){
 	const canvasRef = useRedrawCanvas();
 	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire;});
 	const {checkWire} = useIsWireClicked();
 	const startDrawing = useDrawWire();
 	const dispatch = useDispatch();
-
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
 	const throttledCheckWire = throttle((e: MouseEvent) => {
 		const x = e.x;
 		const y = e.y;
@@ -33,17 +34,15 @@ export default function MainCanvas(){
 	const handleContextMenu = (e: MouseEvent) => {
 		e.preventDefault(); 
 		const wire = checkWire(e.pageX, e.pageY);
-		if(!wire){
+		if(!wire || currentComponentId !== 'global'){
 			return;
 		}
 		dispatch(deleteWire(wire.id));
 	};
 
-	const drawWireFromWire = (e: MouseEvent) => {
-		console.log(`mousedown`);
-		if(e.button !== 0){
+	const drawWire = (e: MouseEvent) => {
+		if(e.button !== 0 || currentComponentId !== 'global'){
 			return;
-
 		}
 		startDrawing(e as unknown as React.MouseEvent<HTMLCanvasElement, MouseEvent>);
 		const wire = checkWire(e.pageX, e.pageY);
@@ -57,13 +56,13 @@ export default function MainCanvas(){
 	
 
 	useEffect(() => {
-		canvasRef.current?.addEventListener('mousedown', drawWireFromWire);
+		canvasRef.current?.addEventListener('mousedown', drawWire);
 		canvasRef.current?.addEventListener('contextmenu', handleContextMenu);
 		canvasRef.current?.addEventListener('mousemove', throttledCheckWire);			
 		
 
 		return () => {
-			canvasRef.current?.removeEventListener('mousedown', drawWireFromWire);
+			canvasRef.current?.removeEventListener('mousedown', drawWire);
 			canvasRef.current?.removeEventListener('contextmenu', handleContextMenu);
 			canvasRef.current?.removeEventListener('mousemove', throttledCheckWire);
 		};
