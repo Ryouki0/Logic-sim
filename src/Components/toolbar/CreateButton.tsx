@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createBluePrint } from '../../state/slices/entities';
 import '../../index.css';
 import { RootState } from '../../state/store';
+import { setIsRunning } from '../../state/slices/clock';
 export default function CreateButton(){
 	const dispatch = useDispatch();
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
@@ -50,6 +51,7 @@ export default function CreateButton(){
 		}}
 		onClick={e => {
 			if(currentComponentId !== 'global' || e.button !== 0) return;
+			dispatch(setIsRunning(false));
 			dispatch(createBluePrint({name: name}));}}
 		onMouseEnter={e=>{
 			if(currentComponentId !== 'global') return;

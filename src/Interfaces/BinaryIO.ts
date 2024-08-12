@@ -1,14 +1,6 @@
+import React from 'react';
+import {BinaryIOBase} from '../../../Shared/interfaces';
 
-export interface BinaryIO{
-    state: 0 | 1,
-    style?: React.CSSProperties | null,
-    gateId?: string,
-    id: string,
-    name: string,
-    isGlobalIo: boolean,
-    parent: string,
-    type: 'input' | 'output',
-    position?: {x:number,y:number},
-    to: {id: string, type: 'input' | 'output', gateId?: string | null}[] | null,
-    from?:{id: string, type: 'input' | 'output', gateId?: string | null} | null,
+export interface BinaryIO extends BinaryIOBase{
+    style?: React.CSSProperties | null
 }

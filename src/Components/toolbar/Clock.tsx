@@ -5,7 +5,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { logic } from '../../utils/clock';
 import { updateState } from '../../state/slices/entities';
 import { BinaryIO } from '../../Interfaces/BinaryIO';
-import { Gate } from '../../Interfaces/Gate';
+import { Gate } from '@Shared/interfaces';
 import { setHertz, setIsRunning } from '../../state/slices/clock';
 import { DEFAULT_BORDER_COLOR } from '../../Constants/colors';
 import '../../index.css';
@@ -26,7 +26,7 @@ export default function Clock() {
 	const dispatch = useDispatch();
 	
 	const [value, setValue] = useState('100');
-	const [running, setRunning] = useState(false);
+	const running = useSelector((state: RootState) => {return state.clock.isRunning});
 	const [description, setDescription] = useState<string>('');
 	const handleHertzChange = (e:React.ChangeEvent<HTMLInputElement>) => {
 		const number = parseInt(e.target.value);
@@ -36,12 +36,25 @@ export default function Clock() {
 
 	const handleRunChange = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
 		dispatch(setIsRunning(!running));
-		setRunning(!running);
 	};
 
 	const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setDescription(e.target.value);
 	}
+	const [testCall, setTestCall] = useState<{x: number, y: number}>({x:0,y:0});
+	useEffect(() => {
+		async function hello(){
+			try{
+				let res = await fetch("http://localhost:3002/api/ayaya");
+				let data = await res.json();
+				setTestCall({x:data.message.x, y: data.message.y});
+			}catch(e){
+				console.log(`failed to fech ${e}`);
+			}
+			
+		}
+		hello();
+	}, [])
 
 	const totalComplexity = useMemo(() => {
 		let total = 0;
@@ -113,6 +126,7 @@ export default function Clock() {
 			<span style={textStlye}>Actual hz: {actualHertz}</span>
 			<span style={textStlye}>Actual refresh rate: {actualRefreshRate}</span>
 			<span style={textStlye}>Total complexity: {totalComplexity}</span>
+			<span style={textStlye}>Response: x:{testCall?.x} y:{testCall?.y}</span>
 			<div>
 			<label 
         htmlFor="description" 

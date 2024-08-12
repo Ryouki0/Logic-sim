@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
-import { Wire } from '../Interfaces/Wire';
+import { Wire } from '@Shared/interfaces';
 import { current } from '@reduxjs/toolkit';
 import isWireConnectedToWire from '../utils/isWireConnectedToWire';
 import { raiseShortCircuitError, setConnections } from '../state/slices/entities';

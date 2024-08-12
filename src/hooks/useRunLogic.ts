@@ -1,10 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
-import { Gate } from '../Interfaces/Gate';
-import { createSelector } from '@reduxjs/toolkit';
-import { create } from 'domain';
-import { setActuals, setActualHertz, setHertz } from '../state/slices/clock';
+import { setActuals } from '../state/slices/clock';
 import { updateState, updateStateRaw } from '../state/slices/entities';
 import { WorkerEvent } from '../logic.worker';
 
@@ -32,21 +29,6 @@ export default function useRunLogic(){
 	const newWorkerData = useRef<WorkerEvent | null>(null);
 	const dispatch = useDispatch();
 
-	const { copiedGates, copiedIo } = useMemo(() => {
-		if(!isRunning) return {copiedGates: null, copiedIo: null};
-		const copiedGates = JSON.parse(JSON.stringify(gates));
-		Object.entries(currentComponent.gates).forEach(([key, gate]) => {
-			copiedGates[key] = gate;
-		});
-    
-		const copiedIo = JSON.parse(JSON.stringify(io));
-		Object.entries(currentComponent.binaryIO).forEach(([key, ioItem]) => {
-			copiedIo[key] = ioItem;
-		});
-    
-		return {copiedGates, copiedIo};
-	}, [gates, currentComponent, io, isRunning]);
-
 	useEffect(() => {
 		const logicWorker = require('../logic.worker.ts').default;
 		importedWorkerRef.current = logicWorker;
@@ -59,7 +41,6 @@ export default function useRunLogic(){
 			workerRef.current = new importedWorkerRef.current();
 
             workerRef.current!.onmessage = (event: MessageEvent<WorkerEvent>) => {
-                
             	function update(){
             		newWorkerData.current = event.data;
             		shouldUpdateWorker.current = false;
@@ -80,10 +61,20 @@ export default function useRunLogic(){
             	}
             	update();
             };
+            console.log(`created worker`);
             
-            const refreshTime = Math.trunc(1000 / refreshRate);
+            
+			let copiedGates = JSON.parse(JSON.stringify(gates));
+			Object.entries(currentComponent.gates).forEach(([key, gate]) => {
+				copiedGates[key] = gate;
+			});
+    
+			let copiedIo = JSON.parse(JSON.stringify(io));
+			Object.entries(currentComponent.binaryIO).forEach(([key, ioItem]) => {
+				copiedIo[key] = ioItem;
+			});
+
             timeTookStart.current = Date.now();
-            console.time(`post message on main thread`);
             const message = JSON.stringify({
             	gates: copiedGates,
             	io: copiedIo,
@@ -92,7 +83,8 @@ export default function useRunLogic(){
             	startTime: timeTookStart.current
             });
             workerRef.current?.postMessage(message);
-            console.timeEnd(`post message on main thread`);
+			copiedGates = null;
+			copiedIo = null;
 		}
 		return () => {
 			if(workerRef.current && shouldUpdateWorker.current) {
@@ -105,5 +97,5 @@ export default function useRunLogic(){
 				shouldUpdateWorker.current = true;
 			}
 		};
-	}, [isRunning, refreshRate, hertz, copiedGates, copiedIo]);
+	}, [isRunning, refreshRate, hertz, currentComponent]);
 }

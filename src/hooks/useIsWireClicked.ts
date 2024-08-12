@@ -1,9 +1,6 @@
-import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
-import { CANVAS_OFFSET_LEFT, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
-import { Line } from '../Interfaces/Line';
-import { Wire } from '../Interfaces/Wire';
+import { Wire } from '@Shared/interfaces';
 import { calculateLinePoints, isPointOnDiagonalLine, isPointOnLine } from '../utils/isPointOnLine';
 
 

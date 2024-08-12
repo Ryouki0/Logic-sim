@@ -1,5 +1,5 @@
 import { LINE_WIDTH } from "../Constants/defaultDimensions";
-import { Line } from "../Interfaces/Line";
+import { Line } from "@Shared/interfaces";
 
 export const drawLine = (line: Line, context: CanvasRenderingContext2D, line_width: number = LINE_WIDTH) => {
 	context.beginPath();

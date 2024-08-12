@@ -1,10 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { shallowEqual, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { drawLine } from '../drawingFunctions/drawLine';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
-import { Root, RootOptions } from 'react-dom/client';
-import { AMBER, DARK_RED, ORANGE, RED_ORANGE } from '../Constants/colors';
+import { CANVAS_WIDTH, LINE_WIDTH } from '../Constants/defaultDimensions';
+import { DARK_RED, ORANGE, RED_ORANGE } from '../Constants/colors';
 import { BinaryIO } from '../Interfaces/BinaryIO';
 
 const checkWireSourceEquality = (prev:{[key: string]: BinaryIO|null}, next: {[key: string]: BinaryIO|null}) => {

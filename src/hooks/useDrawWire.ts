@@ -1,11 +1,9 @@
-import { Dispatch, UnknownAction } from "redux";
-import { Line } from "../Interfaces/Line";
-import { Wire } from "../Interfaces/Wire";
-import { addWire, changeWirePosition } from "../state/slices/entities";
+import { Line } from "@Shared/interfaces";
+import {Wire} from'@Shared/interfaces';
+import { changeWirePosition } from "../state/slices/entities";
 import { getClosestBlock } from "../Constants/defaultDimensions";
 import { v4 as uuidv4 } from 'uuid';
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../state/store";
+import { useDispatch } from "react-redux";
 import { setDrawingWire } from "../state/slices/mouseEvents";
 import useIsWireClicked from "./useIsWireClicked";
 
@@ -16,7 +14,6 @@ const checkWireLenghtEquality = (prev: Wire[], next: Wire[]) => {
 
 export default function useDrawWire() {
 	const dispatch = useDispatch();
-	const {getAllWire} = useIsWireClicked();
 	function startDrawing(
 		e: React.MouseEvent<any>,
 	){

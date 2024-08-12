@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gate } from '../Interfaces/Gate';
+import { Gate } from '@Shared/interfaces';
 import { CustomGate } from './CustomGate';
 import { useSelector } from 'react-redux';
 import { RootState } from '../state/store';
@@ -23,7 +23,6 @@ export default function MovableGates(){
 	return <>
 	
 		{Object.entries(currentGates)?.map(([key, gate]) => {
-			console.log(currentComponentId);
 			return <CustomGate gateProps={gate} isBluePrint={false} key={gate.id} position='absolute'></CustomGate>;
 		})}
 	</>;
