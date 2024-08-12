@@ -575,7 +575,7 @@ const entities = createSlice({
 			const binaryIO = action.payload.binaryIO;
 			Object.entries(state.currentComponent.gates).forEach(([key, gate]) => {
 				if(!gates[key]){
-					throw new Error(`In the combined new state there is no gate at ID: ${key}`);
+					throw new Error(`In the combined new state there is no gate at ID: ${key}\nLength of 'gates' from the worker: ${Object.entries(gates).length}`);
 				}
 				state.currentComponent.gates[key] = gates[key];
 				delete gates[key];
@@ -668,9 +668,7 @@ const entities = createSlice({
 				state.bluePrints.io[input.id].gateId = newGateId;
 			});
 
-			state.currentComponent.gates = {};
-			state.currentComponent.binaryIO = {};
-			state.currentComponent.wires = {};
+			state.currentComponent = {gates: {}, wires: {}, binaryIO: {}};
 			state.gates = {};
 			state.wires = {};
 			state.binaryIO = {};
@@ -832,6 +830,41 @@ const entities = createSlice({
 });
 
 
+export const {updateStateRaw} = addRawReducers(entities, {
+	updateStateRaw: (state: entities, action: AnyAction): entities => {
+	  const { gates, binaryIO } = action.payload;
+  
+	  const newGates = { ...state.currentComponent.gates };
+	  Object.entries(state.currentComponent.gates).forEach(([key, gate]) => {
+		if (!gates[key]) {
+		  throw new Error(`In the combined new state there is no gate at ID: ${key}\nLength of 'gates' from the worker: ${Object.entries(gates).length}`);
+		}
+		newGates[key] = gates[key];
+		delete gates[key];
+	  });
+  
+	  const newBinaryIO = { ...state.currentComponent.binaryIO };
+	  Object.entries(state.currentComponent.binaryIO).forEach(([key, io]) => {
+		if (!binaryIO[key]) {
+		  throw new Error(`In the combined new state there is no IO at ID: ${key}`);
+		}
+		newBinaryIO[key] = binaryIO[key];
+		delete binaryIO[key];
+	  });
+  
+	  return {
+		...state,
+		currentComponent: {
+		  gates: newGates,
+		  wires: state.currentComponent.wires,
+		  binaryIO: newBinaryIO,
+		},
+		gates,
+		binaryIO,
+	  };
+	}
+  });
+
 export default entities.reducer;
 export const {addWire, 
 	changeWirePosition, 
@@ -849,5 +882,5 @@ export const {addWire,
 	raiseShortCircuitError,
 	changeBluePrintPosition,
 	setGateDescription,
-	switchCurrentComponent
+	switchCurrentComponent,
 } = entities.actions;

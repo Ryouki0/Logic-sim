@@ -3,10 +3,20 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { DEFAULT_INPUT_DIM } from "../../Constants/defaultDimensions";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
+import { BinaryIO } from "../../Interfaces/BinaryIO";
+
+export const checkSingleIo = (prev: BinaryIO, next: BinaryIO) => {
+	if(prev.state !== next.state){
+		return false;
+	}
+	if(prev.name !== next.name){
+		return false;
+	}
+	return true;
+}	
 
 export default function InputPreview({inputId, style} : {inputId: string, style: React.CSSProperties}){
-    const thisInput = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO[inputId]});
-
+    const thisInput = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO[inputId]}, checkSingleIo);
 
     return <>
         <div style={{

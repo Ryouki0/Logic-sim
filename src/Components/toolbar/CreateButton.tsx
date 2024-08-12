@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { CANVAS_WIDTH } from '../../Constants/defaultDimensions';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createBluePrint } from '../../state/slices/entities';
 import '../../index.css';
+import { RootState } from '../../state/store';
 export default function CreateButton(){
 	const dispatch = useDispatch();
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
 	const [name, setName] = useState<string>('');
 	return <div style={{
 		display: 'flex',
@@ -36,21 +38,26 @@ export default function CreateButton(){
 			width: '50%',
 			justifyContent: 'center',
 			backgroundColor: '#28A745',
+			opacity: currentComponentId !== 'global' ? 0.5 : 1,
 			height: 60,
 			position: 'relative',
 			alignSelf: 'center',
 			boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
 			borderRadius: 20,
-			cursor: 'pointer',
+			cursor: currentComponentId !== 'global' ? 'not-allowed': 'pointer',
 			display: 'flex',
 			transition: 'all 0.3s ease'
 		}}
-		onClick={e => {dispatch(createBluePrint({name: name}));}}
+		onClick={e => {
+			if(currentComponentId !== 'global' || e.button !== 0) return;
+			dispatch(createBluePrint({name: name}));}}
 		onMouseEnter={e=>{
+			if(currentComponentId !== 'global') return;
 			e.currentTarget.style.backgroundColor = '#218838';
 			e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.3)';
 		}}
 		onMouseLeave={e => {
+			if(currentComponentId !== 'global') return;
 			e.currentTarget.style.backgroundColor = '#28A745';
        		e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
 		}}>

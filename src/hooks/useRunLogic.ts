@@ -1,26 +1,19 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { Gate } from '../Interfaces/Gate';
 import { createSelector } from '@reduxjs/toolkit';
 import { create } from 'domain';
 import { setActuals, setActualHertz, setHertz } from '../state/slices/clock';
-import { updateState } from '../state/slices/entities';
+import { updateState, updateStateRaw } from '../state/slices/entities';
 import { WorkerEvent } from '../logic.worker';
-const checkGateEquality = (prev: {[key: string]: Gate}, next: {[key: string]: Gate}) => {
-	const prevEntires = Object.entries(prev);
-	const nextEntries = Object.entries(next);
-	if(prevEntires.length !== nextEntries.length){
-		return false;
-	}
-	return true;
-}; 
+
 
 export default function useRunLogic(){
 	const hertz = useSelector((state: RootState) => {return state.clock.hertz;});
 	const refreshRate = useSelector((state: RootState) => {return state.clock.refreshRate;});
 	const isRunning = useSelector((state: RootState) => {return state.clock.isRunning;});
-	const currentComponent = useSelector((state: RootState) => {return state.entities.currentComponent;});
+	const currentComponent = useSelector((state: RootState) => {return state.entities.currentComponent;}, shallowEqual);
 	const io = useSelector((state: RootState) => {return state.entities.binaryIO;});
 	const gates = useSelector((state: RootState) => {return state.entities.gates;});
     
@@ -73,7 +66,7 @@ export default function useRunLogic(){
             		timeTook.current = Date.now() - timeTookStart.current;
                     
             		const newData = newWorkerData.current;
-            		dispatch(updateState({gates: newData!.gates, binaryIO: newData!.binaryIO}));
+            		dispatch(updateStateRaw({gates: newData!.gates, binaryIO: newData!.binaryIO}));
             		actualRefreshRate.current++;
             		actualHertz.current += newData!.actualHertz;
                     

@@ -10,7 +10,7 @@ import { BinaryIO } from '../Interfaces/BinaryIO';
 import { addInput, changeInputState } from '../state/slices/entities';
 import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../Constants/colors';
 
-function checkInputs(prev:BinaryIO[],next:BinaryIO[]){
+export function checkIo(prev:BinaryIO[],next:BinaryIO[]){
 	if(prev?.length !== next?.length){
 		return false;
 	}
@@ -35,7 +35,7 @@ export default function GlobalInputs(){
 			}
 		})
 			.filter((io): io is NonNullable<typeof io> => io !== null);
-	}, checkInputs);
+	}, checkIo);
 	const eleRef = useRef<HTMLDivElement | null>(null);
  	const [ghostInputPosition, setGhostInputPosition] = useState({x:0,y:0});
  	const [showGhostInput,setShowGhostInput] = useState(false);

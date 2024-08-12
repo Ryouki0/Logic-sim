@@ -7,6 +7,7 @@ import {v4 as uuidv4} from 'uuid';
 import { Output } from './Output';
 import { addGlobalOutput } from '../state/slices/entities';
 import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../Constants/colors';
+import { checkIo } from './GlobalInputs';
 
 export default function GlobalOutputs() {
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
@@ -17,7 +18,7 @@ export default function GlobalOutputs() {
 			}else{
 				return null;
 			}
-		}).filter((io): io is NonNullable<typeof io> => io !== null);});
+		}).filter((io): io is NonNullable<typeof io> => io !== null);}, checkIo);
  	const dispatch = useDispatch();
  	const outputEntries = Object.entries(outputs);
 

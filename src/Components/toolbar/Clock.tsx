@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH } from '../../Constants/defaultDimensions';
 import { RootState } from '../../state/store';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
@@ -19,6 +19,7 @@ export default function Clock() {
 	const io = useSelector((state: RootState) => {return state.entities.binaryIO;});
 	const actualHertz = useSelector((state: RootState) => {return state.clock.actualHertz;});
 	const actualRefreshRate = useSelector((state: RootState) => {return state.clock.actualRefreshRate;});
+	const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 	const currentIo = useSelector((state:RootState) => {
 		return state.entities.currentComponent.binaryIO;
 	});
@@ -26,6 +27,7 @@ export default function Clock() {
 	
 	const [value, setValue] = useState('100');
 	const [running, setRunning] = useState(false);
+	const [description, setDescription] = useState<string>('');
 	const handleHertzChange = (e:React.ChangeEvent<HTMLInputElement>) => {
 		const number = parseInt(e.target.value);
 	  	dispatch(setHertz(number));
@@ -36,6 +38,10 @@ export default function Clock() {
 		dispatch(setIsRunning(!running));
 		setRunning(!running);
 	};
+
+	const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+		setDescription(e.target.value);
+	}
 
 	const totalComplexity = useMemo(() => {
 		let total = 0;
@@ -107,6 +113,31 @@ export default function Clock() {
 			<span style={textStlye}>Actual hz: {actualHertz}</span>
 			<span style={textStlye}>Actual refresh rate: {actualRefreshRate}</span>
 			<span style={textStlye}>Total complexity: {totalComplexity}</span>
+			<div>
+			<label 
+        htmlFor="description" 
+        style={textStlye}
+      >
+        Description:
+      </label>
+      <textarea
+		rows={1}
+		spellCheck={false}
+		ref={textAreaRef}
+		value={description}
+		onChange={handleDescriptionChange}
+		style={{
+			backgroundColor: 'transparent',
+			color: 'white',
+			fontSize: 16,
+			border: 'none',
+			marginTop: 10,
+			outline: 'none',
+			resize: 'none',
+		}}
+      />
+			</div>
+			
 		</div>
 	
 		

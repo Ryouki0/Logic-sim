@@ -1,4 +1,4 @@
-import { configureStore, Tuple} from "@reduxjs/toolkit";
+import { configureStore, createImmutableStateInvariantMiddleware, isImmutableDefault, Tuple} from "@reduxjs/toolkit";
 import mouseEventsSlice from "./slices/mouseEvents";
 import entities from "./slices/entities";
 import clock from './slices/clock';

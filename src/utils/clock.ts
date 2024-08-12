@@ -5,8 +5,13 @@ import { current } from "@reduxjs/toolkit";
 import { deepCopyComponent } from "./deepCopyComponent";
 
 /**
-* @param component The component where the logic runs
-*/
+ * Runs the simulator for 1 tick.
+ * @param component.gates The combined `gates` state
+ * @param component.io The combined `BinaryIO` state
+ * @param component.level The ID of the current component
+ * @param component.serialize A boolean flag indicating whether the data should be serialized
+ * @returns The new state
+ */
 export function logic(component: {
     gates: {[key: string]: Gate},
     io: {[key: string]: BinaryIO},
@@ -160,12 +165,6 @@ export function getMainOrder(gates: {[key: string]: Gate}, io: {[key: string]: B
 	}
 	const currentLayer = getPathRoots(thisLevel, io);
 	let nextLayer: string[] = [];
-	currentLayer.forEach(gateId =>{
-		//console.log(`gateId in the roots: ${gateId.slice(0,5)}`);
-	});
-	Object.entries(thisLevel).forEach(([key, gate]) => {
-		//console.log(`gates in thisLevel: ${gate.id.slice(0,5)} -- ${gate.name}`);
-	});
 	mainOrder.push(...currentLayer);
 	while(currentLayer.length > 0){
 		const currentGate = gates[currentLayer.pop()!];
