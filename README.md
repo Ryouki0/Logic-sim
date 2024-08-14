@@ -15,3 +15,11 @@
   - A delay allowed SCC is taken as a DAG, where the root is a delay gate.
   - A true SCC will show an error to the user, since it would cause an infinite loop.
 - **Sorting algorithms**: Instead of finding the true SCCs with common algorithms, like Tarjan's algorithm, the simulation filters them out. First run a topological sort on the DAG. Then, find every delay gate that hasn't been evaluated yet, and take them as roots of DAGs. If there are still gates that have not been evaluated yet, then there is one, or more true SCC.
+### State management
+- **Normalized state**: This application uses normalized data structures. Every entity has it's own table. There is also a separate table for the entities that are currently visible. It was needed for performance optimization. Also there is a table for the circuit blueprints, which holds the connections of a user created circuit. 
+- **Entities**:
+  - **Gates table**: A table that holds all the gates, that are not currently displayed on the UI.
+  - **BinaryIO table**: A table that hold the combination of all inputs and outputs, that are not displayed. They hold the connections.
+  - **Wires table**: A table that holds all the wires, that are not currently displayed on the UI. The wires themselves don't hold the connections. They are only stored, so that they can be viewed later.
+  - **Current component table**: Holds all the data, that are currently displayed.
+- **Performance**: There is a separate table for the 
