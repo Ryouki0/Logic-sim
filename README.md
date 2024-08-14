@@ -22,7 +22,8 @@
   - **BinaryIO table**: A table that hold the combination of all inputs and outputs, that are not displayed. They hold the connections.
   - **Wires table**: A table that holds all the wires, that are not currently displayed on the UI. The wires themselves don't hold the connections. They are only stored, so that they can be viewed later.
   - **Current component table**: Holds all the data, that are currently displayed.
-- **Performance**: Having a separate table for the entities, that are currently being modified plays a significant role in more complex circuits.
+- **Performance**:
+  - Having a separate table for the entities, that are currently being modified plays a significant role in more complex circuits.
   - Performance critical reducers, like updating the state, are created as raw reducers, bypassing immer.
  
 ### Technologies used
