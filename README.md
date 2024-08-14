@@ -1,7 +1,7 @@
 # Logic Gate Simulator
 ## Overview
 - **Description**: A simple logic gate simulator, made with react.
-- **Try it**: [Link](logicsim-b45h07vbg-ryouki0s-projects.vercel.app)
+- **Try it**: [Link](https://logicsim-jlss3217j-ryouki0s-projects.vercel.app)
 ## Key features
 - **Create bigger components**: Start with 'AND', 'NO' and 'DELAY' gates. From these gates create bigger components.
 - **Connect gates together**: Connect the inputs and outputs of the gates together, to form more complex circuits.
