@@ -3,7 +3,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Simulation from './Simulation';
+import Menu from './Components/Menu/Menu';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux';
 import { store } from './state/store';
@@ -14,7 +16,12 @@ const root = ReactDOM.createRoot(
 
 root.render(
 	<Provider store={store}>
-			<App />
+		<Router>
+			<Routes>
+				<Route path='/' element={<Menu></Menu>}/>
+				<Route path='/Simulation' element={<Simulation></Simulation>}></Route>
+			</Routes>
+		</Router>
 	</Provider>
   
 );

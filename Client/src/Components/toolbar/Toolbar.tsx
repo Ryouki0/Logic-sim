@@ -4,6 +4,7 @@ import CreateButton from './CreateButton';
 import SelectedComponent from './SelectedComponent';
 import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH } from '../../Constants/defaultDimensions';
 import DisplayError from './DisplayError';
+import BackToMenu from './BackToMenu';
 
 export default function Toolbar() {
 	return <div style={{
@@ -21,5 +22,6 @@ export default function Toolbar() {
 		<DisplayError></DisplayError>
 		<Clock></Clock>
 		<CreateButton></CreateButton>
+		<BackToMenu></BackToMenu>
 	</div>;
 }

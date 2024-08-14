@@ -1,14 +1,12 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
-import { CustomGate } from "./CustomGate";
-import useRedrawCanvas from "../hooks/useRedrawCanvas";
 import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, MINIMAL_BLOCKSIZE } from "../Constants/defaultDimensions";
 import { Gate } from "../Interfaces/Gate";
 import { setSelectedGateId } from "../state/slices/mouseEvents";
 import { changeBluePrintPosition } from "../state/slices/entities";
 import { createSelector } from "@reduxjs/toolkit";
-
+import '../menu.css';
 const checkAllGatesEquality = (prev: {[key: string]: Gate}, next: {[key: string]: Gate}) => {
 	const prevEntries = Object.entries(prev);
 	const nextEntries = Object.entries(next);

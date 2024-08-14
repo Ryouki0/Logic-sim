@@ -104,7 +104,6 @@ code {
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-/* Focused state for the input box */
 .input-box:focus {
   border-color: #66afe9;
   box-shadow: 0 0 8px rgba(102, 175, 233, 0.6);

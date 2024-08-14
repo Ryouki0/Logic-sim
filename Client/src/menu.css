@@ -1,0 +1,61 @@
+.menu-container {
+    width: 100%;
+    height: 100vh; 
+}
+
+.menu-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../public/circuit2.jpg') no-repeat center center;
+    background-size: cover;
+    filter: blur(5px); 
+    z-index: -1; 
+  }
+  .button {
+    background-color: orange;
+    color: black;
+    border: none;
+    border-radius: 8px;
+    padding: 20px 40px; 
+    font-size: 18px;
+    cursor: pointer; 
+    margin: 10px; 
+    transition: background-color 0.3s, transform 0.3s; 
+  }
+  
+  .button:hover {
+    background-color: darkorange;
+    transform: scale(1.05); 
+  }
+  
+  .button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+  }
+
+  .button-other {
+    background-color: rgb(0, 122, 255);
+    color: black;
+    border: none;
+    border-radius: 20px; /* Updated to 20px as it was the second occurrence */
+    padding: 20px 40px; 
+    font-size: 18px;
+    cursor: pointer;
+    margin: 10px;
+    align-self: center; /* Kept the first occurrence only */
+    transition: background-color 0.3s, box-shadow 0.3s; /* Consolidated transition properties */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button-other:hover {
+    background-color: rgb(0, 102, 204);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}

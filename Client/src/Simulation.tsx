@@ -12,11 +12,10 @@ import BootstrapLogic from "./Components/Effects/bootstrapLogic";
 import SelectedGate from "./Components/SelectedGate";
 import HoveringOverIO from "./Components/Effects/HoveringOverIO";
 import DrawWireFromIo from "./Components/Effects/DrawWireFromIo";
-function App() {
+function Simulation() {
 	
 	useEffect(() => {
 		document.body.style.overflow = 'hidden';
-
 		return () => {
 			document.body.style.overflow = 'auto';
 		};
@@ -24,7 +23,6 @@ function App() {
 
 	return (
 		<>
-			{console.log("rendering whole App...")}
 			<MainCanvas></MainCanvas>
 			<BottomCanvas></BottomCanvas>
 			<CanvasTop></CanvasTop>
@@ -42,4 +40,4 @@ function App() {
 	);
 }
 
-export default App;
+export default Simulation;
