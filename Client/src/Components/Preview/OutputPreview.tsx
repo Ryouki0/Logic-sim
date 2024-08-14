@@ -6,17 +6,17 @@ import { RootState } from "../../state/store";
 import { checkSingleIo } from "./InputPreview";
 
 export default function OutputPreview({outputId, style}: {outputId: string, style: React.CSSProperties}){
-    const thisOutput = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO[outputId]}, checkSingleIo);
+	const thisOutput = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO[outputId];}, checkSingleIo);
 
-    return <>
-        <div style={{
-				width: DEFAULT_INPUT_DIM.width,
-				height: DEFAULT_INPUT_DIM.height,
-				pointerEvents: 'none',
-				cursor: 'arrow',
-                ...style
-			}}
-			>
+	return <>
+		<div style={{
+			width: DEFAULT_INPUT_DIM.width,
+			height: DEFAULT_INPUT_DIM.height,
+			pointerEvents: 'none',
+			cursor: 'arrow',
+			...style
+		}}
+		>
 			<CircularProgressbar
 				value={100}
 				background={true}
@@ -27,5 +27,5 @@ export default function OutputPreview({outputId, style}: {outputId: string, styl
 				strokeWidth={12}
 			></CircularProgressbar>
 		</div>
-    </>;
+	</>;
 }

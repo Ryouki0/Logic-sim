@@ -24,7 +24,7 @@ export function checkIo(prev:BinaryIO[],next:BinaryIO[]){
 export default function GlobalInputs(){
 	const currentInputsRef = useRef<HTMLDivElement | null>(null);
 	const [pointerEvents, setPointerEvents] = useState<'auto' | 'none'>('auto');
-	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const inputs = useSelector((state: RootState) => {
 		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => 
 		{

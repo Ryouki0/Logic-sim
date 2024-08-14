@@ -137,7 +137,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 		}
 	}, 
 	wires: {}
-}, 
+	}, 
 	binaryIO: {}
 } as entities;
 
@@ -183,7 +183,7 @@ const entities = createSlice({
 					
 					gate.wires?.forEach(wireId => {
 						state.wires[wireId] = JSON.parse(JSON.stringify(state.bluePrints.wires[wireId]));
-					})
+					});
 				}else{
 					state.gates[gate.id] = JSON.parse(JSON.stringify(gate));
 					
@@ -197,7 +197,7 @@ const entities = createSlice({
 
 					gate.wires?.forEach(wireId => {
 						state.wires[wireId] = JSON.parse(JSON.stringify(state.bluePrints.wires[wireId]));
-					})
+					});
 				}
 				
 			}
@@ -370,13 +370,13 @@ const entities = createSlice({
 						from: null,
 						to: null,
 						parent: newGateId
-					}
+					};
 
 					newGate.wires!.push(newWireId);
 					state.wires[newWireId] = newWire;
 					console.log(`Changed parent of ${newGateId.slice(0,6)} to ${parentId.slice(0,6)}`);
 					delete state.wires[wireId];
-				})
+				});
 
 				if(parentId === 'global'){
 					delete state.currentComponent.gates[gate.id];
@@ -652,7 +652,7 @@ const entities = createSlice({
 
 			subWireEntries.forEach(([key, wire]) => {
 				state.bluePrints.wires[key] = wire;
-			})
+			});
 			
 			gateEntries.forEach(([key, gate]) => {
 				state.bluePrints.gates[key] = {...gate, parent: newGateId};
@@ -724,7 +724,7 @@ const entities = createSlice({
 			currentGateEntries.forEach(([key, gate]) => {
 				state.gates[key] = gate;
 				delete state.currentComponent.gates[key];
-			})
+			});
 
 			currentIoEntries.forEach(([key, io]) => {
 				state.binaryIO[key] = io;
@@ -734,7 +734,7 @@ const entities = createSlice({
 			currentWireEntries.forEach(([key, wire]) => {
 				state.wires[key] = wire;
 				delete state.currentComponent.wires[key];
-			})
+			});
 
 			const newCurrentComponentGates = subGateEntries.map(([key, gate]) => {
 				if(gate.parent === componentId){
@@ -763,7 +763,7 @@ const entities = createSlice({
 						x: 2*MINIMAL_BLOCKSIZE,
 						y: (input.style?.top as number) + DEFAULT_INPUT_DIM.height/2,
 					}
-				}
+				};
 				return newInput;
 			}
 
@@ -774,7 +774,7 @@ const entities = createSlice({
 						x: CANVAS_WIDTH - MINIMAL_BLOCKSIZE,
 						y: (output.style?.top as number) + DEFAULT_INPUT_DIM.height - DEFAULT_BORDER_WIDTH
 					}
-				}
+				};
 				return newOutput;
 			}
 
@@ -787,7 +787,7 @@ const entities = createSlice({
 						const newOutput = changeGlobalOutputPosition(io);
 						newCurrentComponentIo.push(newOutput);
 					}
-				})
+				});
 				
 			}else{
 				component.inputs.forEach(inputId => {
@@ -819,12 +819,12 @@ const entities = createSlice({
 			newCurrentComponentGates.forEach(gate => {
 				state.currentComponent.gates[gate.id] = gate;
 				delete state.gates[gate.id];
-			})
+			});
 			
 			newCurrentComponentWires?.forEach(wire => {
 				state.currentComponent.wires[wire.id] = wire;
 				delete state.wires[wire.id];
-			})
+			});
 		}
 	}
 });
@@ -836,34 +836,34 @@ export const {updateStateRaw} = addRawReducers(entities, {
   
 	  const newGates = { ...state.currentComponent.gates };
 	  Object.entries(state.currentComponent.gates).forEach(([key, gate]) => {
-		if (!gates[key]) {
+			if (!gates[key]) {
 		  throw new Error(`In the combined new state there is no gate at ID: ${key}\nLength of 'gates' from the worker: ${Object.entries(gates).length}`);
-		}
-		newGates[key] = gates[key];
-		delete gates[key];
+			}
+			newGates[key] = gates[key];
+			delete gates[key];
 	  });
   
 	  const newBinaryIO = { ...state.currentComponent.binaryIO };
 	  Object.entries(state.currentComponent.binaryIO).forEach(([key, io]) => {
-		if (!binaryIO[key]) {
+			if (!binaryIO[key]) {
 		  throw new Error(`In the combined new state there is no IO at ID: ${key}`);
-		}
-		newBinaryIO[key] = binaryIO[key];
-		delete binaryIO[key];
+			}
+			newBinaryIO[key] = binaryIO[key];
+			delete binaryIO[key];
 	  });
   
 	  return {
-		...state,
-		currentComponent: {
+			...state,
+			currentComponent: {
 		  gates: newGates,
 		  wires: state.currentComponent.wires,
 		  binaryIO: newBinaryIO,
-		},
-		gates,
-		binaryIO,
+			},
+			gates,
+			binaryIO,
 	  };
 	}
-  });
+});
 
 export default entities.reducer;
 export const {addWire, 

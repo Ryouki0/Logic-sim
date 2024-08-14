@@ -10,7 +10,7 @@ import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../Constants/col
 import { checkIo } from './GlobalInputs';
 
 export default function GlobalOutputs() {
-	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const outputs = useSelector((state: RootState) => {
 		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => {
 			if((io.type === 'output' && !io.gateId) || (io.type === 'output' && io.gateId === currentComponentId)){

@@ -10,7 +10,7 @@ import { switchCurrentComponent } from '../state/slices/entities';
 export function BackArrow({style}:{style?: React.CSSProperties}){
 
 	const svgRef = useRef<SVGSVGElement | null>(null);
-	const componentHistory = useSelector((state: RootState) => {return state.misc.history});
+	const componentHistory = useSelector((state: RootState) => {return state.misc.history;});
 	const dispatch = useDispatch();
 
 	useEffect(() => {
@@ -24,16 +24,16 @@ export function BackArrow({style}:{style?: React.CSSProperties}){
 
 			dispatch(switchCurrentComponent({componentId: lastId, prevComponent: componentHistory[componentHistory.length-1]}));
 			
-		}
+		};
 
 		svgRef.current?.addEventListener('mousedown', handleBack);
 		return () => {
 			svgRef.current?.removeEventListener('mousedown', handleBack);
-		}
-	}, [componentHistory])
+		};
+	}, [componentHistory]);
 	
 	return <svg
-	ref={svgRef}
+		ref={svgRef}
 		style={{...style}}
 		className="back-arrow"
 		viewBox="0 0 24 24"
@@ -44,5 +44,5 @@ export function BackArrow({style}:{style?: React.CSSProperties}){
 			d="M19 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H19v-2z"
 			fill="currentColor"
 		/>
-	</svg>
+	</svg>;
 }

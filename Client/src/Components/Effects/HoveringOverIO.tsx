@@ -11,7 +11,7 @@ export default function HoveringOverIO(){
 	const io = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO;});
 	const dispatch = useDispatch();
 	const currentlyHoveringOverIo = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverIo;});
-	const currentComponent = useSelector((state: RootState) => {return state.misc.currentComponentId});
+	const currentComponent = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const spanRef = useRef<HTMLSpanElement | null>(null);
 
 	useEffect(() => {

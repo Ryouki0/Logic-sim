@@ -134,7 +134,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 					display: 'inline-block',
 					justifySelf: 'center',
 					cursor: 'pointer',
-					backgroundColor: "rgb(100 100 100)"}} 
+					backgroundColor: "rgb(117 117 117)"}} 
 				id={gateProps.id}
 			>
 				{inputs?.map((input, idx, array) => {

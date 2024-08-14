@@ -7,7 +7,7 @@ import isOnIo from '../../utils/isOnIo';
 export default function DrawWireFromIo(){
 	const startDrawing = useDrawWire();
 	const io = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO;});
-	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
     
 
 	useEffect(() => {

@@ -19,15 +19,13 @@ export default function Clock() {
 	const io = useSelector((state: RootState) => {return state.entities.binaryIO;});
 	const actualHertz = useSelector((state: RootState) => {return state.clock.actualHertz;});
 	const actualRefreshRate = useSelector((state: RootState) => {return state.clock.actualRefreshRate;});
-	const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 	const currentIo = useSelector((state:RootState) => {
 		return state.entities.currentComponent.binaryIO;
 	});
 	const dispatch = useDispatch();
 	
 	const [value, setValue] = useState('100');
-	const running = useSelector((state: RootState) => {return state.clock.isRunning});
-	const [description, setDescription] = useState<string>('');
+	const running = useSelector((state: RootState) => {return state.clock.isRunning;});
 	const handleHertzChange = (e:React.ChangeEvent<HTMLInputElement>) => {
 		const number = parseInt(e.target.value);
 	  	dispatch(setHertz(number));
@@ -38,15 +36,13 @@ export default function Clock() {
 		dispatch(setIsRunning(!running));
 	};
 
-	const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		setDescription(e.target.value);
-	}
+	
 	const [testCall, setTestCall] = useState<{x: number, y: number}>({x:0,y:0});
 	useEffect(() => {
 		async function hello(){
 			try{
-				let res = await fetch("http://localhost:3002/api/ayaya");
-				let data = await res.json();
+				const res = await fetch("http://localhost:3002/api/ayaya");
+				const data = await res.json();
 				setTestCall({x:data.message.x, y: data.message.y});
 			}catch(e){
 				console.log(`failed to fech ${e}`);
@@ -54,7 +50,7 @@ export default function Clock() {
 			
 		}
 		hello();
-	}, [])
+	}, []);
 
 	const totalComplexity = useMemo(() => {
 		let total = 0;
@@ -101,23 +97,23 @@ export default function Clock() {
 	  onClick={handleRunChange}>
 	  {running ? 'Stop' : 'Run'}</button>
 	  <button style={{
-			fontSize: 18,
-			height: 26,
-		}} onClick={e => {
-			console.time('tick');
-			const copiedGates = JSON.parse(JSON.stringify(gates));
-			Object.entries(currentGates).forEach(([key, gate]) => {
-				copiedGates[key] = gate;
-			});
-			const copiedIo = JSON.parse(JSON.stringify(io));
-			Object.entries(currentIo).forEach(([key, io]) => {
-				copiedIo[key] = io;
-			});
-			const newState = logic({gates:copiedGates,io: copiedIo, level: 'global', serialize: true});
-			dispatch(updateState({gates: newState.gates, binaryIO: newState.io}));
-			console.timeEnd('tick');
-		}
-		}>Tick</button>
+				fontSize: 18,
+				height: 26,
+			}} onClick={e => {
+				console.time('tick');
+				const copiedGates = JSON.parse(JSON.stringify(gates));
+				Object.entries(currentGates).forEach(([key, gate]) => {
+					copiedGates[key] = gate;
+				});
+				const copiedIo = JSON.parse(JSON.stringify(io));
+				Object.entries(currentIo).forEach(([key, io]) => {
+					copiedIo[key] = io;
+				});
+				const newState = logic({gates:copiedGates,io: copiedIo, level: 'global', serialize: true});
+				dispatch(updateState({gates: newState.gates, binaryIO: newState.io}));
+				console.timeEnd('tick');
+			}
+			}>Tick</button>
 		</div>
 		<div style={{
 			display: 'flex',
@@ -127,30 +123,7 @@ export default function Clock() {
 			<span style={textStlye}>Actual refresh rate: {actualRefreshRate}</span>
 			<span style={textStlye}>Total complexity: {totalComplexity}</span>
 			<span style={textStlye}>Response: x:{testCall?.x} y:{testCall?.y}</span>
-			<div>
-			<label 
-        htmlFor="description" 
-        style={textStlye}
-      >
-        Description:
-      </label>
-      <textarea
-		rows={1}
-		spellCheck={false}
-		ref={textAreaRef}
-		value={description}
-		onChange={handleDescriptionChange}
-		style={{
-			backgroundColor: 'transparent',
-			color: 'white',
-			fontSize: 16,
-			border: 'none',
-			marginTop: 10,
-			outline: 'none',
-			resize: 'none',
-		}}
-      />
-			</div>
+			
 			
 		</div>
 	

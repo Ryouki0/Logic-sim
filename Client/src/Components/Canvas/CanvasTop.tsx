@@ -7,8 +7,8 @@ import { BackArrow } from '../BackArrow';
 import useRedrawCanvas from '../../hooks/useRedrawCanvas';
 export default function CanvasTop(){
 
-	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
-	const currentComponent = useSelector((state: RootState) => {return state.entities.gates[currentComponentId]});
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
+	const currentComponent = useSelector((state: RootState) => {return state.entities.gates[currentComponentId];});
 
 	return <div style={{
 		position: 'absolute',
@@ -44,7 +44,7 @@ export default function CanvasTop(){
 			
 		</div>
 		{currentComponent && <div
-		style={{
+			style={{
 				zIndex: 2,
 				height: 2*MINIMAL_BLOCKSIZE,
 				position: 'absolute',
@@ -52,7 +52,7 @@ export default function CanvasTop(){
 				alignSelf: 'flex-start',
 				padding: 10,
 			}}>
-				<BackArrow 
+			<BackArrow 
 				style={{
 					width: 40,
 					height: 40,
@@ -68,6 +68,6 @@ export default function CanvasTop(){
     				boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
     				transition: 'background-color 0.3s, transform 0.3s',
 				}}></BackArrow>
-				</div>}
+		</div>}
 	</div>;
 }

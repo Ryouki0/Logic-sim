@@ -34,7 +34,7 @@ export default function DisplayAllGates(){
 
 	const bluePrints = useSelector(bluePrintsSelector);
 	const dispatch = useDispatch();
-	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const isDisabled = currentComponentId !== 'global';
 	return <div style={{display: 'flex', top: CANVAS_HEIGHT,
 		position: 'absolute',

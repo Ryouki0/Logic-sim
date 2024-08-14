@@ -60,7 +60,7 @@ export default function useConnecting(){
 		return state.entities.currentComponent.binaryIO;
 	}, checkIOEquality);
 	const drawingWire = useSelector((state: RootState) => {return state.mouseEventsSlice.drawingWire;});
-	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const dispatch = useDispatch();
 	useEffect(() => {
 		if(drawingWire) return;
@@ -164,7 +164,7 @@ export default function useConnecting(){
 				Object.entries(io).forEach(([key, io]) => {
 					const isOnWire = 
 					(isOnIo(wire.linearLine.startX, wire.linearLine.startY, io)) ||
-					(isOnIo(wire.diagonalLine.endX, wire.diagonalLine.endY, io))
+					(isOnIo(wire.diagonalLine.endX, wire.diagonalLine.endY, io));
 					
 					if(isOnWire){
 						if(

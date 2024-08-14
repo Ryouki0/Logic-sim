@@ -19,7 +19,7 @@ const checkEquality = (prev:{[key:string]:Gate}, next: {[key:string]:Gate}) => {
 
 export default function MovableGates(){
 	const currentGates = useSelector((state: RootState) => {return state.entities.currentComponent.gates;}, checkEquality);
-	const currentComponentId = useSelector((state:RootState) => {return state.misc.currentComponentId});
+	const currentComponentId = useSelector((state:RootState) => {return state.misc.currentComponentId;});
 	return <>
 	
 		{Object.entries(currentGates)?.map(([key, gate]) => {

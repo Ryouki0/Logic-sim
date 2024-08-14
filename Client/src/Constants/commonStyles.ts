@@ -1,6 +1,6 @@
 
 export const textStlye:React.CSSProperties = {
 	color: 'white',
-	fontSize: 16,
+	fontSize: 17,
 	marginTop: 10
 };

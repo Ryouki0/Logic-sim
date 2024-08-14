@@ -12,23 +12,23 @@ import { calculateInputTop } from "./calculateInputTop";
  * 
  */
 export default function calculateAbsoluteIOPos(gate:Gate, io: BinaryIO){
-    if(gate.inputs.includes(io.id)){
-        const idxOfIo = gate.inputs.findIndex(inputId => inputId === io.id);
-        const newPos = {
-            x: gate.position!.x,
-            y: gate.position!.y + (
-                calculateInputTop(idxOfIo, gate.inputs.length) + DEFAULT_INPUT_DIM.height/2 + idxOfIo*DEFAULT_INPUT_DIM.height
-            )
-        }
-        return newPos;
-    }else if(gate.outputs.includes(io.id)){
-        const idxOfIo = gate.outputs.findIndex(outputId => outputId === io.id);
-        const newPos = {
-            x: gate.position!.x + 3*MINIMAL_BLOCKSIZE,
-            y: gate.position!.y + calculateInputTop(idxOfIo, gate.outputs.length) + (idxOfIo*DEFAULT_INPUT_DIM.height) +DEFAULT_INPUT_DIM.height/2
-        }
-        return newPos;
-    }else{
-        throw new Error(`The IO is not in the gate. gate: ${gate.id} io: ${io}`)
-    }
+	if(gate.inputs.includes(io.id)){
+		const idxOfIo = gate.inputs.findIndex(inputId => inputId === io.id);
+		const newPos = {
+			x: gate.position!.x,
+			y: gate.position!.y + (
+				calculateInputTop(idxOfIo, gate.inputs.length) + DEFAULT_INPUT_DIM.height/2 + idxOfIo*DEFAULT_INPUT_DIM.height
+			)
+		};
+		return newPos;
+	}else if(gate.outputs.includes(io.id)){
+		const idxOfIo = gate.outputs.findIndex(outputId => outputId === io.id);
+		const newPos = {
+			x: gate.position!.x + 3*MINIMAL_BLOCKSIZE,
+			y: gate.position!.y + calculateInputTop(idxOfIo, gate.outputs.length) + (idxOfIo*DEFAULT_INPUT_DIM.height) +DEFAULT_INPUT_DIM.height/2
+		};
+		return newPos;
+	}else{
+		throw new Error(`The IO is not in the gate. gate: ${gate.id} io: ${io}`);
+	}
 }

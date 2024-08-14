@@ -15,7 +15,7 @@ export default function MainCanvas(){
 	const {checkWire} = useIsWireClicked();
 	const startDrawing = useDrawWire();
 	const dispatch = useDispatch();
-	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const throttledCheckWire = throttle((e: MouseEvent) => {
 		const x = e.x;
 		const y = e.y;

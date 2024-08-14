@@ -18,7 +18,7 @@ const checkCurrentEntity = (prev: Wire | Gate | undefined, next: Wire | Gate | u
 		return false;
 	}
 	return true;
-}
+};
 
 export default function SelectedComponent(){
 	const selectedComponent = useSelector((state: RootState) => {
@@ -38,7 +38,7 @@ export default function SelectedComponent(){
 	const handleClick = (e: React.MouseEvent<any>) => {
 		dispatch(switchCurrentComponent({componentId: selectedComponent.entity!.id, prevComponent: null}));
 		dispatch(setCurrentComponentId(selectedComponent.entity!.id));
-	}
+	};
 
  	return console.log(`rendering selectedComponent`),
 	<div style={{
@@ -65,18 +65,18 @@ export default function SelectedComponent(){
 		}}>
 			<GateSelected gate={selectedComponent.entity as Gate}></GateSelected>
 			{(selectedComponent.entity as Gate).gates && <div 
-			onClick={handleClick}
-			className="button"
-			style={{
-				width: '80%',
-				marginBottom: 0.5*MINIMAL_BLOCKSIZE
-			}}>
-			<span style={{
-				color: 'white',
-				fontSize: 20
-			}}>
+				onClick={handleClick}
+				className="button"
+				style={{
+					width: '80%',
+					marginBottom: 0.5*MINIMAL_BLOCKSIZE
+				}}>
+				<span style={{
+					color: 'white',
+					fontSize: 20
+				}}>
 				View
-			</span>
+				</span>
 			</div>}
 		</div>}
  	</div>;
