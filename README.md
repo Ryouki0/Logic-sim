@@ -10,4 +10,6 @@
 ## Architecture
 
 ### Graph theory & circuit representation
-- **Circuits as graphs**: In this simulation, there are two types of graphs that can be created using logic gates - directed acyclic graphs (DAG), and strongly connected components (SCC)
+- **Circuits as graphs**: In this simulation, there are two types of graphs that can be created using logic gates - directed acyclic graphs (DAG), and strongly connected components (SCC).
+  And the SCCs further can be broken down into two separate types - 'Delay allowed SCC' and 'True SCC'.
+  A delay allowed SCC is taken as a DAG, where the root is a delay gate. A true SCC will show an error to the user, since it would cause an infinite loop.
