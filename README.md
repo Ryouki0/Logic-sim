@@ -24,3 +24,9 @@
   - **Current component table**: Holds all the data, that are currently displayed.
 - **Performance**: Having a separate table for the entities, that are currently being modified plays a significant role in more complex circuits.
   - Performance critical reducers, like updating the state, are created as raw reducers, bypassing immer.
+ 
+### Technologies used
+- **React**
+- **Redux toolkit**
+- **Web workers**
+- **React routing**
