@@ -10,7 +10,6 @@ import { propagateIo } from "../../utils/propagateIo";
 import { addRawReducers } from "../../utils/addRawReducers";
 import calculateAbsoluteIOPos from "../../utils/calculateAbsoluteIOPos";
 
-
 const ANDInputId1 = uuidv4();
 const ANDInputId2 = uuidv4();
 const DELAYInputId1 = uuidv4();
@@ -140,7 +139,6 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 	}, 
 	binaryIO: {}
 } as entities;
-
 
 
 const entities = createSlice({
@@ -593,7 +591,7 @@ const entities = createSlice({
 			state.gates = gates;
 		},
 		
-		createBluePrint: (state, action: PayloadAction<{name: string}>) => {
+		createBluePrint: (state, action: PayloadAction<{name: string, description: string}>) => {
 			const allGates: {[key: string]: Gate} = {};
 			let complexity = 0;
 
@@ -636,6 +634,7 @@ const entities = createSlice({
 				gates: Object.entries(topLevelGates).map(([key, gate]) => key),
 				name: action.payload.name,
 				id: newGateId,
+				description: action.payload.description,
 				complexity: complexity,
 				wires: Object.keys(state.currentComponent.wires),
 				parent: 'global',
@@ -825,6 +824,9 @@ const entities = createSlice({
 				state.currentComponent.wires[wire.id] = wire;
 				delete state.wires[wire.id];
 			});
+		},
+		changeState: (state, action:PayloadAction<entities>) => {
+			return {...action.payload};
 		}
 	}
 });
@@ -836,31 +838,31 @@ export const {updateStateRaw} = addRawReducers(entities, {
   
 	  const newGates = { ...state.currentComponent.gates };
 	  Object.entries(state.currentComponent.gates).forEach(([key, gate]) => {
-			if (!gates[key]) {
-		  throw new Error(`In the combined new state there is no gate at ID: ${key}\nLength of 'gates' from the worker: ${Object.entries(gates).length}`);
-			}
-			newGates[key] = gates[key];
-			delete gates[key];
+		if(!gates[key]) {
+			throw new Error(`In the combined new state there is no gate at ID: ${key}\nLength of 'gates' from the worker: ${Object.entries(gates).length}`);
+		}
+		newGates[key] = gates[key];
+		delete gates[key];
 	  });
   
 	  const newBinaryIO = { ...state.currentComponent.binaryIO };
 	  Object.entries(state.currentComponent.binaryIO).forEach(([key, io]) => {
-			if (!binaryIO[key]) {
-		  throw new Error(`In the combined new state there is no IO at ID: ${key}`);
-			}
-			newBinaryIO[key] = binaryIO[key];
-			delete binaryIO[key];
+		if(!binaryIO[key]) {
+			throw new Error(`In the combined new state there is no IO at ID: ${key}`);
+		}
+		newBinaryIO[key] = binaryIO[key];
+		delete binaryIO[key];
 	  });
   
 	  return {
 			...state,
 			currentComponent: {
-		  gates: newGates,
-		  wires: state.currentComponent.wires,
-		  binaryIO: newBinaryIO,
-			},
-			gates,
-			binaryIO,
+			gates: newGates,
+			wires: state.currentComponent.wires,
+			binaryIO: newBinaryIO,
+		},
+		gates,
+		binaryIO,
 	  };
 	}
 });
@@ -883,4 +885,5 @@ export const {addWire,
 	changeBluePrintPosition,
 	setGateDescription,
 	switchCurrentComponent,
+	changeState,
 } = entities.actions;

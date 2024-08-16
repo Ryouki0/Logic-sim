@@ -42,3 +42,11 @@ export interface Wire{
     state?: 0 | 1,
     error?: boolean | null,
 }
+
+export interface entities{
+    wires: {[key: string]: Wire};
+    gates: {[key: string]: Gate};
+	bluePrints: {gates: {[key: string]:Gate}, io: {[key: string]: BinaryIOBase}, wires: {[key: string]: Wire}};
+	binaryIO: {[key: string]:BinaryIOBase};
+	currentComponent: {wires: {[key: string]: Wire}, gates: {[key: string]: Gate}, binaryIO: {[key: string]: BinaryIOBase}}
+}

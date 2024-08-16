@@ -6,6 +6,8 @@ import '../../index.css';
 import { RootState } from '../../state/store';
 import { setIsRunning } from '../../state/slices/clock';
 import { textStlye } from '../../Constants/commonStyles';
+import { createSelector } from '@reduxjs/toolkit';
+import { Gate } from '@Shared/interfaces';
 export default function CreateButton(){
 	const dispatch = useDispatch();
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
@@ -13,6 +15,21 @@ export default function CreateButton(){
 	const [description, setDescription] = useState<string>('');
 	const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
+	const selectGates = (state: RootState) => state.entities.bluePrints.gates;
+
+	const bluePrintsSelector = createSelector(
+  		[selectGates],
+  		(gates) => {
+    	const topLevelComponents: { [key: string]: Gate } = {};
+    	Object.entries(gates).forEach(([key, gate]) => {
+      	if(gate.parent === 'global') {
+        	topLevelComponents[key] = gate;
+      	}
+			});
+			return topLevelComponents;
+		}
+	);
+	const bluePrints = useSelector(bluePrintsSelector);
 	useEffect(() => {
 		if(textAreaRef.current) {
             textAreaRef.current!.style.height = 'auto';
@@ -23,6 +40,15 @@ export default function CreateButton(){
 	const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setDescription(e.target.value);
 	};
+
+	const handleCreateComponent = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+		if(currentComponentId !== 'global' || e.button !== 0) return;
+		for(const [key, gate] of Object.entries(bluePrints)){
+			
+		}
+		dispatch(setIsRunning(false));
+		dispatch(createBluePrint({name: name, description: description}));
+	}
 
 	return <div style={{
 		display: 'flex',
@@ -59,7 +85,7 @@ export default function CreateButton(){
 					htmlFor="description" 
 					style={{...textStlye, marginLeft: 10, marginTop: 0}}
 				>
-        Description:
+        			Description:
 				</label>
 				<textarea
 					rows={1}
@@ -81,7 +107,6 @@ export default function CreateButton(){
 		<div style={{
 			minWidth: '30%',
 			maxWidth: '70%',
-			padding: 10,
 			justifyContent: 'center',
 			marginLeft: 10,
 			backgroundColor: '#28A745',
@@ -94,10 +119,7 @@ export default function CreateButton(){
 			display: 'flex',
 			transition: 'all 0.3s ease'
 		}}
-		onClick={e => {
-			if(currentComponentId !== 'global' || e.button !== 0) return;
-			dispatch(setIsRunning(false));
-			dispatch(createBluePrint({name: name}));}}
+		onClick={handleCreateComponent}
 		onMouseEnter={e=>{
 			if(currentComponentId !== 'global') return;
 			e.currentTarget.style.backgroundColor = '#218838';

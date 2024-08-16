@@ -2,10 +2,10 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH } from '../../Constants/defaultDimensions';
 import { RootState } from '../../state/store';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { logic } from '../../utils/clock';
-import { updateState } from '../../state/slices/entities';
+import { buildPath, evaluateGates, logic } from '../../utils/clock';
+import { changeState, updateState } from '../../state/slices/entities';
 import { BinaryIO } from '../../Interfaces/BinaryIO';
-import { Gate } from '@Shared/interfaces';
+import { entities, Gate } from '@Shared/interfaces';
 import { setHertz, setIsRunning } from '../../state/slices/clock';
 import { DEFAULT_BORDER_COLOR } from '../../Constants/colors';
 import '../../index.css';
@@ -23,7 +23,7 @@ export default function Clock() {
 		return state.entities.currentComponent.binaryIO;
 	});
 	const dispatch = useDispatch();
-	
+	// const entities = useSelector((state: RootState) => state.entities);
 	const [value, setValue] = useState('100');
 	const running = useSelector((state: RootState) => {return state.clock.isRunning;});
 	const handleHertzChange = (e:React.ChangeEvent<HTMLInputElement>) => {
@@ -38,19 +38,19 @@ export default function Clock() {
 
 	
 	const [testCall, setTestCall] = useState<{x: number, y: number}>({x:0,y:0});
-	useEffect(() => {
-		async function hello(){
-			try{
-				const res = await fetch("http://localhost:3002/api/ayaya");
-				const data = await res.json();
-				setTestCall({x:data.message.x, y: data.message.y});
-			}catch(e){
-				console.log(`failed to fech ${e}`);
-			}
+	// useEffect(() => {
+	// 	async function hello(){
+	// 		try{
+	// 			const res = await fetch("http://localhost:3002/api/ayaya");
+	// 			const data = await res.json();
+	// 			setTestCall({x:data.message.x, y: data.message.y});
+	// 		}catch(e){
+	// 			console.log(`failed to fech ${e}`);
+	// 		}
 			
-		}
-		hello();
-	}, []);
+	// 	}
+	// 	hello();
+	// }, []);
 
 	const totalComplexity = useMemo(() => {
 		let total = 0;
@@ -103,14 +103,16 @@ export default function Clock() {
 				console.time('tick');
 				const copiedGates = JSON.parse(JSON.stringify(gates));
 				Object.entries(currentGates).forEach(([key, gate]) => {
-					copiedGates[key] = gate;
+					copiedGates[key] = JSON.parse(JSON.stringify(gate));
 				});
 				const copiedIo = JSON.parse(JSON.stringify(io));
 				Object.entries(currentIo).forEach(([key, io]) => {
-					copiedIo[key] = io;
+					copiedIo[key] = JSON.parse(JSON.stringify(io));
 				});
-				const newState = logic({gates:copiedGates,io: copiedIo, level: 'global', serialize: true});
-				dispatch(updateState({gates: newState.gates, binaryIO: newState.io}));
+				
+				const order = buildPath(copiedGates, copiedIo);
+				evaluateGates(copiedGates, copiedIo, order);
+				dispatch(updateState({gates: copiedGates, binaryIO: copiedIo}));
 				console.timeEnd('tick');
 			}
 			}>Tick</button>
@@ -126,8 +128,26 @@ export default function Clock() {
 			
 			
 		</div>
-	
-		
+		{/* <button onClick={e => {
+			fetch('http://localhost:3002/api/saveData', {
+				method: 'POST',
+				headers: {
+					'Content-type': 'application/json'
+				},
+				body: JSON.stringify(entities)
+			})
+		}}>
+			SAVE ENTITIES
+		</button>
+		<button onClick={e => {
+			fetch('http://localhost:3002/api/commonEntities', {
+				method: 'GET'
+			}).then(res => res.json()).then(data => {
+				dispatch(changeState(data as entities));
+			})
+		}}>
+			LOAD COMMON ENTITIES
+		</button> */}
 		 <div style={{ display: 'flex', alignItems: 'center' }}>
       
 		</div>

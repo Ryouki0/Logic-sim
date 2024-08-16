@@ -1,9 +1,11 @@
 import express from 'express';
 import cors from 'cors';
-import {BinaryIOBase} from '@Shared/interfaces';
+import {BinaryIOBase, entities} from '@Shared/interfaces';
+import path from 'path';
+
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('./TestDb.db');
-
+const fs = require('fs');
 const app = express();
 const port = 3002;
 
@@ -26,7 +28,7 @@ db.serialize(() => {
 	)
 })
 app.use(cors());
-app.use(express.json());
+app.use(express.json({limit: '100mb'}));
 
 app.get('/api/hello', (req, res) => {
 	res.json({ message: 'Hello, wssdsd!' });
@@ -93,6 +95,30 @@ app.get('/api/testGet',(req,res) => {
 		}
 		res.status(200).json(row);
 	})
+})
+
+app.use(express.json());
+
+app.post('/api/saveData', (req, res) => {
+  const data = req.body;
+  const filePath = path.join(__dirname, 'data.json');
+
+  fs.writeFile(filePath, JSON.stringify(data, null, 2), (err:any) => {
+    if (err) {
+      return res.status(500).json({ message: 'Failed to save data' });
+    }
+    res.status(200).json({ message: 'Data saved successfully' });
+  });
+});
+
+const commonEntitiesFile = path.resolve(__dirname, '../Client/fixtures/commonEntities.json');
+let commonEntities:entities = JSON.parse(fs.readFileSync(commonEntitiesFile, 'utf8'));
+
+const doubleDelay = path.resolve(__dirname, '../Client/fixtures/doubleDelayEdgeCase.json');
+let doubleDelayEdgeCase:entities = JSON.parse(fs.readFileSync(doubleDelay, 'utf8'));
+
+app.get('/api/commonEntities', (req, res) => {
+	res.json(doubleDelayEdgeCase);
 })
 
 app.listen(port, () => {

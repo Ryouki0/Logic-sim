@@ -22,7 +22,6 @@ export function checkIo(prev:BinaryIO[],next:BinaryIO[]){
 	return true;
 }
 export default function GlobalInputs(){
-	const currentInputsRef = useRef<HTMLDivElement | null>(null);
 	const [pointerEvents, setPointerEvents] = useState<'auto' | 'none'>('auto');
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const inputs = useSelector((state: RootState) => {
@@ -134,7 +133,6 @@ export default function GlobalInputs(){
 			background: `linear-gradient(${DEFAULT_BACKGROUND_COLOR}, rgb(140 140 140))`,
 			height: 2*MINIMAL_BLOCKSIZE,
 			width: 2*MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
-
 		}}>
 
 		</div>

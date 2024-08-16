@@ -1,6 +1,6 @@
 import { BinaryIO } from "./Interfaces/BinaryIO";
 import { Gate } from "./Interfaces/Gate";
-import { logic } from "./utils/clock";
+import { buildPath, evaluateGates, logic } from "./utils/clock";
 
 
 async function pause(ms: number) {
@@ -49,18 +49,16 @@ onmessage = async function (event: MessageEvent<{
 	}
     
 	let measureErrorStart = this.performance.now();
-
+	const order = buildPath(gates, io);
 	while(true){
 		for(const currentMaxHertz of hertzList){
 			const thisStartTime = Date.now();
 			measureErrorStart = this.performance.now();
 			actualHertz = 0;
 			for(let i = 0;i<currentMaxHertz;i++){
-				const newState = logic({gates: gates, io: io, level: 'global'});
+				evaluateGates(gates, io, order);
                 
 				actualHertz++;
-				gates = newState.gates;
-				io = newState.io;
 				if(Date.now() - thisStartTime >= loopTime){
 					break;
 				}
