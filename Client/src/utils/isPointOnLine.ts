@@ -1,6 +1,6 @@
 import { CANVAS_OFFSET_LEFT, LINE_WIDTH } from "../Constants/defaultDimensions";
-import { Line } from "../Interfaces/Line";
-import { Wire } from "../Interfaces/Wire";
+import { Line } from "@Shared/interfaces";
+import { Wire } from "@Shared/interfaces";
 
 export function calculateLinePoints(line:Line){
 	let { startX, endX, startY, endY } = line;

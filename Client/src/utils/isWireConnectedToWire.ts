@@ -1,4 +1,4 @@
-import { Wire } from "../Interfaces/Wire";
+import { Wire } from "@Shared/interfaces";
 import { isPointOnWire } from "./isPointOnLine";
 
 /**

@@ -1,5 +1,5 @@
 import React from "react";
-import { Wire } from "../../Interfaces/Wire";
+import { Wire } from "@Shared/interfaces";
 import { AMBER, ORANGE, RED_ORANGE } from "../../Constants/colors";
 
 export default function WireSelected({wire} : {wire:Wire}){
@@ -17,7 +17,7 @@ export default function WireSelected({wire} : {wire:Wire}){
 			color: 'white', 
 			fontSize: 16,
 			marginTop: 10}}>
-            From: {wire.from?.id.slice(0,6)}
+             From: {wire.from?.map(from => from.id.slice(0,6)).join(', ')}
 		</span>
 		
 		<span style={{

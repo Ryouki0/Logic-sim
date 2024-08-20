@@ -1,5 +1,6 @@
 export interface BinaryIOBase{
     state: 0 | 1,
+    highImpedance?: boolean,
     gateId?: string,
     id: string,
     name: string,
@@ -8,7 +9,8 @@ export interface BinaryIOBase{
     type: 'input' | 'output',
     position?: {x:number,y:number},
     to: {id: string, type: 'input' | 'output', gateId?: string | null}[] | null,
-    from?:{id: string, type: 'input' | 'output', gateId?: string | null} | null,
+    from?: {id: string, type: 'input' | 'output', gateId?: string | null}[] | null,
+    otherSourceIds?: string[]
 }
 
 export interface Gate{
@@ -36,7 +38,7 @@ export interface Wire{
     linearLine: Line,
     diagonalLine: Line,
     connectedToId: {id:string, type: 'input' | 'output', gateId?: string | null}[],
-    from?: {id: string, type:'input' | 'output', gateId?: string | null} | null,
+    from?: {id: string, type:'input' | 'output', gateId?: string | null}[] | null,
     id: string,
     parent: string,
     state?: 0 | 1,

@@ -11,9 +11,9 @@ import { setError } from '../state/slices/clock';
 import isOnIo from '../utils/isOnIo';
 
 
-class ShortCircuitError extends Error{
-	wireTree: string[];
-	constructor(wireTree: string[]) {
+export class ShortCircuitError extends Error{
+	wireTree: string[] | null;
+	constructor(wireTree: string[] | null) {
 		super("Short circuit");
 		this.name = "Short circuit";
 		this.wireTree = wireTree;
@@ -80,13 +80,13 @@ export default function useConnecting(){
 			allWireTrees.push(buildWireTree(key));
 		}
 
-		const connections: {wireTree: string[], outputs: string[], sourceId: string|null}[] = [];
+		const connections: {wireTree: string[], outputs: string[], sourceIds: string[]|null}[] = [];
 		allWireTrees.forEach(tree => {
-			const {outputs, sourceId, error} = getConnections(tree);
+			const {outputs, sourceIds, error} = getConnections(tree);
 			if(error){
 				return;
 			}
-			connections.push({wireTree: tree, outputs: outputs, sourceId: sourceId});
+			connections.push({wireTree: tree, outputs: outputs, sourceIds: sourceIds});
 		});
 
 		// connections.forEach((connection, idx) => {
@@ -122,6 +122,7 @@ export default function useConnecting(){
 				throw new Error(`When building wire tree, there is no currentWire!: ${currentWireId}`);
 			}
 			const currentWire = wires[currentWireId];
+			
 			wireTree.push(currentWireId);
 			Object.entries(wires).forEach(([key, wire]) => {
 				if(key === currentWireId){
@@ -154,30 +155,35 @@ export default function useConnecting(){
  	*    - `sourceId`: The ID of the source input if one is found, otherwise null.
  	*    - `error`: A boolean flag indicating if a short circuit error occurred.
  	*/
-	function getConnections(wireTree: string[]):{outputs:string[], sourceId: string|null, error?: boolean,
+	function getConnections(wireTree: string[]):{outputs:string[], sourceIds: string[]|null, error?: boolean,
     }{
 		const outputs:string[] = [];
-		let sourceId: string|null = null;
+		let sourceIds: string[]|null = [];
 		try{
 			wireTree.forEach(wireId => {
 				const wire = wires[wireId];
-				Object.entries(io).forEach(([key, io]) => {
+				Object.entries(io).forEach(([key, ioEntry]) => {
 					const isOnWire = 
-					(isOnIo(wire.linearLine.startX, wire.linearLine.startY, io)) ||
-					(isOnIo(wire.diagonalLine.endX, wire.diagonalLine.endY, io));
+					(isOnIo(wire.linearLine.startX, wire.linearLine.startY, ioEntry)) ||
+					(isOnIo(wire.diagonalLine.endX, wire.diagonalLine.endY, ioEntry));
 					
 					if(isOnWire){
 						if(
-							(io.type === 'input' && !io.gateId) 
-							|| (io.type === 'output' && io.gateId && io.gateId !== currentComponentId) 
-							|| (io.type === 'input' && io.gateId && io.gateId === currentComponentId)
+							(ioEntry.type === 'input' && !ioEntry.gateId) 
+							|| (ioEntry.type === 'output' && ioEntry.gateId && ioEntry.gateId !== currentComponentId) 
+							|| (ioEntry.type === 'input' && ioEntry.gateId && ioEntry.gateId === currentComponentId)
 						){
+							if(sourceIds!.includes(key)) return;
 							console.log(`source: ${key.slice(0,6)}`);
-							if(sourceId && sourceId !== key){ 
-								console.warn(`Short circuit! ${sourceId.slice(0,5)} -> ${key.slice(0,5)}`);
-								throw new ShortCircuitError(wireTree);
-							}
-							sourceId = key;
+							sourceIds!.forEach(sourceId => {
+								if(!io[sourceId].highImpedance && !ioEntry.highImpedance){
+									console.warn(`Short circuit! ${sourceId.slice(0,5)} -> ${key.slice(0,5)}`);
+									throw new ShortCircuitError(wireTree);
+								}
+							}) 
+								
+							
+							sourceIds!.push(key);
 							return;
 						}
 						outputs.push(key);
@@ -189,9 +195,9 @@ export default function useConnecting(){
 				dispatch(raiseShortCircuitError({wireTree: err.wireTree}));
 				dispatch(setError({isError: true, extraInfo: 'Short circuit error! A wire has multiple sources.'}));
 			}
-			return {outputs: [], sourceId: null, error: true};
+			return {outputs: [], sourceIds: null, error: true};
 		}
         
-		return {outputs, sourceId};
+		return {outputs, sourceIds};
 	}
 }

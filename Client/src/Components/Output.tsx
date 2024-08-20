@@ -6,7 +6,7 @@ import {
 } from "../Constants/defaultDimensions";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
-import { AMBER, DEFAULT_WIRE_COLOR, ORANGE } from "../Constants/colors";
+import { AMBER, DEFAULT_BACKGROUND_COLOR, DEFAULT_WIRE_COLOR, ORANGE } from "../Constants/colors";
 import { BinaryIO } from "../Interfaces/BinaryIO";
 import { ioEquality } from "./Input";
 
@@ -23,12 +23,16 @@ export function Output({style = null, output}:BinaryOutputProps) {
 	const handleMouseDown = (e: React.MouseEvent<any>) => {
 		e.preventDefault();
 		console.log(`\n\nthisOutput state: ${thisOutput?.state}`);
+		console.log(`this output impedance: ${thisOutput?.highImpedance}`);
 		console.log(`thisOutput ID: ${thisOutput?.id.slice(0,5)}`);
-		console.log(`this output is from? : ${thisOutput?.from?.id.slice(0,5)}`);
+		console.log(`this output is from? : ${thisOutput?.from?.map(from => from.id.slice(0,6)).join(', ')}`);
 		console.log(`this output position x: ${thisOutput?.position?.x} y: ${thisOutput?.position?.y}`);
 		thisOutput?.to?.forEach(to => {
 			console.log(`this output is to: ${to.id.slice(0,5)}`);
 		});
+		thisOutput?.otherSourceIds?.forEach(id => {
+			console.log(`other source: ${id.slice(0,5)}`);
+		})
 		
 	};
 	
@@ -47,7 +51,7 @@ export function Output({style = null, output}:BinaryOutputProps) {
 					background={true}
 					styles={buildStyles({
 						backgroundColor: thisOutput?.state ? 'red' : 'black',
-						pathColor: 'black',
+						pathColor: thisOutput?.highImpedance ? 'rgb(100 100 100)' : 'black',
 					})}
 					strokeWidth={12}
 				></CircularProgressbar>

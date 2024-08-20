@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH } from '../../Constants/defaultDimensions';
 import { RootState } from '../../state/store';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { buildPath, evaluateGates, logic } from '../../utils/clock';
+import { buildPath, evaluateGates, } from '../../utils/clock';
 import { changeState, updateState } from '../../state/slices/entities';
 import { BinaryIO } from '../../Interfaces/BinaryIO';
 import { entities, Gate } from '@Shared/interfaces';
@@ -121,7 +121,7 @@ export default function Clock() {
 			display: 'flex',
 			flexDirection: 'column',
 		}}>
-			<span style={textStlye}>Actual hz: {actualHertz}</span>
+			<span style={textStlye}>Actual hz: {actualHertz.toLocaleString('de-DE')}</span>
 			<span style={textStlye}>Actual refresh rate: {actualRefreshRate}</span>
 			<span style={textStlye}>Total complexity: {totalComplexity}</span>
 			<span style={textStlye}>Response: x:{testCall?.x} y:{testCall?.y}</span>

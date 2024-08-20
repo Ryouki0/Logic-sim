@@ -15,8 +15,15 @@ interface InputProps{
 }
 
 export const ioEquality = (prev: BinaryIO, next:BinaryIO) => {
-	if(prev?.from?.id !== next?.from?.id){
+	
+	if(prev?.from !== next?.from){
 		return false;
+	}
+	if(prev?.otherSourceIds !== next?.otherSourceIds){
+		return false;
+	}
+	if(prev?.highImpedance !== next?.highImpedance){
+		return false
 	}
 	if(prev?.state !== next?.state){
 		return false;
@@ -37,7 +44,7 @@ export function Input({binaryInput }: InputProps) {
 		console.log(`\n\n`);
 		console.log(`this input ID: ${thisInput?.id.slice(0,5)}`);
 		console.log(`this input state: ${thisInput?.state}`);
-		console.log(`this input is from: ${thisInput?.from?.id.slice(0,5)}`);
+		console.log(`this input is from: ${thisInput?.from?.map(from => from.id.slice(0.6)).join(', ')}`);
 		console.log(`this input position is: X: ${thisInput?.position?.x} Y: ${thisInput?.position?.y}`);
 		console.log(`this input parent: ${thisInput?.parent}`);
 		thisInput?.to?.forEach(to => {

@@ -8,7 +8,6 @@ import { throttle } from '../../utils/throttle';
 import { setHoveringOverWire, setSelectedEntity, setSelectedGateId } from '../../state/slices/mouseEvents';
 import { changeBluePrintPosition, deleteWire } from '../../state/slices/entities';
 import { RootState } from '../../state/store';
-import { current } from '@reduxjs/toolkit';
 export default function MainCanvas(){
 	const canvasRef = useRedrawCanvas();
 	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire;});

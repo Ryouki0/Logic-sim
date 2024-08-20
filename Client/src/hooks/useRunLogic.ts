@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
-import { setActuals } from '../state/slices/clock';
+import { setActuals, setError, setIsRunning } from '../state/slices/clock';
 import { updateState, updateStateRaw } from '../state/slices/entities';
 import { WorkerEvent } from '../logic.worker';
 
@@ -59,7 +59,12 @@ export default function useRunLogic(){
             			actualRefreshRate.current = 0;
             		}
             	}
-            	update();
+				if(event.data.error){
+					dispatch(setError({isError: true, extraInfo: event.data.error}));
+					dispatch(setIsRunning(false));
+				}else{
+					update();
+				}
             };
             console.log(`created worker`);
             

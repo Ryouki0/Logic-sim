@@ -1,7 +1,7 @@
 import { BinaryIO } from "./Interfaces/BinaryIO";
-import { Gate } from "./Interfaces/Gate";
-import { buildPath, evaluateGates, logic } from "./utils/clock";
-
+import { Gate } from "@Shared/interfaces";
+import { buildPath, evaluateGates } from "./utils/clock";
+import { ShortCircuitError } from "./utils/clock";
 
 async function pause(ms: number) {
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -56,7 +56,13 @@ onmessage = async function (event: MessageEvent<{
 			measureErrorStart = this.performance.now();
 			actualHertz = 0;
 			for(let i = 0;i<currentMaxHertz;i++){
-				evaluateGates(gates, io, order);
+				try{
+					evaluateGates(gates, io, order);
+				}catch(err){
+					if(err instanceof ShortCircuitError){
+						this.postMessage({gates: gates, binaryIO: io, actualHertz: actualHertz, error: 'Short circuit'});
+					}
+				}
                 
 				actualHertz++;
 				if(Date.now() - thisStartTime >= loopTime){
@@ -79,4 +85,5 @@ export interface WorkerEvent {
     gates: {[key: string]: Gate},
     binaryIO: {[key: string]: BinaryIO},
     actualHertz: number,
+	error?: 'Short circuit' | 'Circular dependency'
 };

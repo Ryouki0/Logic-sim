@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { Wire } from "../../Interfaces/Wire";
-import { Gate } from "../../Interfaces/Gate";
+import { Wire } from "@Shared/interfaces";
+import { Gate } from "@Shared/interfaces";
 import { BinaryIO } from "../../Interfaces/BinaryIO";
 
 export type EntityClicked = {type: 'Gate' | 'Wire' | 'BinaryInput' | null, entity: Gate | BinaryIO | Wire | null}

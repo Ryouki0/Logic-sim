@@ -4,150 +4,14 @@ import { Gate } from "../Interfaces/Gate";
 import { current } from "@reduxjs/toolkit";
 import { deepCopyComponent } from "./deepCopyComponent";
 
-/**
- * Runs the simulator for 1 tick.
- * @param component.gates The combined `gates` state
- * @param component.io The combined `BinaryIO` state
- * @param component.level The ID of the current component
- * @param component.serialize A boolean flag indicating whether the data should be serialized
- * @returns The new state
- */
-export function logic(component: {
-    gates: {[key: string]: Gate},
-    io: {[key: string]: BinaryIO},
-    level: string,
-    serialize?: boolean
- })
-{
-	let { gates, io } = component.serialize
-  		? deepCopyComponent({ gates: component.gates, io: component.io })
-  		: { gates: component.gates, io: component.io };
-
-	const mainOrder = getMainOrder(gates, io, component.level);
-	const thisLevel: {[key: string]: Gate} = {};
-
-	Object.entries(gates).forEach(([key, gate]) => {
-		if(gate.parent === component.level){
-			thisLevel[key] = gate;
-		}
-	});
-	const remainingGateIds = new Set(Object.keys(thisLevel));
-
-	mainOrder.forEach(gateId => {
-		const gate = gates[gateId];
-		//console.log(`Running: ${gateId.slice(0,5)} -- ${gate.name} in level: ${component.level}`);
-		if(gate.name === 'AND'){
-			let areBothTrue = true;
-			gate.inputs.forEach(inputId => {
-				if(io[inputId].state !== 1){
-					areBothTrue = false;
-				}
-			});
-			const output = io[gate.outputs[0]];
-			output.state = areBothTrue ? 1 : 0; 
-			propagateSCCIoState(output.id, io, gates, remainingGateIds);
-		}else if(gate.name === 'NO'){
-			let isInputTrue = true;
-			gate.inputs.forEach(inputId => {
-				if(io[inputId].state !== 1){
-					isInputTrue = false;
-				}
-			});
-			const output = io[gate.outputs[0]];
-			output.state = isInputTrue ? 0 : 1;
-			propagateSCCIoState(output.id, io, gates, remainingGateIds);
-		}else if(gate.name === 'DELAY'){
-			const output = io[gate.outputs[0]];
-			const input = io[gate.inputs[0]];
-			output.state = gate.nextTick!;
-			gate.nextTick = input.state;
-			propagateSCCIoState(output.id, io, gates, remainingGateIds);
-		}else if(gate.gates){
-			const newState = logic({gates: gates, io: io, level:gate.id});
-			gates = newState.gates;
-			io = newState.io;
-		}
-	});
-
-	//SCC:
-	
-	if(mainOrder.length !== Object.keys(thisLevel).length){
-		mainOrder.forEach(gateId => {
-			delete thisLevel[gateId];
-		});
-		
-		while(remainingGateIds.size > 0){
-			let currentDelayGate: Gate | null = null;
-			for(const id of remainingGateIds){
-				if(gates[id].name === 'DELAY'){
-					currentDelayGate = gates[id];
-					break;
-				}
-			}
-			if(!currentDelayGate){
-				console.warn(`Actual circular dependency!`);
-				break;
-			}
-
-			const delayInput = io[currentDelayGate?.inputs[0]!];
-			const delayOutput = io[currentDelayGate?.outputs[0]!];
-			if(!delayInput){
-				throw new Error(`There is no input at: ${currentDelayGate?.inputs[0]}`);
-			}
-
-			const order = topologicalSort(currentDelayGate!, gates, io, thisLevel, remainingGateIds);
-			//console.log(`order for currentDelayGate: ${currentDelayGate!.id.slice(0,5)}`);
-			order.forEach(id => {
-				//console.log(`${id.slice(0,5)} -- ${gates[id].name}`);
-				const currentGate = gates[id];
-				if(!currentGate){
-					throw new Error(`There is no gate with ID: ${id}`);
-				}
-
-				if(currentGate.name === 'AND'){
-					let areBothTrue = true;
-					currentGate.inputs.forEach(inputId => {
-						if(io[inputId].state !== 1){
-							areBothTrue = false;
-						}
-					});
-					const output = io[currentGate.outputs[0]];
-					output.state = areBothTrue ? 1 : 0; 
-					propagateSCCIoState(output.id, io, gates, remainingGateIds);
-				}else if(currentGate.name === 'NO'){
-					let isInputTrue = true;
-					currentGate.inputs.forEach(inputId => {
-						if(io[inputId].state !== 1){
-							isInputTrue = false;
-						}
-					});
-					const output = io[currentGate.outputs[0]];
-					output.state = isInputTrue ? 0 : 1;
-					propagateSCCIoState(output.id, io, gates, remainingGateIds);
-				}else if(currentGate.name === 'DELAY'){
-					const output = io[currentGate.outputs[0]];
-					const input = io[currentGate.inputs[0]];
-					const fromGate = thisLevel[input.from?.gateId!];
-					if(!remainingGateIds.has(fromGate.id)){
-						output.state = currentGate.nextTick!;
-						currentGate.nextTick = input.state;
-					}else{
-						output.state = currentGate.nextTick!;
-					}
-					propagateSCCIoState(output.id, io, gates, remainingGateIds);
-				}else if(currentGate.gates){
-					const newState = logic({gates: gates, io: io, level:currentGate.id});
-					gates = newState.gates;
-					io = newState.io;
-					// currentGate.outputs.forEach(outputId => {
-					// 	propagateSCCIoState(outputId, io, gates, remainingGateIds);
-					// });
-				}
-			});
-
-		}
+export class ShortCircuitError extends Error{
+	wireTree: string[] | null;
+	constructor(wireTree: string[] | null) {
+		super("Short circuit");
+		this.name = "Short circuit";
+		this.wireTree = wireTree;
+		Object.setPrototypeOf(this, ShortCircuitError.prototype);
 	}
-	return {gates, io};
 }
  
 /**
@@ -178,7 +42,7 @@ export function getMainOrder(gates: {[key: string]: Gate}, io: {[key: string]: B
 				const toIo = io[to.id];
 				const fromGate = thisLevel[toIo.gateId!];
 				//console.log(`currentGate: ${currentGate.id.slice(0,5)} -- ${currentGate.name}  to gate: ${fromGate?.name}`);
-				if(fromGate){
+				if(fromGate && !gateIds.includes(fromGate.id)){
 					gateIds.push(toIo.gateId!);
 				}
 			});
@@ -197,11 +61,14 @@ export function getMainOrder(gates: {[key: string]: Gate}, io: {[key: string]: B
 			let isNextLayer = true;
 			gate.inputs.forEach(inputId => {
 				const input = io[inputId];
-				const toGate = thisLevel[input.from?.gateId!];
-				if(toGate && !mainOrder.includes(toGate.id)){
-					isNextLayer = false;
-				}
+				input.from?.forEach(from => {
+					const fromGate = thisLevel[from.gateId!];
+					if(fromGate && !mainOrder.includes(fromGate.id)){
+						isNextLayer = false;
+					}
+				})
 			});
+
 			if(isNextLayer){
 				if(nextLayer.includes(gateId)){
 					return;
@@ -232,12 +99,15 @@ export function getPathRoots(gates:{[key: string]: Gate}, io: {[key: string]: Bi
 	for(const [key, gate] of gateEntries){
 		let isRoot = true;
 		gate.inputs.forEach(inputId => {
-			const from = io[io[inputId].from?.id!];
-			const fromGate = gates[from?.gateId!];
-			if(fromGate){
-				isRoot = false;
-			}
+			io[inputId].from?.forEach(from => {
+				const fromIo = io[from.id];
+				const fromGate = gates[fromIo?.gateId!];
+				if(fromGate){
+					isRoot = false;
+				}
+			})
 		});
+
 		if(isRoot){
 			roots.push(key);
 		}
@@ -252,6 +122,9 @@ export function getPathRoots(gates:{[key: string]: Gate}, io: {[key: string]: Bi
 * @returns The new I/O state
 */
 export function propagateIoState(ioId: string, io: {[key: string]: BinaryIO}){
+	if(io[ioId].highImpedance){
+		return;
+	}
 	const nextIos: string[] = [ioId];
 	const newState = io[ioId].state;
 	while(nextIos.length > 0){
@@ -262,6 +135,7 @@ export function propagateIoState(ioId: string, io: {[key: string]: BinaryIO}){
 		}
          
 		currentIo.state = newState;
+		currentIo.highImpedance = false;
 		currentIo.to?.forEach(to => {
 			nextIos.push(to.id);
 		});
@@ -269,33 +143,30 @@ export function propagateIoState(ioId: string, io: {[key: string]: BinaryIO}){
 	return io;
 }
 
-export function propagateSCCIoState(
-	ioId: string, 
-	io: {[key: string]: BinaryIO}, 
-	gates: {[key: string]: Gate}, 
-	remainingGateIds: Set<string>
-){
-	const newState = io[ioId].state;
-	const nextIos = [ioId];
+export function propagateHighImpedance(ioId: string, io: {[key: string]: BinaryIO}){
+	const nextIos: string[] = [ioId];
 	while(nextIos.length > 0){
-		const currentId = nextIos.pop()!;
-		const currentIo = io[currentId];
+		const currentIoId = nextIos.pop()!;
+		const currentIo = io[currentIoId];
+		
 		if(!currentIo){
-			throw new Error(`There is no input/output at ${currentId}`);
+			throw new Error(`No IO with ID: ${currentIoId?.slice(0,5)}`);
 		}
 
-		currentIo.state = newState;
-		currentIo.to?.forEach(to => {
-			const toGate = gates[to.gateId!];
-			if(toGate && toGate.name === 'DELAY' && !remainingGateIds.has(toGate.id)){
-				//console.log(`changed nextTick to: ${newState}`);
-				toGate.nextTick = newState;
+		let shouldPropagate = true;
+		currentIo.from?.forEach(from => {
+			if(!io[from.id].highImpedance){
+				shouldPropagate = false;
 			}
+		})
+		if(!shouldPropagate) continue;
 
-			nextIos.push(to.id);
-		});
+		currentIo.highImpedance = true;
+		currentIo.state = 0;
+		currentIo.to?.forEach(to => nextIos.push(to.id));
 	}
 }
+
 
 /**
  * Gives back a list of gate IDs that are connected to the "ioId"
@@ -331,7 +202,7 @@ export function topologicalSort(
 	while(currentLayer.length > 0){
 		const currentGateId = currentLayer.pop();
 		const currentGate = gates[currentGateId!];
-		console.log(`new currentgate: ${currentGate.name}`);
+		//console.log(`new currentgate: ${currentGate.name}`);
 		if(!currentGate){
 			throw new Error(`There is no gate with ID: ${currentGateId}`);
 		}
@@ -342,9 +213,9 @@ export function topologicalSort(
 			output.to?.forEach(to => {
 				const toIo = io[to.id];
 				const toGate = thisLevel[toIo.gateId!];
-				console.log(`currentGate: ${currentGate.name}  to gate: ${toGate?.name} has gateId? ${gateIds.includes(toIo.gateId!)} id: ${toIo.gateId}`);
+				//console.log(`currentGate: ${currentGate.name}  to gate: ${toGate?.name} has gateId? ${gateIds.includes(toIo.gateId!)} id: ${toIo.gateId}`);
 				if(toGate && !gateIds.includes(toIo.gateId!)){
-					console.log(`pushed id: ${toIo.gateId}`);
+					//console.log(`pushed id: ${toIo.gateId}`);
 					gateIds.push(toIo.gateId!);
 					thisOutputGateIds.push(toIo.gateId!);
 				}
@@ -370,14 +241,15 @@ export function topologicalSort(
 				if(!input){
 					throw new Error(`There is no input with ID: ${inputId}`);
 				}
-				if(componentRemainingGateIds.has(input.from?.gateId!)){
+				const trueSource = input.from?.find(source => !io[source.id].highImpedance);
+				if(componentRemainingGateIds.has(trueSource?.gateId!)){
 					hasRemainingGateConnection = true;
 				}
 			});
 			if(hasRemainingGateConnection){
 				return;
 			}
-			console.log(`nextlayer pushed: ${connectedGate.name}`);
+			//console.log(`nextlayer pushed: ${connectedGate.name}`);
 			nextLayer.push(gateId);
 		});
 
@@ -451,7 +323,7 @@ export function buildPath(gates: {[key: string]: Gate}, io: {[key: string]: Bina
 	return completePath;
 }
 
-export function getEvaluationMap(delayIds: string[]){
+export function getEvaluationMap(delayIds: string[], switchIds: string[]){
 	const evaluationMap: {[key: string]: (thisGate: Gate, io: {[key: string]: BinaryIO}) => void | string} = {
 		'NO': (thisGate: Gate, io: {[key: string]: BinaryIO}) => {
 			let isInputTrue = true;
@@ -480,6 +352,21 @@ export function getEvaluationMap(delayIds: string[]){
 			output.state = thisGate.nextTick!;
 			propagateIoState(output.id, io);
 			delayIds.push(thisGate.id);
+		},
+		'SWITCH': (thisGate: Gate, io: {[key: string]: BinaryIO}) => {
+			const input1 = io[thisGate.inputs[0]];
+			const input2 = io[thisGate.inputs[1]];
+			const output = io[thisGate.outputs[0]];
+			if(input1.state){
+				output.highImpedance = false;
+				output.state = input2.state;
+				propagateIoState(output.id, io);
+			}else{
+				output.highImpedance = true;
+				output.state = 0;
+			}
+			
+			switchIds.push(thisGate.id);
 		}
 	}
 	return evaluationMap;
@@ -487,12 +374,33 @@ export function getEvaluationMap(delayIds: string[]){
 
 export function evaluateGates(gates: {[key: string]:Gate}, io: {[key: string]: BinaryIO}, order: string[]){
 	const delayIds: string[] = [];
-	const evaluationMap = getEvaluationMap(delayIds);
+	const switchIds: string[] = [];
+	const evaluationMap = getEvaluationMap(delayIds, switchIds);
 	order.forEach(id => {
 		evaluationMap[gates[id].name](gates[id], io);
 	});
 
 	delayIds.forEach(id => {
 		gates[id].nextTick = io[gates[id].inputs[0]].state;
+	});
+
+	//console.log(`length of io: ${Object.entries(io).length}`);
+
+	//propagate the high impedance states
+	switchIds.forEach(switchId => {
+		//check for short circuit error
+		const output = io[gates[switchId].outputs[0]];
+		let trueSources = 0;
+		output.otherSourceIds?.forEach(srcId => {
+			
+			if(!io[srcId].highImpedance){
+				trueSources++;
+			}
+		})
+		if(trueSources >= 2){
+			throw new ShortCircuitError(null);
+		};
+		if(!output.highImpedance) return;
+		propagateHighImpedance(output.id, io);
 	})
 }
