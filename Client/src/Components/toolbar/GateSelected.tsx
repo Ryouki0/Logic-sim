@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Gate } from '../../Interfaces/Gate';
 import GatePreview from '../Preview/GatePreview';
 import { MINIMAL_BLOCKSIZE } from '../../Constants/defaultDimensions';
-import calculateGateHeight from '../../utils/calculateGateHeight';
+import calculateGateHeight from '../../utils/Spatial/calculateGateHeight';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { setGateDescription } from '../../state/slices/entities';

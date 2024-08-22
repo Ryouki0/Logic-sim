@@ -7,16 +7,29 @@ import { Wire } from "@Shared/interfaces";
 import { Gate } from "@Shared/interfaces";
 import GateSelected from "./GateSelected";
 import { DEFAULT_BORDER_COLOR, DEFAULT_BUTTON_COLOR, ONYX } from "../../Constants/colors";
-import { switchCurrentComponent } from "../../state/slices/entities";
+import entities, { switchCurrentComponent } from "../../state/slices/entities";
 import { setCurrentComponentId } from "../../state/slices/misc";
+import { BinaryIO } from "../../Interfaces/BinaryIO";
+import getType from "../../utils/getType";
+import BinaryIOSelected from "./BinaryIOSelected";
+import { current } from "@reduxjs/toolkit";
 
-const checkCurrentEntity = (prev: Wire | Gate | undefined, next: Wire | Gate | undefined) => {
+const checkCurrentEntity = (prev: Wire | Gate | BinaryIO | undefined, next: Wire | Gate | BinaryIO | undefined) => {
 	if(prev && !next){
 		return false;
 	}
-	if(!prev && next){
-		return false;
+	if(!prev && next) return false;
+	const prevType = getType(prev);
+	const nextType = getType(next);
+	if(nextType !== prevType) return false;
+	if(nextType === 'BinaryIO'){
+		let nextEntity: BinaryIO = next as BinaryIO;
+		let prevEntity: BinaryIO = prev as BinaryIO;
+		if(nextEntity.name !== prevEntity.name) return false;
+		if(nextEntity.state !== prevEntity.state) return false;
+		if(nextEntity.highImpedance !== prevEntity.highImpedance) return false;
 	}
+	
 	return true;
 };
 
@@ -30,6 +43,8 @@ export default function SelectedComponent(){
 			return state.entities.currentComponent.gates[selectedComponent.entity!.id];
 		}else if(selectedComponent?.type === 'Wire'){
 			return state.entities.currentComponent.wires[selectedComponent.entity!.id];
+		}else if(selectedComponent.type === 'BinaryIO'){
+			return state.entities.currentComponent.binaryIO[selectedComponent.entity!.id];
 		}
 	}, checkCurrentEntity);
 
@@ -40,8 +55,7 @@ export default function SelectedComponent(){
 		dispatch(setCurrentComponentId(selectedComponent.entity!.id));
 	};
 
- 	return console.log(`rendering selectedComponent`),
-	<div style={{
+ 	return <div style={{
  		width: '100%',
  		minHeight: '30%',
 		maxHeight: '50%',
@@ -79,5 +93,6 @@ export default function SelectedComponent(){
 				</span>
 			</div>}
 		</div>}
+		{currentEntity && selectedComponent?.type === 'BinaryIO' && <BinaryIOSelected io={currentEntity as BinaryIO}></BinaryIOSelected>}
  	</div>;
 }

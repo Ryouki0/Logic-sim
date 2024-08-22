@@ -56,11 +56,14 @@ export default function useRedrawCanvas(){
 		return sourceMap;
 	}, checkWireSourceEquality);
 
+	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth});
+	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight});
+
 	useEffect(() => {
 		const canvasEle = canvasRef.current;
 		if (!canvasRef.current || !canvasEle) return;
-		canvasRef.current.height = window.innerHeight;
-		canvasRef.current.width = CANVAS_WIDTH;
+		canvasRef.current.height = canvasHeight;
+		canvasRef.current.width = canvasWidth;
 		const context = canvasEle.getContext('2d');
 		if (!context) return;
 		context.clearRect(0, 0, canvasEle.width, canvasEle.height);
@@ -104,7 +107,7 @@ export default function useRedrawCanvas(){
 			drawLine(wire.diagonalLine, context, line_width);
 		});
 		//console.timeEnd('drawing');
-	}, [wires, hoveringOverWire, wireSources]);
+	}, [wires, hoveringOverWire, wireSources, canvasHeight, canvasWidth]);
 	return canvasRef;
 
 }

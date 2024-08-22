@@ -1,5 +1,5 @@
-import { LINE_WIDTH, MINIMAL_BLOCKSIZE } from "../Constants/defaultDimensions";
-import { Gate } from "../Interfaces/Gate";
+import { LINE_WIDTH, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
+import { Gate } from "@Shared/interfaces";
 
 export default function calculateGateHeight(gate:Gate){
 	const inputLength = gate.inputs.length;

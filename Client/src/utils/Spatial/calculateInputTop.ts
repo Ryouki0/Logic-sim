@@ -1,4 +1,4 @@
-import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../Constants/defaultDimensions";
+import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
 /**
  * It calculates the relative position for the "customGate" component. To get the absolute
  * position of the input add half the input's height, and the current index times the input's height to the gate's Y.

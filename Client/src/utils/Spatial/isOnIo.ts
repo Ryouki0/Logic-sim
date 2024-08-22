@@ -1,5 +1,5 @@
-import { CANVAS_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../Constants/defaultDimensions";
-import { BinaryIO } from "../Interfaces/BinaryIO";
+import { CANVAS_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
+import { BinaryIO } from "../../Interfaces/BinaryIO";
 
 export default function isOnIo(x:number,y:number, io:BinaryIO){
 	const radius = DEFAULT_INPUT_DIM.width/2;

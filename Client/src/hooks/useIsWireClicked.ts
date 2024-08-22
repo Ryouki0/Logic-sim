@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { Wire } from '@Shared/interfaces';
-import { calculateLinePoints, isPointOnDiagonalLine, isPointOnLine } from '../utils/isPointOnLine';
+import { calculateLinePoints, isPointOnDiagonalLine, isPointOnLine } from '../utils/Spatial/isPointOnLine';
 
 
 export default function useIsWireClicked(){

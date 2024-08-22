@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
 import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, MINIMAL_BLOCKSIZE } from "../Constants/defaultDimensions";
@@ -18,7 +18,7 @@ const checkAllGatesEquality = (prev: {[key: string]: Gate}, next: {[key: string]
 
 export default function DisplayAllGates(){
 	const selectGates = (state: RootState) => state.entities.bluePrints.gates;
-
+	const scrollRef = useRef<HTMLDivElement | null>(null);
 	const bluePrintsSelector = createSelector(
   		[selectGates],
   		(gates) => {
@@ -32,22 +32,46 @@ export default function DisplayAllGates(){
 		}
 	);
 
+	useEffect(() => {
+		const handleScroll = (e:WheelEvent) => {
+			scrollRef.current!.scrollLeft += e.deltaY;
+		}
+		scrollRef.current?.addEventListener('wheel', handleScroll)
+	}, [])
+
 	const bluePrints = useSelector(bluePrintsSelector);
 	const dispatch = useDispatch();
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
+	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth});
+	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight});
 	const isDisabled = currentComponentId !== 'global';
-	return <div style={{display: 'flex', top: CANVAS_HEIGHT,
+	return (
+		<div style={{
+			display:'flex', 
+		top: canvasHeight,
+		width: canvasWidth,
 		position: 'absolute',
-		width: CANVAS_WIDTH,
 		height: 2*MINIMAL_BLOCKSIZE,
 		zIndex: 0,
 		backgroundColor: 'rgb(140 140 140)',
 		borderColor: 'rgb(60 60 60)',
 		borderWidth: DEFAULT_BORDER_WIDTH,
+		borderStyle: 'solid',
+		alignContent: 'center',
+		left: 0,
+		}}>
+<div ref = {scrollRef}
+	style={{
+		display: 'flex',
+		top: canvasHeight ,
+		width: canvasWidth,
+		overflowY: 'hidden',
+		alignItems: 'center',
+		overflowX: 'scroll',
+		scrollbarWidth: 'none',
 		padding: 10,
 		alignContent: 'center',
-		paddingLeft: 2*MINIMAL_BLOCKSIZE,
-		borderStyle: 'solid'
+		marginLeft: 3*MINIMAL_BLOCKSIZE,
 	}}
 	onMouseDown={e => e.preventDefault()}
 	>
@@ -63,8 +87,10 @@ export default function DisplayAllGates(){
 					height: 40,
 					opacity: isDisabled ? 0.5 : 1,
 					marginRight: 7,
+					left: 3*MINIMAL_BLOCKSIZE,
 					alignSelf: 'center',
 					display: 'flex',
+					flexShrink: 0,
 					justifyContent: 'center',
 					alignItems: 'center',
 					cursor: isDisabled ? 'not-allowed' : 'pointer',
@@ -78,5 +104,8 @@ export default function DisplayAllGates(){
 			</div>;
 		})
 		}
-	</div>;
+	</div>
+		</div>
+	
+	);
 }

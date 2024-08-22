@@ -1,4 +1,4 @@
-import { CANVAS_OFFSET_LEFT, LINE_WIDTH } from "../Constants/defaultDimensions";
+import { CANVAS_OFFSET_LEFT, LINE_WIDTH } from "../../Constants/defaultDimensions";
 import { Line } from "@Shared/interfaces";
 import { Wire } from "@Shared/interfaces";
 

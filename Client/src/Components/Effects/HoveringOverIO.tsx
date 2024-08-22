@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../../Constants/defaultDimensions';
-import { setHoveringOverIo } from '../../state/slices/mouseEvents';
-import isOnIo from '../../utils/isOnIo';
+import { setHoveringOverIo, setSelectedEntity } from '../../state/slices/mouseEvents';
+import isOnIo from '../../utils/Spatial/isOnIo';
 import { BinaryIO } from '../../Interfaces/BinaryIO';
 
 export default function HoveringOverIO(){
@@ -32,10 +32,20 @@ export default function HoveringOverIO(){
 			dispatch(setHoveringOverIo(null));
 		};
 
+		const handleMouseDown = (e:MouseEvent) => {
+			for(const [key, io] of ioEntries){
+                
+				if(isOnIo(e.x, e.y, io)){
+					dispatch(setSelectedEntity({entity: io, type: 'BinaryIO'}));
+					return;
+				}
+			}
+		}
 		document.addEventListener('mousemove', handleMouseMove);
-
+		document.addEventListener('mousedown', handleMouseDown);
 		return () => {
 			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mousedown', handleMouseDown);
 		};
 	}, [io, currentlyHoveringOverIo]);
    
@@ -47,7 +57,8 @@ export default function HoveringOverIO(){
         		fontSize: 20,
         		fontWeight: 400,
         		color: 'white', 
-        		position: 'absolute', 
+        		position: 'absolute',
+				userSelect: 'none',
         		zIndex: 2, 
         		top: currentlyHoveringOverIo.position!.y - 1.5*MINIMAL_BLOCKSIZE,
         		left: currentlyHoveringOverIo.position!.x,

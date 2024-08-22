@@ -1,13 +1,17 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
+import { getClosestBlock, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
 export interface Misc{
     currentComponentId: string,
     history: string[],
+	canvasWidth: number,
+	canvasHeight: number,
 }
 
 const initialState:Misc = {
 	currentComponentId: 'global',
-	history: ['global']
+	history: ['global'],
+	canvasWidth: getClosestBlock(0.8*window.innerWidth, 0).roundedX,
+	canvasHeight: window.innerHeight - 2*MINIMAL_BLOCKSIZE,
 };
 
 const misc = createSlice({
@@ -22,12 +26,13 @@ const misc = createSlice({
 			if(state.history.length === 1){
 				return;
 			}
-			console.log(`length before pop ${state.history.length}`);
 			state.history.pop();
-			console.log(`length after pop ${state.history.length}`);
 			const last = state.history[state.history.length - 1];
-			console.log(`currentComponent id = ${last}`);
 			state.currentComponentId = last!;
+		},
+		setCanvasDim: (state, action: PayloadAction<{width: number, height: number}>) => {
+			state.canvasHeight = action.payload.height;
+			state.canvasWidth = action.payload.width;
 		}
 	}
 });
@@ -35,5 +40,6 @@ const misc = createSlice({
 export default misc.reducer;
 export const {
 	setCurrentComponentId,
-	goBack
+	goBack,
+	setCanvasDim
 } = misc.actions;

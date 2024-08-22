@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
-import calculateGateHeight from '../../utils/calculateGateHeight';
+import calculateGateHeight from '../../utils/Spatial/calculateGateHeight';
 import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../../Constants/defaultDimensions';
 import InputPreview from './InputPreview';
-import { calculateInputTop } from '../../utils/calculateInputTop';
+import { calculateInputTop } from '../../utils/Spatial/calculateInputTop';
 import OutputPreview from './OutputPreview';
 import { Gate } from '../../Interfaces/Gate';
 

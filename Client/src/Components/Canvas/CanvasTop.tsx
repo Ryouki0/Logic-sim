@@ -4,29 +4,31 @@ import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR, DEFAULT_BUTTON_COLOR } 
 import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { BackArrow } from '../BackArrow';
-import useRedrawCanvas from '../../hooks/useRedrawCanvas';
 export default function CanvasTop(){
 
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const currentComponent = useSelector((state: RootState) => {return state.entities.gates[currentComponentId];});
-
+	const canvasWidth = useSelector((state: RootState) =>{return state.misc.canvasWidth});
+	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight});
 	return <div style={{
+		width: canvasWidth,
+		zIndex: 1,
 		position: 'absolute',
-		width: CANVAS_WIDTH,
+		left: 0,
 		borderStyle: 'solid',
+		top: 0,
 		borderWidth: DEFAULT_BORDER_WIDTH,
 		borderColor: DEFAULT_BORDER_COLOR,
 		height: CANVASTOP_HEIGHT,
-		display: 'flex',
+		display: 'inline-flex',
 		alignItems: 'center',
 		alignContent: 'center',
 		flexDirection: 'column',
 		backgroundColor: DEFAULT_BACKGROUND_COLOR,
 	}}>
 		<div style={{
-			position: 'absolute',
-			width: 400,
-			height: CANVASTOP_HEIGHT - 2*DEFAULT_BORDER_WIDTH,
+			width: canvasWidth/2,
+			height: canvasHeight - 2*DEFAULT_BORDER_WIDTH,
 			justifySelf: 'center',
 			display: 'flex',
 			alignItems: 'center',
@@ -45,7 +47,7 @@ export default function CanvasTop(){
 		</div>
 		{currentComponent && <div
 			style={{
-				zIndex: 2,
+				zIndex: 2000,
 				height: 2*MINIMAL_BLOCKSIZE,
 				position: 'absolute',
 				display: 'flex',

@@ -9,6 +9,7 @@ import { throttle } from '../utils/throttle';
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import { addInput, changeInputState } from '../state/slices/entities';
 import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../Constants/colors';
+import { textStlye } from '../Constants/commonStyles';
 
 export function checkIo(prev:BinaryIO[],next:BinaryIO[]){
 	if(prev?.length !== next?.length){
@@ -39,6 +40,7 @@ export default function GlobalInputs(){
  	const [ghostInputPosition, setGhostInputPosition] = useState({x:0,y:0});
  	const [showGhostInput,setShowGhostInput] = useState(false);
  	const dispatch = useDispatch();
+	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight});
  	const handleRightClick = (e: MouseEvent) => {
  		e.preventDefault();
  		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY);
@@ -54,7 +56,7 @@ export default function GlobalInputs(){
 			name: `input ${inputs.length + 1}`,
 			to: [],
 			isGlobalIo: true,
- 			style: {top: roundedY - DEFAULT_INPUT_DIM.height/2},
+ 			style: {top: roundedY - DEFAULT_INPUT_DIM.height/2 - 2*MINIMAL_BLOCKSIZE},
  			position: {x: 2*MINIMAL_BLOCKSIZE, y: roundedY}
  		} as BinaryIO));
  	};
@@ -77,7 +79,7 @@ export default function GlobalInputs(){
 			setShowGhostInput(true);
 		}
 		if(ghostInputPosition.y !== roundedY){
-			setGhostInputPosition({x:2*MINIMAL_BLOCKSIZE, y: roundedY});
+			setGhostInputPosition({x:2*MINIMAL_BLOCKSIZE, y: roundedY - 2*MINIMAL_BLOCKSIZE});
 		}
  	}, 16);
 
@@ -97,27 +99,28 @@ export default function GlobalInputs(){
 		};
 	}, [ghostInputPosition, showGhostInput, pointerEvents]);
 
- 	return <div id='current-inputs'
- 		style={{backgroundColor: 'rgb(70 70 70)', 
+ 	return <div style={{backgroundColor: DEFAULT_BACKGROUND_COLOR, 
  			width: 2*MINIMAL_BLOCKSIZE, 
- 			height: CANVAS_HEIGHT,
  			position: 'absolute',
+ 			height: canvasHeight - CANVASTOP_HEIGHT,
+			left: 0,
+			bottom: 2*MINIMAL_BLOCKSIZE,
 			borderStyle: 'solid',
 			userSelect: 'none',
 			borderColor: DEFAULT_BORDER_COLOR,
 			borderWidth: DEFAULT_BORDER_WIDTH,
 			borderBottom: 0,
- 			zIndex: 1,
+ 			zIndex: 2,
  			marginLeft: CANVAS_OFFSET_LEFT
 		}}
 		ref={eleRef}
  		>
 		<div style={{
+			width: 2*MINIMAL_BLOCKSIZE - DEFAULT_BORDER_WIDTH,
 			position: 'absolute',
-			width: 2*MINIMAL_BLOCKSIZE,
-			height: CANVASTOP_HEIGHT - 2*DEFAULT_BORDER_WIDTH,
-			top: 0,
+			height: 2*DEFAULT_BORDER_WIDTH,
 			left: -DEFAULT_BORDER_WIDTH,
+			top: -2*DEFAULT_BORDER_WIDTH,
 			borderColor: DEFAULT_BORDER_COLOR,
 			borderLeftWidth: DEFAULT_BORDER_WIDTH,
 			borderTop: 0,
@@ -125,11 +128,10 @@ export default function GlobalInputs(){
 			borderBottom: 0,
 			borderStyle: 'solid',
 			backgroundColor: DEFAULT_BACKGROUND_COLOR,
-			zIndex: 0,
 		}}></div>
 		<div style={{
 			position: 'absolute',
-			top: CANVAS_HEIGHT + DEFAULT_BORDER_WIDTH - 2*MINIMAL_BLOCKSIZE,
+			top: canvasHeight + DEFAULT_BORDER_WIDTH - 2*MINIMAL_BLOCKSIZE - CANVASTOP_HEIGHT,
 			background: `linear-gradient(${DEFAULT_BACKGROUND_COLOR}, rgb(140 140 140))`,
 			height: 2*MINIMAL_BLOCKSIZE,
 			width: 2*MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
@@ -159,6 +161,7 @@ export default function GlobalInputs(){
 						position: 'absolute',
 						alignSelf:'center', 
 						borderRadius: 10,
+						fontSize: MINIMAL_BLOCKSIZE/2,
 						borderWidth: 0, 
 						userSelect: 'none'
 					}} onClick={e => {

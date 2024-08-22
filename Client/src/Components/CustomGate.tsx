@@ -7,12 +7,12 @@ import { Output } from './Output';
 import { Gate } from '../Interfaces/Gate';
 import { RootState } from '../state/store';
 import './../gate.css';
-import { calculateInputTop } from '../utils/calculateInputTop';
+import { calculateInputTop } from '../utils/Spatial/calculateInputTop';
 import { setSelectedEntity } from '../state/slices/mouseEvents';
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import { createSelector } from '@reduxjs/toolkit';
 import { addGate, changeGatePosition, changeIOPosition, changeInputState, deleteComponent } from '../state/slices/entities';
-import calculateGateHeight from '../utils/calculateGateHeight';
+import calculateGateHeight from '../utils/Spatial/calculateGateHeight';
 interface CustomGateProps{
     gateProps: Gate,
 	isBluePrint: boolean,
@@ -152,7 +152,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 						transform: "translate(-50%, -50%)"
 					}}> 
 					<span ref={spanRef}
-						style={{fontSize: 23, 
+						style={{fontSize: MINIMAL_BLOCKSIZE/2 +4, 
         				userSelect: 'none', 
 				        color: 'white'}}>
 						{gateProps.name}

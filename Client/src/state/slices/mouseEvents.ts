@@ -3,7 +3,7 @@ import { Wire } from "@Shared/interfaces";
 import { Gate } from "@Shared/interfaces";
 import { BinaryIO } from "../../Interfaces/BinaryIO";
 
-export type EntityClicked = {type: 'Gate' | 'Wire' | 'BinaryInput' | null, entity: Gate | BinaryIO | Wire | null}
+export type EntityClicked = {type: 'Gate' | 'Wire' | 'BinaryIO' | null, entity: Gate | BinaryIO | Wire | null}
 interface MouseEvents {
 	entityClicked: EntityClicked,
 	hoveringOverWire: Wire | null,

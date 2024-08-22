@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import useDrawWire from '../../hooks/useDrawWire';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
-import isOnIo from '../../utils/isOnIo';
+import isOnIo from '../../utils/Spatial/isOnIo';
 
 export default function DrawWireFromIo(){
 	const startDrawing = useDrawWire();

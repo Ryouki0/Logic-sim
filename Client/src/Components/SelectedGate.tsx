@@ -6,7 +6,7 @@ import { DEFAULT_GATE_DIM, getClosestBlock } from '../Constants/defaultDimension
 import { addGate, changeBluePrintPosition } from '../state/slices/entities';
 import { setSelectedGateId } from '../state/slices/mouseEvents';
 import { create } from 'domain';
-import calculateGateHeight from '../utils/calculateGateHeight';
+import calculateGateHeight from '../utils/Spatial/calculateGateHeight';
 
 export default function SelectedGate(){
 	const selectedGateId = useSelector((state: RootState) => {return state.mouseEventsSlice.selectedGate;});

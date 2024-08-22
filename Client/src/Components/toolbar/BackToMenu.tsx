@@ -6,12 +6,15 @@ export default function BackToMenu(){
 	const toMenu = () => {
 		navigation('/');
 	};
-	return <div className="button-other" onClick={toMenu} style={{
+	return <div style={{
+		width: 0, 
 		position: 'absolute',
+		display: 'flex',
+		left:0,
+		bottom: 0,}}>
+	<div className="button-other" onClick={toMenu} style={{
 		bottom: 0,
 		width: '80%',
-		left: '50%',
-		transform: 'translateX(-50%)'
 	}}>
 		<span style={{
 			color: 'white',
@@ -19,5 +22,6 @@ export default function BackToMenu(){
 		}}>
             Menu
 		</span>
-	</div>;
+	</div>
+	</div>
 }

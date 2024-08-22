@@ -74,8 +74,9 @@ export default function MainCanvas(){
 				ref={canvasRef}
 				style={{
 					backgroundColor: 'rgb(160 160 160 / 80%)',
-					marginLeft: CANVAS_OFFSET_LEFT,
 					position: 'absolute',
+					left: 0,
+					marginLeft: CANVAS_OFFSET_LEFT,
 					zIndex: 0,
 				}}
 			>

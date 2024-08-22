@@ -4,12 +4,11 @@ import { Gate } from "../../Interfaces/Gate";
 import {v4 as uuidv4} from 'uuid';
 
 import { BinaryIO } from "../../Interfaces/BinaryIO";
-import { calculateInputTop } from "../../utils/calculateInputTop";
+import { calculateInputTop } from "../../utils/Spatial/calculateInputTop";
 import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
 import { propagateIo } from "../../utils/propagateIo";
 import { addRawReducers } from "../../utils/addRawReducers";
-import calculateAbsoluteIOPos from "../../utils/calculateAbsoluteIOPos";
-import { off } from "process";
+import calculateAbsoluteIOPos from "../../utils/Spatial/calculateAbsoluteIOPos";
 
 const ANDInputId1 = uuidv4();
 const ANDInputId2 = uuidv4();
@@ -536,6 +535,7 @@ const entities = createSlice({
 			for(const [key, input] of inputs){
 				if(input.type === 'input' && !input.gateId){
 					if(input.position?.y === action.payload.position?.y){
+						delete state.currentComponent.binaryIO[key];
 						return;
 					}
 				}
@@ -555,6 +555,7 @@ const entities = createSlice({
 			for(const [key, io] of ioEntries){
 				if(io.type === 'output' && !io.gateId){
 					if(io.position?.y === action.payload.position?.y){
+						delete state.currentComponent.binaryIO[key];
 						return;
 					}
 				}
@@ -874,7 +875,7 @@ const entities = createSlice({
 					...input,
 					position: {
 						x: 2*MINIMAL_BLOCKSIZE,
-						y: (input.style?.top as number) + DEFAULT_INPUT_DIM.height/2,
+						y: (input.style?.top as number) + DEFAULT_INPUT_DIM.height/2 + 2*MINIMAL_BLOCKSIZE,
 					}
 				};
 				return newInput;
@@ -941,6 +942,10 @@ const entities = createSlice({
 		},
 		changeState: (state, action:PayloadAction<entities>) => {
 			return {...action.payload};
+		},
+		changeIOName: (state, action:PayloadAction<{ioId: string, newName: string}>) => {
+			const io = state.currentComponent.binaryIO[action.payload.ioId];
+			io.name = action.payload.newName;
 		}
 	}
 });
@@ -1000,4 +1005,5 @@ export const {addWire,
 	setGateDescription,
 	switchCurrentComponent,
 	changeState,
+	changeIOName
 } = entities.actions;

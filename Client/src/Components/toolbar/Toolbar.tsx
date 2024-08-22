@@ -5,12 +5,18 @@ import SelectedComponent from './SelectedComponent';
 import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH } from '../../Constants/defaultDimensions';
 import DisplayError from './DisplayError';
 import BackToMenu from './BackToMenu';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../state/store';
 
 export default function Toolbar() {
+
+	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth});
+
 	return <div style={{
-		position: 'absolute',
 		left: CANVAS_WIDTH,
-		width: window.innerWidth - CANVAS_WIDTH,
+		alignSelf: 'flex-end',
+		justifySelf: 'flex-end',
+		width: window.innerWidth - canvasWidth,
 		height: '100%',
 		borderWidth: DEFAULT_BORDER_WIDTH,
 		borderStyle: 'solid',
@@ -22,6 +28,5 @@ export default function Toolbar() {
 		<DisplayError></DisplayError>
 		<Clock></Clock>
 		<CreateButton></CreateButton>
-		<BackToMenu></BackToMenu>
 	</div>;
 }

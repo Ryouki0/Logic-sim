@@ -3,12 +3,12 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { Wire } from '@Shared/interfaces';
 import { current } from '@reduxjs/toolkit';
-import isWireConnectedToWire from '../utils/isWireConnectedToWire';
+import isWireConnectedToWire from '../utils/Spatial/isWireConnectedToWire';
 import { raiseShortCircuitError, setConnections } from '../state/slices/entities';
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import checkLineEquality from '../utils/checkLineEquality';
 import { setError } from '../state/slices/clock';
-import isOnIo from '../utils/isOnIo';
+import isOnIo from '../utils/Spatial/isOnIo';
 
 
 export class ShortCircuitError extends Error{

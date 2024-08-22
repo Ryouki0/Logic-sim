@@ -1,6 +1,6 @@
-import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../Constants/defaultDimensions";
-import { BinaryIO } from "../Interfaces/BinaryIO";
-import { Gate } from "../Interfaces/Gate";
+import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
+import { BinaryIO } from "../../Interfaces/BinaryIO";
+import { Gate } from "@Shared/interfaces";
 import { calculateInputTop } from "./calculateInputTop";
 
 /**

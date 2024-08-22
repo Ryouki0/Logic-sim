@@ -1,5 +1,5 @@
 import React from 'react';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, CANVASTOP_HEIGHT, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { CANVASTOP_HEIGHT, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { getClosestBlock } from '../Constants/defaultDimensions';
@@ -22,6 +22,9 @@ export default function GlobalOutputs() {
  	const dispatch = useDispatch();
  	const outputEntries = Object.entries(outputs);
 
+	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth});
+	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight});
+
  	const handleRightClick = (e:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
  		e.preventDefault();
  		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY);
@@ -35,13 +38,13 @@ export default function GlobalOutputs() {
 				to: [],
 				isGlobalIo: true,
  		 		position: {
- 		 			x: CANVAS_WIDTH - MINIMAL_BLOCKSIZE,
+ 		 			x: canvasWidth - MINIMAL_BLOCKSIZE,
  		 			y: roundedY
  		 		},
  		 		style: {
- 		 			top: roundedY - DEFAULT_INPUT_DIM.height/2 - DEFAULT_BORDER_WIDTH, 
- 		 			position:'absolute',
- 		 			left: -DEFAULT_INPUT_DIM.height/2 - DEFAULT_BORDER_WIDTH
+ 		 			top: roundedY - DEFAULT_INPUT_DIM.height/2,
+					position: 'absolute',
+ 		 			left: (-DEFAULT_INPUT_DIM.height/2 - DEFAULT_BORDER_WIDTH) + canvasWidth - MINIMAL_BLOCKSIZE + DEFAULT_BORDER_WIDTH
  		 		}
  			}
  		));
@@ -50,15 +53,15 @@ export default function GlobalOutputs() {
  	return <div 
  		style={{
  			width: MINIMAL_BLOCKSIZE,
- 			height: CANVAS_HEIGHT,
- 			zIndex: 1,
+ 			height: canvasHeight,
+ 			zIndex: 0,
+			display: 'inline-block',
+			marginBottom: 0,
  			backgroundColor: DEFAULT_BACKGROUND_COLOR,
- 			position: 'absolute',
 			borderWidth: DEFAULT_BORDER_WIDTH,
 			borderColor: DEFAULT_BORDER_COLOR,
 			borderStyle: 'solid',
 			borderBottom: 0,
- 			left: CANVAS_WIDTH - MINIMAL_BLOCKSIZE, 
  		}}
  		onContextMenu={e=> {handleRightClick(e);}}>
 		<div style={{
@@ -66,7 +69,7 @@ export default function GlobalOutputs() {
 			width: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
 			position: 'absolute',
 			height: 2*MINIMAL_BLOCKSIZE,
-			top: CANVAS_HEIGHT + DEFAULT_BORDER_WIDTH -2*MINIMAL_BLOCKSIZE
+			top: canvasHeight + DEFAULT_BORDER_WIDTH -2*MINIMAL_BLOCKSIZE
 		}}>
 		</div>
 		<div style={{
