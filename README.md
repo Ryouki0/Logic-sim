@@ -1,33 +1,46 @@
 # Logic Gate Simulator
 ## Overview
-- **Description**: A simple logic gate simulator, made with react.
-- **Try it**: [Link](https://logicsim-jlss3217j-ryouki0s-projects.vercel.app)
-## Key features
-- **Create bigger components**: Start with 'AND', 'NO' and 'DELAY' gates. From these gates create bigger components.
-- **Connect gates together**: Connect the inputs and outputs of the gates together, to form more complex circuits.
-- **Real time simulation**: Run the simulation at a user specified hertz.
+**Description**: A simple logic gate simulator built with React.
 
+**Try it**: [Link](https://logicsim-2fs96sag7-ryouki0s-projects.vercel.app/)
+## Installation
+## Installation and Setup
+
+1. **Clone the repository:**
+```bash
+git clone https://github.com/Ryouki0/reacttest
+```
+2. **Navigate into the directory:**
+```bash
+cd reacttest/Client
+```
+3. **Install dependencies:**
+```bash
+npm install
+```
+4. **Start the development server:**
+```bash
+npm start
+```
+## Key Features
+- **Component Creation**: Start with basic gates ('AND', 'NO', 'DELAY', 'SWITCH') and build complex components.
+- **Integrated Clock**: Gates will be evaluated in the correct order, and a single hertz is enough time to evaluate all the gates.
+- **Gate Connections**: Link inputs and outputs to form intricate circuits.
+- **Real-Time Simulation**: Run simulations at user defined speeds.
 ## Architecture
+### Graph Theory & Circuit Representation:
 
-### Graph theory & circuit representation
-- **Circuits as graphs**: In this simulation, there are two types of graphs that can be created using logic gates: directed acyclic graphs (DAG), and strongly connected components (SCC).
-  And the SCCs further can be broken down into two separate types: 'Delay allowed SCC' and 'True SCC'.
-  - A delay allowed SCC is taken as a DAG, where the root is a delay gate.
-  - A true SCC will show an error to the user, since it would cause an infinite loop.
-- **Sorting algorithms**: Instead of finding the true SCCs with common algorithms, like Tarjan's algorithm, the simulation filters them out. First run a topological sort on the DAG. Then, find every delay gate that hasn't been evaluated yet, and take them as roots of DAGs. If there are still gates that have not been evaluated yet, then there is one, or more true SCC.
-### State management
-- **Normalized state**: This application uses normalized data structures. Every entity has it's own table. There is also a separate table for the visible entities. It was needed for performance optimization. Also there is a table for the circuit blueprints, which holds the connections of a user created circuit. 
-- **Entities**:
-  - **Gates table**: A table that holds all the gates, that are not currently displayed on the UI.
-  - **BinaryIO table**: A table that hold the combination of all inputs and outputs, that are not displayed. They hold the connections.
-  - **Wires table**: A table that holds all the wires, that are not currently displayed on the UI. The wires themselves don't hold the connections. They are only stored, so that they can be viewed later.
-  - **Current component table**: Holds all the data, that are currently displayed.
-- **Performance**:
-  - Having a separate table for the entities, that are currently being modified plays a significant role in more complex circuits.
-  - Performance critical reducers, like updating the state, are created as raw reducers, bypassing immer.
- 
-### Technologies used
-- **React**
-- **Redux toolkit**
-- **Web workers**
-- **React routing**
+- **Circuits as Graphs**: Each gate is taken as it's own graph. Graphs can be directed acyclic graphs(DAG) or strongly connected components(SCC).
+- **Error Handling**: Detects true SCCs to prevent infinite loops.
+- **Sorting Algorithms**: Uses topological sorting to manage circuit evaluations and identify true SCCs.
+### State Management:
+- **Normalized Data**: Entities like gates, wires, and connections are stored in separate tables for performance.
+- **Current View**: Displays only the components being actively modified.
+### Performance:
+- **Optimized Tables**: Separate tables for active components improve performance in complex circuits.
+- **Raw Reducers**: Continuous state updates bypass Immer for speed.
+## Technologies Used
+- React
+- Redux Toolkit
+- Web Workers
+- React Router
