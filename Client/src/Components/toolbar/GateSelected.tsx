@@ -82,11 +82,11 @@ export default function GateSelected({gate}: {gate: Gate}){
 				}>
 				Name: {thisGate?.name}
 				</span>
-				<span
+				{/* <span
 					style={textStlye}
 				>
 				Parent: {thisGate?.parent.slice(0,6)}
-				</span>
+				</span> */}
 				<span style={textStlye}>
 			Complexity: {thisGate?.complexity}
 				</span>

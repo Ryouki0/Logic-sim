@@ -35,76 +35,76 @@ export default function DisplayAllGates(){
 	useEffect(() => {
 		const handleScroll = (e:WheelEvent) => {
 			scrollRef.current!.scrollLeft += e.deltaY;
-		}
-		scrollRef.current?.addEventListener('wheel', handleScroll)
-	}, [])
+		};
+		scrollRef.current?.addEventListener('wheel', handleScroll);
+	}, []);
 
 	const bluePrints = useSelector(bluePrintsSelector);
 	const dispatch = useDispatch();
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
-	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth});
-	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight});
+	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth;});
+	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight;});
 	const isDisabled = currentComponentId !== 'global';
 	return (
 		<div style={{
 			display:'flex', 
-		top: canvasHeight,
-		width: canvasWidth,
-		position: 'absolute',
-		height: 2*MINIMAL_BLOCKSIZE,
-		zIndex: 0,
-		backgroundColor: 'rgb(140 140 140)',
-		borderColor: 'rgb(60 60 60)',
-		borderWidth: DEFAULT_BORDER_WIDTH,
-		borderStyle: 'solid',
-		alignContent: 'center',
-		left: 0,
+			top: canvasHeight,
+			width: canvasWidth,
+			position: 'absolute',
+			height: 2*MINIMAL_BLOCKSIZE,
+			zIndex: 0,
+			backgroundColor: 'rgb(140 140 140)',
+			borderColor: 'rgb(60 60 60)',
+			borderWidth: DEFAULT_BORDER_WIDTH,
+			borderStyle: 'solid',
+			alignContent: 'center',
+			left: 0,
 		}}>
-<div ref = {scrollRef}
-	style={{
-		display: 'flex',
-		top: canvasHeight ,
-		width: canvasWidth,
-		overflowY: 'hidden',
-		alignItems: 'center',
-		overflowX: 'scroll',
-		scrollbarWidth: 'none',
-		padding: 10,
-		alignContent: 'center',
-		marginLeft: 3*MINIMAL_BLOCKSIZE,
-	}}
-	onMouseDown={e => e.preventDefault()}
-	>
-		{Object.entries(bluePrints)?.map(([key, gate]) => {
-			return <div
-				onMouseDown={e => {
-					if(isDisabled || e.button !== 0) return;
-					e.stopPropagation();
-					dispatch(setSelectedGateId(key));
-					dispatch(changeBluePrintPosition({gateId: key, position: {x: e.pageX, y: e.pageY}}));}}
+			<div ref = {scrollRef}
 				style={{
-					backgroundColor: isDisabled ? 'rgb(90 90 90)': 'rgb(70 70 70)',
-					height: 40,
-					opacity: isDisabled ? 0.5 : 1,
-					marginRight: 7,
-					left: 3*MINIMAL_BLOCKSIZE,
-					alignSelf: 'center',
 					display: 'flex',
-					flexShrink: 0,
-					justifyContent: 'center',
+					top: canvasHeight ,
+					width: canvasWidth,
+					overflowY: 'hidden',
 					alignItems: 'center',
-					cursor: isDisabled ? 'not-allowed' : 'pointer',
-					width: 3*MINIMAL_BLOCKSIZE,
-				}} key={key}>
-				<span style={{
-					color: 'white',
-					fontSize: 18,
-					userSelect: 'none',
-				}}>{gate.name}</span>
-			</div>;
-		})
-		}
-	</div>
+					overflowX: 'scroll',
+					scrollbarWidth: 'none',
+					padding: 10,
+					alignContent: 'center',
+					marginLeft: 3*MINIMAL_BLOCKSIZE,
+				}}
+				onMouseDown={e => e.preventDefault()}
+			>
+				{Object.entries(bluePrints)?.map(([key, gate]) => {
+					return <div
+						onMouseDown={e => {
+							if(isDisabled || e.button !== 0) return;
+							e.stopPropagation();
+							dispatch(setSelectedGateId(key));
+							dispatch(changeBluePrintPosition({gateId: key, position: {x: e.pageX, y: e.pageY}}));}}
+						style={{
+							backgroundColor: isDisabled ? 'rgb(90 90 90)': 'rgb(70 70 70)',
+							height: 40,
+							opacity: isDisabled ? 0.5 : 1,
+							marginRight: 7,
+							left: 3*MINIMAL_BLOCKSIZE,
+							alignSelf: 'center',
+							display: 'flex',
+							flexShrink: 0,
+							justifyContent: 'center',
+							alignItems: 'center',
+							cursor: isDisabled ? 'not-allowed' : 'pointer',
+							width: 3*MINIMAL_BLOCKSIZE,
+						}} key={key}>
+						<span style={{
+							color: 'white',
+							fontSize: 18,
+							userSelect: 'none',
+						}}>{gate.name}</span>
+					</div>;
+				})
+				}
+			</div>
 		</div>
 	
 	);

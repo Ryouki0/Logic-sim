@@ -36,7 +36,7 @@ export default function GatePreview({thisGate, verticalScale}: {thisGate: Gate, 
 					transform: "translate(-50%, -50%)"
 				}}> 
 			    <span
-					style={{fontSize: 23, 
+					style={{fontSize: MINIMAL_BLOCKSIZE/2 +4, 
         			userSelect: 'none', 
 				    color: 'white'
 					}}>

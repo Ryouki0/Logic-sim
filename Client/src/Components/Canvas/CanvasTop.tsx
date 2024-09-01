@@ -8,8 +8,8 @@ export default function CanvasTop(){
 
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const currentComponent = useSelector((state: RootState) => {return state.entities.gates[currentComponentId];});
-	const canvasWidth = useSelector((state: RootState) =>{return state.misc.canvasWidth});
-	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight});
+	const canvasWidth = useSelector((state: RootState) =>{return state.misc.canvasWidth;});
+	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight;});
 	return <div style={{
 		width: canvasWidth,
 		zIndex: 1,

@@ -22,8 +22,8 @@ onmessage = async function (event: MessageEvent<{
 	const loopTime = 1000 / refreshRate;
 	let prevError = 0;
 
-	let gates = parsedData.gates;
-	let io = parsedData.io;
+	const gates = parsedData.gates;
+	const io = parsedData.io;
 	let actualHertz = 0;
 	const currentLoopNumber = 0;
     

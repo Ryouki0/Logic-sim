@@ -7,10 +7,6 @@ import { useDispatch } from "react-redux";
 import { setDrawingWire } from "../state/slices/mouseEvents";
 import useIsWireClicked from "./useIsWireClicked";
 
-const checkWireLenghtEquality = (prev: Wire[], next: Wire[]) => {
-	return prev.length === next.length;
-};
-
 
 export default function useDrawWire() {
 	const dispatch = useDispatch();

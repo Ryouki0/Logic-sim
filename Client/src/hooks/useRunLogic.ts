@@ -59,12 +59,12 @@ export default function useRunLogic(){
             			actualRefreshRate.current = 0;
             		}
             	}
-				if(event.data.error){
-					dispatch(setError({isError: true, extraInfo: event.data.error}));
-					dispatch(setIsRunning(false));
-				}else{
-					update();
-				}
+            	if(event.data.error){
+            		dispatch(setError({isError: true, extraInfo: event.data.error}));
+            		dispatch(setIsRunning(false));
+            	}else{
+            		update();
+            	}
             };
             console.log(`created worker`);
             

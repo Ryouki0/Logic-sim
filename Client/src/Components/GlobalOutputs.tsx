@@ -22,8 +22,8 @@ export default function GlobalOutputs() {
  	const dispatch = useDispatch();
  	const outputEntries = Object.entries(outputs);
 
-	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth});
-	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight});
+	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth;});
+	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight;});
 
  	const handleRightClick = (e:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
  		e.preventDefault();
@@ -34,7 +34,7 @@ export default function GlobalOutputs() {
 				type: 'output',
  		 		id: uuidv4(),
 				parent: 'global',
-				name: 'output 1',
+				name: `output ${outputs.length + 1}`,
 				to: [],
 				isGlobalIo: true,
  		 		position: {

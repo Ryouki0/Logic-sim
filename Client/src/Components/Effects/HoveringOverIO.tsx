@@ -40,7 +40,7 @@ export default function HoveringOverIO(){
 					return;
 				}
 			}
-		}
+		};
 		document.addEventListener('mousemove', handleMouseMove);
 		document.addEventListener('mousedown', handleMouseDown);
 		return () => {
@@ -58,7 +58,7 @@ export default function HoveringOverIO(){
         		fontWeight: 400,
         		color: 'white', 
         		position: 'absolute',
-				userSelect: 'none',
+        		userSelect: 'none',
         		zIndex: 2, 
         		top: currentlyHoveringOverIo.position!.y - 1.5*MINIMAL_BLOCKSIZE,
         		left: currentlyHoveringOverIo.position!.x,

@@ -5,8 +5,8 @@ import { RootState } from '../../state/store';
 
 export default function BottomCanvas(){
 	const bottomCanvasRef = useRef<HTMLCanvasElement>(null);
-	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth});
-	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight});
+	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth;});
+	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight;});
 	useEffect(() => {
 		if(bottomCanvasRef && bottomCanvasRef.current){
 			const width =  canvasWidth;

@@ -40,7 +40,7 @@ export default function GlobalInputs(){
  	const [ghostInputPosition, setGhostInputPosition] = useState({x:0,y:0});
  	const [showGhostInput,setShowGhostInput] = useState(false);
  	const dispatch = useDispatch();
-	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight});
+	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight;});
  	const handleRightClick = (e: MouseEvent) => {
  		e.preventDefault();
  		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY);
@@ -103,17 +103,17 @@ export default function GlobalInputs(){
  			width: 2*MINIMAL_BLOCKSIZE, 
  			position: 'absolute',
  			height: canvasHeight - CANVASTOP_HEIGHT,
-			left: 0,
-			bottom: 2*MINIMAL_BLOCKSIZE,
-			borderStyle: 'solid',
-			userSelect: 'none',
-			borderColor: DEFAULT_BORDER_COLOR,
-			borderWidth: DEFAULT_BORDER_WIDTH,
-			borderBottom: 0,
+		left: 0,
+		bottom: 2*MINIMAL_BLOCKSIZE,
+		borderStyle: 'solid',
+		userSelect: 'none',
+		borderColor: DEFAULT_BORDER_COLOR,
+		borderWidth: DEFAULT_BORDER_WIDTH,
+		borderBottom: 0,
  			zIndex: 2,
  			marginLeft: CANVAS_OFFSET_LEFT
-		}}
-		ref={eleRef}
+	}}
+	ref={eleRef}
  		>
 		<div style={{
 			width: 2*MINIMAL_BLOCKSIZE - DEFAULT_BORDER_WIDTH,

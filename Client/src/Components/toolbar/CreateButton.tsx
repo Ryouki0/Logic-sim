@@ -48,7 +48,7 @@ export default function CreateButton(){
 		}
 		dispatch(setIsRunning(false));
 		dispatch(createBluePrint({name: name, description: description}));
-	}
+	};
 
 	return <div style={{
 		display: 'flex',
@@ -81,29 +81,29 @@ export default function CreateButton(){
 			marginBottom: 20,
 			marginTop: 10,
 		}}>
-				<label 
-					htmlFor="description" 
-					style={{...textStlye, marginLeft: 10, marginTop: 0}}
-				>
+			<label 
+				htmlFor="description" 
+				style={{...textStlye, marginLeft: 10, marginTop: 0}}
+			>
         			Description:
-				</label>
-				<textarea
-					rows={1}
-					spellCheck={false}
-					ref={textAreaRef}
-					value={description}
-					onChange={handleDescriptionChange}
-					style={{
-						backgroundColor: 'transparent',
-						color: 'white',
-						fontSize: 17,
-						border: 'none',
-						alignSelf: 'center',
-						outline: 'none',
-						resize: 'none',
-					}}
-				/>
-			</div>
+			</label>
+			<textarea
+				rows={1}
+				spellCheck={false}
+				ref={textAreaRef}
+				value={description}
+				onChange={handleDescriptionChange}
+				style={{
+					backgroundColor: 'transparent',
+					color: 'white',
+					fontSize: 17,
+					border: 'none',
+					alignSelf: 'center',
+					outline: 'none',
+					resize: 'none',
+				}}
+			/>
+		</div>
 		<div style={{
 			minWidth: '30%',
 			maxWidth: '70%',

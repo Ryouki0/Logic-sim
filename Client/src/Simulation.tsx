@@ -21,21 +21,21 @@ function Simulation() {
 	const divRef = useRef<HTMLDivElement | null>(null);
 	useEffect(() => {
 		const handleResize = () => {
-			dispatch(setCanvasDim({width: 0.8*window.innerWidth, height: window.innerHeight - 2*MINIMAL_BLOCKSIZE}))
+			dispatch(setCanvasDim({width: 0.8*window.innerWidth, height: window.innerHeight - 2*MINIMAL_BLOCKSIZE}));
 			//console.log(`changed canvas dim to: ${window.innerWidth}`);
-		}
+		};
 		document.body.style.overflow = 'hidden';
 		window.addEventListener('resize', handleResize);
 	}, []);
 
 	return (
 		<div ref={divRef}
-		style={{
-			display: 'flex',
-			justifyContent: 'flex-end',
-			width: '100vw',
-			height: '100vh',
-		}}>
+			style={{
+				display: 'flex',
+				justifyContent: 'flex-end',
+				width: '100vw',
+				height: '100vh',
+			}}>
 			<GlobalInputs></GlobalInputs>
 			<DisplayAllGates></DisplayAllGates>
 			<MainCanvas></MainCanvas>

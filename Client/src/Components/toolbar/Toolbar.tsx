@@ -10,7 +10,7 @@ import { RootState } from '../../state/store';
 
 export default function Toolbar() {
 
-	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth});
+	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth;});
 
 	return <div style={{
 		left: CANVAS_WIDTH,

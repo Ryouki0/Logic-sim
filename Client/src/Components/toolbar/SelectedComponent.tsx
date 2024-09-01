@@ -23,9 +23,10 @@ const checkCurrentEntity = (prev: Wire | Gate | BinaryIO | undefined, next: Wire
 	const nextType = getType(next);
 	if(nextType !== prevType) return false;
 	if(nextType === 'BinaryIO'){
-		let nextEntity: BinaryIO = next as BinaryIO;
-		let prevEntity: BinaryIO = prev as BinaryIO;
+		const nextEntity: BinaryIO = next as BinaryIO;
+		const prevEntity: BinaryIO = prev as BinaryIO;
 		if(nextEntity.name !== prevEntity.name) return false;
+		if(nextEntity.id !== prevEntity.id) return false;
 		if(nextEntity.state !== prevEntity.state) return false;
 		if(nextEntity.highImpedance !== prevEntity.highImpedance) return false;
 	}
@@ -58,7 +59,7 @@ export default function SelectedComponent(){
  	return <div style={{
  		width: '100%',
  		minHeight: '30%',
-		maxHeight: '50%',
+		maxHeight: '70%',
 		display: 'flex',
 		borderStyle: 'solid',
 		borderWidth: DEFAULT_BORDER_WIDTH,

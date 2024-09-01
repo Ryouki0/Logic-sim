@@ -143,22 +143,15 @@ export default function useConnecting(){
 	}
 
 	/**
- 	* Get the IDs of the inputs and outputs that are connected to the wire tree.
- 	* 
- 	* This function traverses the given wire tree, checks if the inputs/outputs are on the wire tree,
- 	* and determines the source ID. It handles short circuit errors by checking for multiple sources.
- 	* 
- 	* @param {string[]} wireTree - An array of wire IDs representing the wire tree.
- 	* @returns {{outputs: string[], sourceId: string | null, error?: boolean}} 
- 	* - An object containing:
- 	*    - `outputs`: An array of output IDs connected to the wire tree.
- 	*    - `sourceId`: The ID of the source input if one is found, otherwise null.
- 	*    - `error`: A boolean flag indicating if a short circuit error occurred.
- 	*/
+	 * Traverses the wire tree and gets the I/Os on the endpoints of the wires
+	 * @param wireTree The wire tree
+	 * @throws ShortCircuitError if there are two or more sources of the wire tree, that are not in high impedance state
+	 * @returns An object containing the sources and outputs
+	 */
 	function getConnections(wireTree: string[]):{outputs:string[], sourceIds: string[]|null, error?: boolean,
     }{
 		const outputs:string[] = [];
-		let sourceIds: string[]|null = [];
+		const sourceIds: string[]|null = [];
 		try{
 			wireTree.forEach(wireId => {
 				const wire = wires[wireId];
@@ -174,13 +167,12 @@ export default function useConnecting(){
 							|| (ioEntry.type === 'input' && ioEntry.gateId && ioEntry.gateId === currentComponentId)
 						){
 							if(sourceIds!.includes(key)) return;
-							console.log(`source: ${key.slice(0,6)}`);
 							sourceIds!.forEach(sourceId => {
 								if(!io[sourceId].highImpedance && !ioEntry.highImpedance){
 									console.warn(`Short circuit! ${sourceId.slice(0,5)} -> ${key.slice(0,5)}`);
 									throw new ShortCircuitError(wireTree);
 								}
-							}) 
+							}); 
 								
 							
 							sourceIds!.push(key);

@@ -22,6 +22,8 @@ export default function Clock() {
 	const currentIo = useSelector((state:RootState) => {
 		return state.entities.currentComponent.binaryIO;
 	});
+	
+	const actualEntities = useSelector((state: RootState) => {return state.entities;});
 	const dispatch = useDispatch();
 	// const entities = useSelector((state: RootState) => state.entities);
 	const [value, setValue] = useState('100');
@@ -36,21 +38,6 @@ export default function Clock() {
 		dispatch(setIsRunning(!running));
 	};
 
-	
-	const [testCall, setTestCall] = useState<{x: number, y: number}>({x:0,y:0});
-	// useEffect(() => {
-	// 	async function hello(){
-	// 		try{
-	// 			const res = await fetch("http://localhost:3002/api/ayaya");
-	// 			const data = await res.json();
-	// 			setTestCall({x:data.message.x, y: data.message.y});
-	// 		}catch(e){
-	// 			console.log(`failed to fech ${e}`);
-	// 		}
-			
-	// 	}
-	// 	hello();
-	// }, []);
 
 	const totalComplexity = useMemo(() => {
 		let total = 0;
@@ -63,7 +50,7 @@ export default function Clock() {
 	return <div style={{
 		backgroundColor: 'rgb(100 100 100)',
 		width:'100%',
-		height: '30%',
+		maxHeight: '30%',
 		borderStyle: 'solid',
 		borderWidth: DEFAULT_BORDER_WIDTH,
 		borderColor: DEFAULT_BORDER_COLOR,
@@ -124,7 +111,23 @@ export default function Clock() {
 			<span style={textStlye}>Actual hz: {actualHertz.toLocaleString('de-DE')}</span>
 			<span style={textStlye}>Actual refresh rate: {actualRefreshRate}</span>
 			<span style={textStlye}>Total complexity: {totalComplexity}</span>
-			<span style={textStlye}>Response: x:{testCall?.x} y:{testCall?.y}</span>
+			<button onClick={e => {fetch(`http://localhost:3002/api/cpu`, {
+				method: 'PUT',
+				credentials: 'include',
+				headers: {
+					'Content-type': 'application/json',
+				},
+				body: JSON.stringify(actualEntities)
+			}).then(res => {
+				if(!res.ok){
+					console.error(`error saving cpu: ${res.status} ${res.statusText}`);
+				}
+
+				return res.json();
+			}).then(data => {
+				console.log(`got back data: ${data.message}`);
+			});
+			}}>save</button>
 			
 			
 		</div>

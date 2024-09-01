@@ -12,16 +12,16 @@ export default function BackToMenu(){
 		display: 'flex',
 		left:0,
 		bottom: 0,}}>
-	<div className="button-other" onClick={toMenu} style={{
-		bottom: 0,
-		width: '80%',
-	}}>
-		<span style={{
-			color: 'white',
-			fontSize: 20,
+		<div className="button-other" onClick={toMenu} style={{
+			bottom: 0,
+			width: '80%',
 		}}>
+			<span style={{
+				color: 'white',
+				fontSize: 20,
+			}}>
             Menu
-		</span>
-	</div>
-	</div>
+			</span>
+		</div>
+	</div>;
 }

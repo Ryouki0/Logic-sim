@@ -66,7 +66,7 @@ export function getMainOrder(gates: {[key: string]: Gate}, io: {[key: string]: B
 					if(fromGate && !mainOrder.includes(fromGate.id)){
 						isNextLayer = false;
 					}
-				})
+				});
 			});
 
 			if(isNextLayer){
@@ -105,7 +105,7 @@ export function getPathRoots(gates:{[key: string]: Gate}, io: {[key: string]: Bi
 				if(fromGate){
 					isRoot = false;
 				}
-			})
+			});
 		});
 
 		if(isRoot){
@@ -158,7 +158,7 @@ export function propagateHighImpedance(ioId: string, io: {[key: string]: BinaryI
 			if(!io[from.id].highImpedance){
 				shouldPropagate = false;
 			}
-		})
+		});
 		if(!shouldPropagate) continue;
 
 		currentIo.highImpedance = true;
@@ -209,7 +209,7 @@ export function topologicalSort(
 		const gateIds: string[] = [];
 		const gateConnections = currentGate.outputs.flatMap(outputId => {
 			const output = io[outputId];
-			const thisOutputGateIds: string[] = []
+			const thisOutputGateIds: string[] = [];
 			output.to?.forEach(to => {
 				const toIo = io[to.id];
 				const toGate = thisLevel[toIo.gateId!];
@@ -313,7 +313,7 @@ export function buildPath(gates: {[key: string]: Gate}, io: {[key: string]: Bina
 	let i = 0;
 	while(i < completePath.length){
 		if(gates[completePath[i]].gates){
-			let order = getPathInComponent(gates, io, completePath[i]);
+			const order = getPathInComponent(gates, io, completePath[i]);
 			completePath.splice(i, 1, ...order);
 			i = 0;
 		}else{
@@ -368,7 +368,7 @@ export function getEvaluationMap(delayIds: string[], switchIds: string[]){
 			
 			switchIds.push(thisGate.id);
 		}
-	}
+	};
 	return evaluationMap;
 }
 
@@ -396,11 +396,11 @@ export function evaluateGates(gates: {[key: string]:Gate}, io: {[key: string]: B
 			if(!io[srcId].highImpedance){
 				trueSources++;
 			}
-		})
+		});
 		if(trueSources >= 2){
 			throw new ShortCircuitError(null);
 		};
 		if(!output.highImpedance) return;
 		propagateHighImpedance(output.id, io);
-	})
+	});
 }

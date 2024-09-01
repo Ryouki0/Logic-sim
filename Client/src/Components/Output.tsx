@@ -32,7 +32,7 @@ export function Output({style = null, output}:BinaryOutputProps) {
 		});
 		thisOutput?.otherSourceIds?.forEach(id => {
 			console.log(`other source: ${id.slice(0,5)}`);
-		})
+		});
 		
 	};
 	

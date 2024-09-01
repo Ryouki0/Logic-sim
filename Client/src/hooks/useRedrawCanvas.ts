@@ -43,6 +43,7 @@ export default function useRedrawCanvas(){
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire;});
 	const drawingWire = useSelector((state:RootState) => {return state.mouseEventsSlice.drawingWire;});
+	
 	//Create a hashmap with the wires' IDs as keys, and the input/output they are connected from as values
 	const wireSources = useSelector((state:RootState) => {
 		const wireEntries = Object.entries(state.entities.currentComponent.wires);
@@ -50,14 +51,14 @@ export default function useRedrawCanvas(){
 		for(const [key, wire] of wireEntries){
 			const source = wire.from?.map(from => {
 				return state.entities.currentComponent.binaryIO[from.id!];
-			})
+			});
 			sourceMap[key] = source;
 		}
 		return sourceMap;
 	}, checkWireSourceEquality);
 
-	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth});
-	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight});
+	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth;});
+	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight;});
 
 	useEffect(() => {
 		const canvasEle = canvasRef.current;
@@ -80,7 +81,7 @@ export default function useRedrawCanvas(){
 				return null;
 			}
 
-		}
+		};
 		
 		if(!wires) return;
 		context.strokeStyle = ORANGE;
@@ -97,7 +98,7 @@ export default function useRedrawCanvas(){
 			}if(trueSource?.state){
 				context.strokeStyle = RED_ORANGE;
 			}if(trueSource?.highImpedance){
-				context.strokeStyle = 'rgb(100 100 100)'
+				context.strokeStyle = 'rgb(100 100 100)';
 			}
 			if(wire.error){
 				context.strokeStyle = DARK_RED;

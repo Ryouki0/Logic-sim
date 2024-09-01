@@ -5,6 +5,7 @@ export interface Misc{
     history: string[],
 	canvasWidth: number,
 	canvasHeight: number,
+	user: string | null,
 }
 
 const initialState:Misc = {
@@ -12,6 +13,7 @@ const initialState:Misc = {
 	history: ['global'],
 	canvasWidth: getClosestBlock(0.8*window.innerWidth, 0).roundedX,
 	canvasHeight: window.innerHeight - 2*MINIMAL_BLOCKSIZE,
+	user: null,
 };
 
 const misc = createSlice({
@@ -33,6 +35,9 @@ const misc = createSlice({
 		setCanvasDim: (state, action: PayloadAction<{width: number, height: number}>) => {
 			state.canvasHeight = action.payload.height;
 			state.canvasWidth = action.payload.width;
+		},
+		setUser: (state, action: PayloadAction<string | null>) => {
+			state.user = action.payload;
 		}
 	}
 });
@@ -41,5 +46,6 @@ export default misc.reducer;
 export const {
 	setCurrentComponentId,
 	goBack,
-	setCanvasDim
+	setCanvasDim,
+	setUser
 } = misc.actions;

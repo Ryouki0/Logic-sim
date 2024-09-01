@@ -5,7 +5,7 @@ import {v4 as uuidv4} from 'uuid';
 
 import { BinaryIO } from "../../Interfaces/BinaryIO";
 import { calculateInputTop } from "../../utils/Spatial/calculateInputTop";
-import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
+import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, getClosestBlock, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
 import { propagateIo } from "../../utils/propagateIo";
 import { addRawReducers } from "../../utils/addRawReducers";
 import calculateAbsoluteIOPos from "../../utils/Spatial/calculateAbsoluteIOPos";
@@ -340,14 +340,14 @@ const entities = createSlice({
 					/**
 					 * change this ==> IO.to[] ---connection---> thisIO
 					 */
-					const fromList = prevInput.from?.map(from => state.binaryIO[from?.id!] ?? state.currentComponent.binaryIO[from?.id!])
+					const fromList = prevInput.from?.map(from => state.binaryIO[from?.id!] ?? state.currentComponent.binaryIO[from?.id!]);
 					
 					fromList?.forEach(from => {
 						const idxOfThisInput = from.to?.findIndex(to => to.id === prevInput.id);
 						if(idxOfThisInput !== undefined && idxOfThisInput !== -1) {
 							from.to![idxOfThisInput] = { id: newInputId, gateId: newGateId, type: from.to![idxOfThisInput].type };
 						}
-					})
+					});
 						
 					prevInput.otherSourceIds?.forEach(src => {
 						const otherSource = state.binaryIO[src] ?? state.currentComponent.binaryIO[src];
@@ -358,7 +358,7 @@ const entities = createSlice({
 						if(thisIdx !== undefined && thisIdx !== -1){
 							otherSource.otherSourceIds![thisIdx] = newInputId;
 						}
-					})
+					});
 
 					/**
 					 * thisIO ---connection---> IO.from[] <== change this
@@ -420,19 +420,19 @@ const entities = createSlice({
 							otherSource.otherSourceIds![thisIdx] = newOutputId;
 							//console.log(`changed ID in other source at idx: ${thisIdx} to: ${prevOutput}`)
 						} 
-					})
+					});
 
 					/**
 					 * change this ==> IO.to[] ---connection---> thisIO
 					 */
-					const fromList = prevOutput.from?.map(from => state.binaryIO[from?.id!] ?? state.currentComponent.binaryIO[from?.id!])
+					const fromList = prevOutput.from?.map(from => state.binaryIO[from?.id!] ?? state.currentComponent.binaryIO[from?.id!]);
 					
 					fromList?.forEach(from => {
 						const idxOfThisOutput = from.to?.findIndex(to => to.id === prevOutput.id);
 						if(idxOfThisOutput !== undefined && idxOfThisOutput !== -1) {
 							from.to![idxOfThisOutput] = { id: newOutputId, gateId: newGateId, type: from.to![idxOfThisOutput].type };
 						}
-					})
+					});
 
 
 					newGate.outputs.push(newOutputId);
@@ -554,7 +554,8 @@ const entities = createSlice({
 			const ioEntries = Object.entries(state.currentComponent.binaryIO);
 			for(const [key, io] of ioEntries){
 				if(io.type === 'output' && !io.gateId){
-					if(io.position?.y === action.payload.position?.y){
+					const roundedY = getClosestBlock(0, io.position!.y).roundedY;
+					if(roundedY === action.payload.position?.y){
 						delete state.currentComponent.binaryIO[key];
 						return;
 					}
@@ -594,20 +595,20 @@ const entities = createSlice({
 			connections.forEach(connection => {
 				const sourceList = connection.sourceIds!.map(sourceId => {
 					return state.currentComponent.binaryIO[sourceId];
-				})
+				});
 				
 				if(sourceList){
 					sourceList.forEach(source => {
 						source.to = [];
 						source.otherSourceIds = sourceList.map(source => source.id);
-					})
+					});
 				}
 
 				connection.wireTree.forEach(wireId => {
 					state.currentComponent.wires[wireId].error = false;
 					state.currentComponent.wires[wireId].from =
 					sourceList?.map(source => {
-						return {id: source.id, gateId: source.gateId, type: source.type} 
+						return {id: source.id, gateId: source.gateId, type: source.type}; 
 					});
 				});
 
@@ -617,7 +618,7 @@ const entities = createSlice({
 						if(!source.highImpedance){
 							output.state = source.state;
 						}
-						return {id: source.id, gateId: source.gateId, type: source.type}
+						return {id: source.id, gateId: source.gateId, type: source.type};
 					}); 
 					
 
@@ -926,7 +927,7 @@ const entities = createSlice({
 					io.position = newPos;
 				}
  				state.currentComponent.binaryIO[io.id] = io;
-				console.log(`IO: ${io.id.slice(0,6)} -- ${io.gateId?.slice(0,6)}`);
+				//console.log(`IO: ${io.id.slice(0,6)} -- ${io.gateId?.slice(0,6)}`);
 				delete state.binaryIO[io.id];
 			});
 				
@@ -957,31 +958,31 @@ export const {updateStateRaw} = addRawReducers(entities, {
   
 	  const newGates = { ...state.currentComponent.gates };
 	  Object.entries(state.currentComponent.gates).forEach(([key, gate]) => {
-		if(!gates[key]) {
-			throw new Error(`In the combined new state there is no gate at ID: ${key}\nLength of 'gates' from the worker: ${Object.entries(gates).length}`);
-		}
-		newGates[key] = gates[key];
-		delete gates[key];
+			if(!gates[key]) {
+				throw new Error(`In the combined new state there is no gate at ID: ${key}\nLength of 'gates' from the worker: ${Object.entries(gates).length}`);
+			}
+			newGates[key] = gates[key];
+			delete gates[key];
 	  });
   
 	  const newBinaryIO = { ...state.currentComponent.binaryIO };
 	  Object.entries(state.currentComponent.binaryIO).forEach(([key, io]) => {
-		if(!binaryIO[key]) {
-			throw new Error(`In the combined new state there is no IO at ID: ${key}`);
-		}
-		newBinaryIO[key] = binaryIO[key];
-		delete binaryIO[key];
+			if(!binaryIO[key]) {
+				throw new Error(`In the combined new state there is no IO at ID: ${key}`);
+			}
+			newBinaryIO[key] = binaryIO[key];
+			delete binaryIO[key];
 	  });
   
 	  return {
 			...state,
 			currentComponent: {
-			gates: newGates,
-			wires: state.currentComponent.wires,
-			binaryIO: newBinaryIO,
-		},
-		gates,
-		binaryIO,
+				gates: newGates,
+				wires: state.currentComponent.wires,
+				binaryIO: newBinaryIO,
+			},
+			gates,
+			binaryIO,
 	  };
 	}
 });

@@ -23,7 +23,7 @@ export const ioEquality = (prev: BinaryIO, next:BinaryIO) => {
 		return false;
 	}
 	if(prev?.highImpedance !== next?.highImpedance){
-		return false
+		return false;
 	}
 	if(prev?.state !== next?.state){
 		return false;
