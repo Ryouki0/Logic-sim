@@ -21,7 +21,7 @@ export default function Menu(){
 	};
 
 	const handleLogout = () => {
-		fetch(`http://localhost:3002/api/logout`, {
+		fetch(`https://reacttest-5vuh.onrender.com/api/logout`, {
 			method: 'GET',
 			credentials: 'include'
 		}).then(res => {
@@ -38,7 +38,7 @@ export default function Menu(){
 	};
 
 	const loadCPU = () => {
-		fetch(`http://localhost:3002/api/cpu`, {
+		fetch(`https://reacttest-5vuh.onrender.com/api/cpu`, {
 			method: 'GET',
 			credentials: 'include'
 		})

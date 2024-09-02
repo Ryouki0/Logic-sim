@@ -111,7 +111,7 @@ export default function Clock() {
 			<span style={textStlye}>Actual hz: {actualHertz.toLocaleString('de-DE')}</span>
 			<span style={textStlye}>Actual refresh rate: {actualRefreshRate}</span>
 			<span style={textStlye}>Total complexity: {totalComplexity}</span>
-			<button onClick={e => {fetch(`http://localhost:3002/api/cpu`, {
+			<button onClick={e => {fetch(`https://reacttest-5vuh.onrender.com/api/cpu`, {
 				method: 'PUT',
 				credentials: 'include',
 				headers: {
@@ -132,7 +132,7 @@ export default function Clock() {
 			
 		</div>
 		{/* <button onClick={e => {
-			fetch('http://localhost:3002/api/saveData', {
+			fetch('https://reacttest-5vuh.onrender.com/api/saveData', {
 				method: 'POST',
 				headers: {
 					'Content-type': 'application/json'
@@ -143,7 +143,7 @@ export default function Clock() {
 			SAVE ENTITIES
 		</button>
 		<button onClick={e => {
-			fetch('http://localhost:3002/api/commonEntities', {
+			fetch('https://reacttest-5vuh.onrender.com/api/commonEntities', {
 				method: 'GET'
 			}).then(res => res.json()).then(data => {
 				dispatch(changeState(data as entities));

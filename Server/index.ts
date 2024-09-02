@@ -63,8 +63,8 @@ db.serialize(() => {
 		}
 	});
 })
-app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
-app.use(express.json({limit: '100mb'}));
+app.use(cors({credentials: true, origin: '*'}));
+app.use(express.json({limit: '10mb'}));
 
 
 

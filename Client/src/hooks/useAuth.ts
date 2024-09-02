@@ -6,7 +6,7 @@ export default function useAuth() {
 	const dispatch = useDispatch();
 
 	useEffect(() => {
-		fetch('http://localhost:3002/api/checkAuth', {
+		fetch('https://reacttest-5vuh.onrender.com/api/checkAuth', {
 			method: 'GET',
 			headers: {
 				'Content-type': 'application/json'
