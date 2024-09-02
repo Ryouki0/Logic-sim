@@ -63,7 +63,7 @@ db.serialize(() => {
 		}
 	});
 })
-app.use(cors({credentials: true, origin: 'https://logicsim-p4k5bhfwl-ryouki0s-projects.vercel.app/'}));
+app.use(cors({credentials: true, origin: 'https://logicsim-p4k5bhfwl-ryouki0s-projects.vercel.app'}));
 app.use(express.json({limit: '10mb'}));
 
 
