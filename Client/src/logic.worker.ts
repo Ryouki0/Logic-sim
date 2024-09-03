@@ -1,13 +1,18 @@
 import { BinaryIO } from "./Interfaces/BinaryIO";
-import { Gate } from "@Shared/interfaces";
-import { buildPath, evaluateGates } from "./utils/clock";
+import { Gate, Wire } from "@Shared/interfaces";
+import { buildPath, CircularDependencyError, evaluateGates } from "./utils/clock";
 import { ShortCircuitError } from "./utils/clock";
 
 async function pause(ms: number) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 onmessage = async function (event: MessageEvent<{
-    gates: {[key: string]: Gate},
+    currentComponent: {
+		gates: {[key: string]:Gate},
+		binaryIO: {[key: string]: BinaryIO},
+		wires: {[key: string]: Wire},
+	},
+	gates: {[key: string]: Gate},
     io: {[key: string]: BinaryIO},
     refreshRate: number,
     hertz: number,
@@ -15,15 +20,27 @@ onmessage = async function (event: MessageEvent<{
 }>) {
 	console.time(`parse`);
 	const parsedData = JSON.parse(event.data as unknown as string);
+	
+	const copiedGates = JSON.parse(JSON.stringify(parsedData.gates));
+	Object.entries(parsedData.currentComponent.gates).forEach(([key, gate]) => {
+		copiedGates[key] = gate;
+	});
+
+	const copiedIo = JSON.parse(JSON.stringify(parsedData.io));
+	Object.entries(parsedData.currentComponent.binaryIO).forEach(([key, ioItem]) => {
+		copiedIo[key] = ioItem;
+	});
+	
 	console.timeEnd(`parse`);
+
 	const hertz = parsedData.hertz;
 	const refreshRate = parsedData.refreshRate;
 	const maxHertzInLoop = hertz / refreshRate;
 	const loopTime = 1000 / refreshRate;
 	let prevError = 0;
 
-	const gates = parsedData.gates;
-	const io = parsedData.io;
+	const gates = copiedGates;
+	const io = copiedIo;
 	let actualHertz = 0;
 	const currentLoopNumber = 0;
     
@@ -61,6 +78,8 @@ onmessage = async function (event: MessageEvent<{
 				}catch(err){
 					if(err instanceof ShortCircuitError){
 						this.postMessage({gates: gates, binaryIO: io, actualHertz: actualHertz, error: 'Short circuit'});
+					}else if(err instanceof CircularDependencyError){
+						this.postMessage({gates: gates, binaryIO: io, actualHertz: actualHertz, error: 'Circular dependency'});
 					}
 				}
                 
@@ -85,5 +104,6 @@ export interface WorkerEvent {
     gates: {[key: string]: Gate},
     binaryIO: {[key: string]: BinaryIO},
     actualHertz: number,
-	error?: 'Short circuit' | 'Circular dependency'
+	error?: 'Short circuit' | 'Circular dependency',
+	starting?: boolean
 };

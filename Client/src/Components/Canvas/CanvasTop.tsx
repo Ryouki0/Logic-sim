@@ -56,8 +56,8 @@ export default function CanvasTop(){
 			}}>
 			<BackArrow 
 				style={{
-					width: 40,
-					height: 40,
+					width: 32,
+					height: 32,
 					alignSelf: 'center',
 					justifySelf: 'center',
 					color: 'white',

@@ -63,13 +63,14 @@ export default function GateSelected({gate}: {gate: Gate}){
 		<div style={{
 			display: 'flex',
 			marginLeft: 5,
+			height: 'auto',
 			flexDirection: 'column',
 		}}>
 			<div style={{ 
 				marginTop: MINIMAL_BLOCKSIZE, 
-				height: gateHeight,
 				marginLeft: -1.5*MINIMAL_BLOCKSIZE,
-				alignSelf: 'center'
+				alignSelf: 'center',
+				height: gateHeight,
 			}}>
         	<GatePreview thisGate={thisGate} verticalScale={1} />
     	</div>

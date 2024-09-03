@@ -19,7 +19,6 @@ export function BackArrow({style}:{style?: React.CSSProperties}){
 				return;
 			}
 			const lastId = componentHistory[componentHistory.length-2];
-			console.log(`changing in back arrow to: ${lastId}`);
 			dispatch(goBack());
 
 			dispatch(switchCurrentComponent({componentId: lastId, prevComponent: componentHistory[componentHistory.length-1]}));

@@ -59,9 +59,10 @@ export default function SelectedComponent(){
  	return <div style={{
  		width: '100%',
  		minHeight: '30%',
-		maxHeight: '70%',
+		maxHeight: '40%',
 		display: 'flex',
 		borderStyle: 'solid',
+		overflow: 'auto',
 		borderWidth: DEFAULT_BORDER_WIDTH,
 		borderColor: DEFAULT_BORDER_COLOR,
 		borderLeft: 'none',
@@ -69,12 +70,10 @@ export default function SelectedComponent(){
 		borderRight: 'none',
  		backgroundColor: 'rgb(70 70 70)',
 		flexDirection: 'column',
- 		zIndex: -2,
  	}}>
  		{currentEntity && selectedComponent?.type === 'Wire' && <WireSelected wire={selectedComponent.entity as Wire}></WireSelected>}
 		{currentEntity && selectedComponent?.type === 'Gate' && 
 		<div style={{
-			flex: 1,
 			display: 'flex',
 			flexDirection: 'column'
 		}}>

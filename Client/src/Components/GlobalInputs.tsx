@@ -10,6 +10,7 @@ import { BinaryIO } from '../Interfaces/BinaryIO';
 import { addInput, changeInputState } from '../state/slices/entities';
 import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../Constants/colors';
 import { textStlye } from '../Constants/commonStyles';
+import { createSelector } from '@reduxjs/toolkit';
 
 export function checkIo(prev:BinaryIO[],next:BinaryIO[]){
 	if(prev?.length !== next?.length){
@@ -97,7 +98,7 @@ export default function GlobalInputs(){
 			eleRef.current?.removeEventListener('mousemove', throttledMouseMove);
 			eleRef.current?.removeEventListener('mouseleave', handleMouseLeave);
 		};
-	}, [ghostInputPosition, showGhostInput, pointerEvents]);
+	}, [ghostInputPosition, showGhostInput]);
 
  	return <div style={{backgroundColor: DEFAULT_BACKGROUND_COLOR, 
  			width: 2*MINIMAL_BLOCKSIZE, 
@@ -172,6 +173,6 @@ export default function GlobalInputs(){
  				</div>
  			);
  		})}
- 		{showGhostInput && <GhostInput x={ghostInputPosition.x} y={ghostInputPosition.y}></GhostInput>}
+ 		{showGhostInput && <GhostInput x={ghostInputPosition.x} y={ghostInputPosition.y} type='input'></GhostInput>}
  	</div>;
 }

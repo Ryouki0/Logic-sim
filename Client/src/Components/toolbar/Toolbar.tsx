@@ -18,6 +18,8 @@ export default function Toolbar() {
 		justifySelf: 'flex-end',
 		width: window.innerWidth - canvasWidth,
 		height: '100%',
+		display: 'flex',
+		flexDirection: 'column',
 		borderWidth: DEFAULT_BORDER_WIDTH,
 		borderStyle: 'solid',
 		borderLeft: 0,

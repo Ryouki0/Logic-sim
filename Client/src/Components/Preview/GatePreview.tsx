@@ -11,7 +11,7 @@ import { Gate } from '../../Interfaces/Gate';
 export default function GatePreview({thisGate, verticalScale}: {thisGate: Gate, verticalScale: number}){
     
 	return thisGate && <div style={{
-		position: 'relative',
+		position: 'relative'
 	}}>
 
 		<div key={thisGate.id}

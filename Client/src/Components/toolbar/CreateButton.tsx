@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { CANVAS_WIDTH } from '../../Constants/defaultDimensions';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH } from '../../Constants/defaultDimensions';
 import { useDispatch, useSelector } from 'react-redux';
 import { createBluePrint } from '../../state/slices/entities';
 import '../../index.css';
@@ -8,13 +8,15 @@ import { setIsRunning } from '../../state/slices/clock';
 import { textStlye } from '../../Constants/commonStyles';
 import { createSelector } from '@reduxjs/toolkit';
 import { Gate } from '@Shared/interfaces';
+import { DEFAULT_BORDER_COLOR } from '../../Constants/colors';
 export default function CreateButton(){
 	const dispatch = useDispatch();
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const [name, setName] = useState<string>('');
 	const [description, setDescription] = useState<string>('');
+	const [localError, setLocalError] = useState<string | null>(null);
 	const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-
+	const currentGates = useSelector((state: RootState) => {return state.entities.currentComponent.gates;});
 	const selectGates = (state: RootState) => state.entities.bluePrints.gates;
 
 	const bluePrintsSelector = createSelector(
@@ -29,6 +31,15 @@ export default function CreateButton(){
 			return topLevelComponents;
 		}
 	);
+
+	const totalComplexity = useMemo(() => {
+		let total = 0;
+		Object.entries(currentGates).forEach(([key, gate]) => {
+			total += gate.complexity;
+		});
+		return total;
+	}, [currentGates]);
+
 	const bluePrints = useSelector(bluePrintsSelector);
 	useEffect(() => {
 		if(textAreaRef.current) {
@@ -43,9 +54,15 @@ export default function CreateButton(){
 
 	const handleCreateComponent = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		if(currentComponentId !== 'global' || e.button !== 0) return;
+		
 		for(const [key, gate] of Object.entries(bluePrints)){
-			
+			if(gate.name === name){
+				setLocalError('Names must be unique');
+				return;
+			}
 		}
+		setName('');
+		setDescription('');
 		dispatch(setIsRunning(false));
 		dispatch(createBluePrint({name: name, description: description}));
 	};
@@ -53,33 +70,49 @@ export default function CreateButton(){
 	return <div style={{
 		display: 'flex',
 		flexDirection: 'column',
-		flex: '1 1',
 		width: '100%',
 	}}>
+		<span style={{
+			fontSize: 22,
+			color: 'white',
+			marginBottom: 15,
+			fontWeight: 'bold',
+			alignSelf: 'center',
+			marginTop: 15,
+		}}>Component</span>
+		{localError && <span style={{...textStlye, marginLeft:10,
+			backgroundColor: 'red',
+			width: '50%',
+			padding: 5,
+			opacity: 0.8}}>{localError}</span>}
+
 		<div style={{
 			width: '100%',
 			height: 50,
 			display:'flex',
 			alignItems: 'center'
 		}}>
+			<label style={{...textStlye, marginLeft: 10, marginTop: 0}}>
+				Component name: 
+			</label>
 			<input 
-				className='input-box'
 				style={{
 					width: '50%',
 					marginLeft: 10,
-					marginBottom: 0,
 					height: 24,
-					fontSize: 18,
-					color: 'black'}}
-				onChange={e => {setName(e.target.value);}} 
-				value={name}
-				placeholder='Component name'></input>
+					...textStlye,
+					background: 'transparent',
+					outline: 'none',
+					border: 'none',
+					marginTop: 0,
+
+				}}
+				onChange={e => {setName(e.target.value); setLocalError(null);}} 
+				value={name}></input>
 		</div>
 		<div style={{
 			display: 'flex',
 			alignItems: 'center',
-			marginBottom: 20,
-			marginTop: 10,
 		}}>
 			<label 
 				htmlFor="description" 
@@ -103,7 +136,12 @@ export default function CreateButton(){
 					resize: 'none',
 				}}
 			/>
+
 		</div>
+		<span style={{...textStlye, marginLeft: 10, marginBottom: 20}}>Total complexity: {totalComplexity}</span>
+
+		<div style={{width: '100%', height: DEFAULT_BORDER_WIDTH, backgroundColor: DEFAULT_BORDER_COLOR}}></div>
+
 		<div style={{
 			minWidth: '30%',
 			maxWidth: '70%',
@@ -115,6 +153,9 @@ export default function CreateButton(){
 			position: 'relative',
 			boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
 			borderRadius: 20,
+			top: '50%',
+			left: '50%',
+    		transform: 'translate(-50%, -50%)',
 			cursor: currentComponentId !== 'global' ? 'not-allowed': 'pointer',
 			display: 'flex',
 			transition: 'all 0.3s ease'
@@ -138,6 +179,7 @@ export default function CreateButton(){
 				justifySelf: 'center',
 				alignSelf: 'center',
 				userSelect: 'none',
+				top: '50%',
 			}}>➕ Create component</span>
 		</div>
 		

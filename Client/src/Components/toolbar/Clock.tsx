@@ -6,10 +6,17 @@ import { buildPath, evaluateGates, } from '../../utils/clock';
 import { changeState, updateState } from '../../state/slices/entities';
 import { BinaryIO } from '../../Interfaces/BinaryIO';
 import { entities, Gate } from '@Shared/interfaces';
-import { setHertz, setIsRunning } from '../../state/slices/clock';
+import { setError, setHertz, setIsRunning } from '../../state/slices/clock';
 import { DEFAULT_BORDER_COLOR } from '../../Constants/colors';
 import '../../index.css';
 import { textStlye } from '../../Constants/commonStyles';
+
+export class CircularDependencyError extends Error{
+	constructor(){
+		super('Circular dependency');
+		Object.setPrototypeOf(this, CircularDependencyError.prototype);
+	}
+}
 
 
 export default function Clock() {
@@ -22,7 +29,7 @@ export default function Clock() {
 	const currentIo = useSelector((state:RootState) => {
 		return state.entities.currentComponent.binaryIO;
 	});
-	
+	const user = useSelector((state: RootState) => {return state.misc.user;});
 	const actualEntities = useSelector((state: RootState) => {return state.entities;});
 	const dispatch = useDispatch();
 	// const entities = useSelector((state: RootState) => state.entities);
@@ -38,15 +45,6 @@ export default function Clock() {
 		dispatch(setIsRunning(!running));
 	};
 
-
-	const totalComplexity = useMemo(() => {
-		let total = 0;
-		Object.entries(currentGates).forEach(([key, gate]) => {
-			total += gate.complexity;
-		});
-		return total;
-	}, [currentGates]);
-
 	return <div style={{
 		backgroundColor: 'rgb(100 100 100)',
 		width:'100%',
@@ -58,9 +56,18 @@ export default function Clock() {
 		borderLeft: 'none',
 		borderTop: 'none',
 		padding: 10,
-		flex: '1 1',
 		marginTop: 10,
 	}}>
+		<span style={{
+			fontSize: 22,
+			color: 'white',
+			position: 'relative',
+			display: 'inline-block',
+			left: '50%',
+			transform: 'translateX(-50%)',
+			marginBottom: 15,
+			fontWeight: 'bold',
+		}}>Clock</span>
 		<div style={{ display: 'flex', alignItems: 'center' }}>
     	<span style={textStlye}>
 			Hz:
@@ -87,20 +94,27 @@ export default function Clock() {
 				fontSize: 18,
 				height: 26,
 			}} onClick={e => {
-				console.time('tick');
-				const copiedGates = JSON.parse(JSON.stringify(gates));
-				Object.entries(currentGates).forEach(([key, gate]) => {
-					copiedGates[key] = JSON.parse(JSON.stringify(gate));
-				});
-				const copiedIo = JSON.parse(JSON.stringify(io));
-				Object.entries(currentIo).forEach(([key, io]) => {
-					copiedIo[key] = JSON.parse(JSON.stringify(io));
-				});
+				try{
+					console.time('tick');
+					const copiedGates = JSON.parse(JSON.stringify(gates));
+					Object.entries(currentGates).forEach(([key, gate]) => {
+						copiedGates[key] = JSON.parse(JSON.stringify(gate));
+					});
+					const copiedIo = JSON.parse(JSON.stringify(io));
+					Object.entries(currentIo).forEach(([key, io]) => {
+						copiedIo[key] = JSON.parse(JSON.stringify(io));
+					});
+					
+					const order = buildPath(copiedGates, copiedIo);
+					evaluateGates(copiedGates, copiedIo, order);
+					dispatch(updateState({gates: copiedGates, binaryIO: copiedIo}));
+					console.timeEnd('tick');
+				}catch(err){
+					if(err instanceof CircularDependencyError){
+						dispatch(setError({isError: true, extraInfo: 'Circular dependency!'}));
+					}
+				}
 				
-				const order = buildPath(copiedGates, copiedIo);
-				evaluateGates(copiedGates, copiedIo, order);
-				dispatch(updateState({gates: copiedGates, binaryIO: copiedIo}));
-				console.timeEnd('tick');
 			}
 			}>Tick</button>
 		</div>
@@ -110,8 +124,7 @@ export default function Clock() {
 		}}>
 			<span style={textStlye}>Actual hz: {actualHertz.toLocaleString('de-DE')}</span>
 			<span style={textStlye}>Actual refresh rate: {actualRefreshRate}</span>
-			<span style={textStlye}>Total complexity: {totalComplexity}</span>
-			<button onClick={e => {fetch(`https://reacttest-5vuh.onrender.com/api/cpu`, {
+			{user === 'Superuser' && <button onClick={e => {fetch(`https://reacttest-5vuh.onrender.com/api/cpu`, {
 				method: 'PUT',
 				credentials: 'include',
 				headers: {
@@ -127,7 +140,7 @@ export default function Clock() {
 			}).then(data => {
 				console.log(`got back data: ${data.message}`);
 			});
-			}}>save</button>
+			}}>save</button>}
 			
 			
 		</div>

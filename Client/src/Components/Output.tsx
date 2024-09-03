@@ -50,10 +50,10 @@ export function Output({style = null, output}:BinaryOutputProps) {
 					value={100}
 					background={true}
 					styles={buildStyles({
-						backgroundColor: thisOutput?.state ? 'red' : 'black',
-						pathColor: thisOutput?.highImpedance ? 'rgb(100 100 100)' : 'black',
+						backgroundColor: thisOutput?.highImpedance ? 'rgb(100 100 100)' : (thisOutput?.state ? 'red' : 'black'),
+						pathColor: 'black',
 					})}
-					strokeWidth={12}
+					strokeWidth={13}
 				></CircularProgressbar>
 			</div>
 		</>

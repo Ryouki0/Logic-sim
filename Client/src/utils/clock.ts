@@ -13,7 +13,14 @@ export class ShortCircuitError extends Error{
 		Object.setPrototypeOf(this, ShortCircuitError.prototype);
 	}
 }
- 
+
+export class CircularDependencyError extends Error{
+	constructor(){
+		super('Circular dependency');
+		Object.setPrototypeOf(this, CircularDependencyError.prototype);
+	}
+}
+
 /**
   * Determines the order of the gates (DAG)
   * @param gates The combined gates state
@@ -297,6 +304,7 @@ export function getPathInComponent(gates: {[key: string]:Gate}, io: {[key: strin
 				}
 			}
 			if(!currentDelayGate){
+				throw new CircularDependencyError();
 				console.warn(`Actual circular dependency!`);
 				break;
 			}

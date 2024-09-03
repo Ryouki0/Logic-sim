@@ -69,27 +69,19 @@ export default function useRunLogic(){
             console.log(`created worker`);
             
             
-            let copiedGates = JSON.parse(JSON.stringify(gates));
-            Object.entries(currentComponent.gates).forEach(([key, gate]) => {
-            	copiedGates[key] = gate;
-            });
-    
-            let copiedIo = JSON.parse(JSON.stringify(io));
-            Object.entries(currentComponent.binaryIO).forEach(([key, ioItem]) => {
-            	copiedIo[key] = ioItem;
-            });
+           
 
             timeTookStart.current = Date.now();
             const message = JSON.stringify({
-            	gates: copiedGates,
-            	io: copiedIo,
+            	currentComponent: currentComponent,
+            	gates: gates,
+            	io: io,
             	refreshRate: refreshRate,
             	hertz: hertz,
             	startTime: timeTookStart.current
             });
             workerRef.current?.postMessage(message);
-            copiedGates = null;
-            copiedIo = null;
+           
 		}
 		return () => {
 			if(workerRef.current && shouldUpdateWorker.current) {

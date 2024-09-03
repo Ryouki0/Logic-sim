@@ -164,7 +164,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 			to: [],
 			parent: 'global',
 			id: SWITCHInputId1,
-			name: 'input 1',
+			name: 'Enable',
 			isGlobalIo: false,
 		},
 		[SWITCHInputId2]: {
@@ -174,7 +174,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 			to: [],
 			parent: 'global',
 			id: SWITCHInputId2,
-			name: 'input 2',
+			name: 'Value',
 			isGlobalIo: false,
 		},
 	}, 

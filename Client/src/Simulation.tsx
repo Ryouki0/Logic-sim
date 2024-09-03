@@ -14,14 +14,14 @@ import HoveringOverIO from "./Components/Effects/HoveringOverIO";
 import DrawWireFromIo from "./Components/Effects/DrawWireFromIo";
 import { useDispatch } from "react-redux";
 import { setCanvasDim } from "./state/slices/misc";
-import { MINIMAL_BLOCKSIZE } from "./Constants/defaultDimensions";
+import { getClosestBlock, MINIMAL_BLOCKSIZE } from "./Constants/defaultDimensions";
 import BackToMenu from "./Components/toolbar/BackToMenu";
 function Simulation() {
 	const dispatch = useDispatch();
 	const divRef = useRef<HTMLDivElement | null>(null);
 	useEffect(() => {
 		const handleResize = () => {
-			dispatch(setCanvasDim({width: 0.8*window.innerWidth, height: window.innerHeight - 2*MINIMAL_BLOCKSIZE}));
+			dispatch(setCanvasDim({width: getClosestBlock(0.8*window.innerWidth, 0).roundedX, height: window.innerHeight - 2*MINIMAL_BLOCKSIZE}));
 			//console.log(`changed canvas dim to: ${window.innerWidth}`);
 		};
 		document.body.style.overflow = 'hidden';
