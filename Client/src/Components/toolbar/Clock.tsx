@@ -45,6 +45,20 @@ export default function Clock() {
 		dispatch(setIsRunning(!running));
 	};
 
+	const handleDownload = () => {
+		const blob = new Blob([JSON.stringify(actualEntities)], { type: 'application/json' });
+		const url = window.URL.createObjectURL(blob);
+	  
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = 'data.json';  
+		document.body.appendChild(link);
+		link.click();
+		
+		document.body.removeChild(link);  
+		window.URL.revokeObjectURL(url);  
+	}
+
 	return <div style={{
 		backgroundColor: 'rgb(100 100 100)',
 		width:'100%',
@@ -141,29 +155,11 @@ export default function Clock() {
 				console.log(`got back data: ${data.message}`);
 			});
 			}}>save</button>}
-			
+			{user === 'Superuser' && <div>
+				<button style={{width: 200, height: 50}} onClick={handleDownload}>Download</button>
+				</div>}
 			
 		</div>
-		{/* <button onClick={e => {
-			fetch('https://reacttest-5vuh.onrender.com/api/saveData', {
-				method: 'POST',
-				headers: {
-					'Content-type': 'application/json'
-				},
-				body: JSON.stringify(entities)
-			})
-		}}>
-			SAVE ENTITIES
-		</button>
-		<button onClick={e => {
-			fetch('https://reacttest-5vuh.onrender.com/api/commonEntities', {
-				method: 'GET'
-			}).then(res => res.json()).then(data => {
-				dispatch(changeState(data as entities));
-			})
-		}}>
-			LOAD COMMON ENTITIES
-		</button> */}
 		 <div style={{ display: 'flex', alignItems: 'center' }}>
       
 		</div>
