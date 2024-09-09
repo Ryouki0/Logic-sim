@@ -7,7 +7,7 @@ import { DARK_RED, ORANGE, RED_ORANGE } from '../Constants/colors';
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import { SourceMap } from 'module';
 
-const checkWireSourceEquality = (prev:{[key: string]: BinaryIO[]|undefined}, next: {[key: string]: BinaryIO[]|undefined}) => {
+export const checkWireSourceEquality = (prev:{[key: string]: BinaryIO[]|undefined}, next: {[key: string]: BinaryIO[]|undefined}) => {
 	const prevEntries = Object.entries(prev);
 	const nextEntries = Object.entries(next);
 	if(prevEntries.length !== nextEntries.length){

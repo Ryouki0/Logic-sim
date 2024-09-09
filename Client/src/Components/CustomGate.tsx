@@ -13,6 +13,7 @@ import { BinaryIO } from '../Interfaces/BinaryIO';
 import { createSelector } from '@reduxjs/toolkit';
 import { addGate, changeGatePosition, changeIOPosition, changeInputState, deleteComponent } from '../state/slices/entities';
 import calculateGateHeight from '../utils/Spatial/calculateGateHeight';
+import { Root } from 'react-dom/client';
 interface CustomGateProps{
     gateProps: Gate,
 	isBluePrint: boolean,
@@ -53,7 +54,6 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 	const setOffset = (dx:number, dy:number) => {
 		offsetRef.current = {...offsetRef.current, dx: dx, dy: dy};
 	};
-
 	const inputs = useSelector((state: RootState) => {
 		if(isBluePrint){
 			return gateProps.inputs.map(inputId => {

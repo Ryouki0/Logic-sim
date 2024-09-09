@@ -9,6 +9,10 @@ import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, getClosestBlock,
 import { propagateIo } from "../../utils/propagateIo";
 import { addRawReducers } from "../../utils/addRawReducers";
 import calculateAbsoluteIOPos from "../../utils/Spatial/calculateAbsoluteIOPos";
+import { forEachChild } from "typescript";
+import { Output } from "../../Components/Output";
+import changeGlobalInputPosition from "../../utils/Spatial/changeGlobalInputPos";
+import changeGlobalOutputPosition from "../../utils/Spatial/changeGlobalOutputPos";
 
 const ANDInputId1 = uuidv4();
 const ANDInputId2 = uuidv4();
@@ -38,6 +42,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 			name: 'AND',
 			parent: 'global',
 			complexity: 1,
+			description: "Outputs true if both inputs are true.",
 			inputs: [ANDInputId1, ANDInputId2],
 			outputs: [ANDOutputId1],
 			id: ANDId
@@ -45,6 +50,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 		[NOId]: {
 			name: 'NO',
 			complexity: 1,
+			description: "Flips the input bit.",
 			parent: 'global',
 			inputs: [NOInputId1],
 			outputs: [NOOutputId1],
@@ -53,6 +59,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 		[DELAYId]: {
 			name: 'DELAY',
 			complexity: 1,
+			description: "Outputs the input's value 1 tick later.",
 			parent: 'global',
 			inputs: [DELAYInputId1],
 			outputs: [DELAYOutputId1],
@@ -62,6 +69,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 		[SWITCHId]: {
 			name: 'SWITCH',
 			complexity: 1,
+			description: "Can turn on the output with the 'Enable' signal, and output the 'Value'.",
 			parent: 'global',
 			inputs: [SWITCHInputId1, SWITCHInputId2],
 			outputs: [SWITCHOutputId],
@@ -465,7 +473,6 @@ const entities = createSlice({
 
 					newGate.wires!.push(newWireId);
 					state.wires[newWireId] = newWire;
-					console.log(`Changed parent of ${newGateId.slice(0,6)} to ${parentId.slice(0,6)}`);
 					delete state.wires[wireId];
 				});
 
@@ -762,19 +769,27 @@ const entities = createSlice({
 			const wireEntries = Object.entries(state.currentComponent.wires);
 			const subWireEntries = Object.entries(state.wires);
 			wireEntries.forEach(([key, wire]) => {
-				state.bluePrints.wires[key] = wire;
+				state.bluePrints.wires[key] = {...wire, parent: newGateId};
 			});
 
 			subWireEntries.forEach(([key, wire]) => {
 				state.bluePrints.wires[key] = wire;
 			});
 			
-			gateEntries.forEach(([key, gate]) => {
+			Object.entries(topLevelGates).forEach(([key, gate]) => {
 				state.bluePrints.gates[key] = {...gate, parent: newGateId};
 			});
-			ioEntries.forEach(([key, io]) => {
+			Object.entries(state.gates).forEach(([key, gate]) => {
+				state.bluePrints.gates[key] = gate;
+			})
+
+
+			Object.entries(state.currentComponent.binaryIO).forEach(([key, io]) => {
 				state.bluePrints.io[key] = {...io, parent: newGateId};
 			});
+			Object.entries(state.binaryIO).forEach(([key, io]) => {
+				state.bluePrints.io[key] = io;
+			})
 
 			globalOutputs.forEach(output => {
 				state.bluePrints.io[output.id].gateId = newGateId;
@@ -871,27 +886,9 @@ const entities = createSlice({
 				return undefined;
 			}).filter((wire): wire is Wire => wire !== undefined);
 
-			function changeGlobalInputPosition(input:BinaryIO){
-				const newInput:BinaryIO = {
-					...input,
-					position: {
-						x: 2*MINIMAL_BLOCKSIZE,
-						y: (input.style?.top as number) + DEFAULT_INPUT_DIM.height/2 + 2*MINIMAL_BLOCKSIZE,
-					}
-				};
-				return newInput;
-			}
+			
 
-			function changeGlobalOutputPosition(output: BinaryIO){
-				const newOutput = {
-					...output,
-					position: {
-						x: CANVAS_WIDTH - MINIMAL_BLOCKSIZE,
-						y: (output.style?.top as number) + DEFAULT_INPUT_DIM.height - DEFAULT_BORDER_WIDTH
-					}
-				};
-				return newOutput;
-			}
+			
 
 			if(componentId === 'global'){
 				Object.entries(state.binaryIO).forEach(([key, io], idx) => {
@@ -899,7 +896,7 @@ const entities = createSlice({
 						const newInput = changeGlobalInputPosition(io);
 						newCurrentComponentIo.push(newInput);
 					}else if(!io.gateId && io.type === 'output'){
-						const newOutput = changeGlobalOutputPosition(io);
+						const newOutput = changeGlobalOutputPosition(io, CANVAS_WIDTH);
 						newCurrentComponentIo.push(newOutput);
 					}
 				});
@@ -912,7 +909,7 @@ const entities = createSlice({
 				});
 				component.outputs.forEach(outputId => {
 					const prevOutput = state.binaryIO[outputId];
-					const newOutput = changeGlobalOutputPosition(prevOutput);
+					const newOutput = changeGlobalOutputPosition(prevOutput, CANVAS_WIDTH);
 					newCurrentComponentIo.push(newOutput);
 				});
 			}
@@ -947,6 +944,100 @@ const entities = createSlice({
 		changeIOName: (state, action:PayloadAction<{ioId: string, newName: string}>) => {
 			const io = state.currentComponent.binaryIO[action.payload.ioId];
 			io.name = action.payload.newName;
+		},
+		deleteBluePrint: (state, action: PayloadAction<string>) => {
+			const mainGate = state.bluePrints.gates[action.payload];
+			if(!mainGate){
+				throw new Error(`No blueprint at ID: ${action.payload}`);
+			}
+
+			delete state.bluePrints.gates[mainGate.id];
+		},
+		modifyComponent: (state, action: PayloadAction<string>) => {
+			const mainGate = state.bluePrints.gates[action.payload];
+			if(!mainGate){
+				throw new Error(`No blueprint at ID: ${action.payload}`);
+			}
+			state.currentComponent = {gates: {}, binaryIO: {}, wires: {}};
+			let nextGateIds: string[] = [];
+
+			function putGateIntoState(gateId: string){
+				const thisGate = state.bluePrints.gates[gateId];
+				if(!thisGate){
+					throw new Error(`No blueprint at ID: ${gateId}`);
+				}
+
+				thisGate.inputs.forEach(inputId => {
+					state.binaryIO[inputId] = state.bluePrints.io[inputId];
+				})
+
+				thisGate.outputs.forEach(outputId => {
+					state.binaryIO[outputId] = state.bluePrints.io[outputId];
+				})
+				
+				thisGate.wires?.forEach(wireId => {
+					console.log(`putting wires: ${wireId.slice(0,6)}`);
+					state.wires[wireId] = state.bluePrints.wires[wireId];
+				})
+				
+				state.gates[gateId] = thisGate;
+			}
+
+			mainGate.gates?.forEach(gateId => {
+				const currentGate = state.bluePrints.gates[gateId];
+				currentGate.gates?.forEach(gateId => {
+					console.log(`nextGates: ${state.bluePrints.gates[gateId].name}`);
+					nextGateIds.push(gateId);
+				})
+				
+				state.currentComponent.gates[gateId] = {...state.bluePrints.gates[gateId], parent: 'global'};
+				currentGate.inputs.forEach(inputId => {
+					state.currentComponent.binaryIO[inputId] = {...state.bluePrints.io[inputId], parent: 'global'};
+				})
+
+				currentGate.outputs.forEach(outputId => {
+					state.currentComponent.binaryIO[outputId] = {...state.bluePrints.io[outputId], parent: 'global'};
+				});
+
+				currentGate.wires?.forEach(wireId => {
+					state.wires[wireId] = state.bluePrints.wires[wireId];
+				})
+			});
+
+			mainGate.inputs.forEach(inputId => {
+				let newInput = {...state.bluePrints.io[inputId], parent: 'global'}; 
+				newInput = changeGlobalInputPosition(newInput);
+				state.currentComponent.binaryIO[inputId] = {...newInput, parent: 'global', gateId: undefined};
+			});
+
+			mainGate.outputs.forEach(outputId => {
+				let newOutput = {...state.bluePrints.io[outputId], parent: 'global'};
+				newOutput = changeGlobalOutputPosition(newOutput, CANVAS_WIDTH);
+				state.currentComponent.binaryIO[outputId] = {...newOutput, gateId: undefined};
+			});
+
+			const wires = Object.entries(state.bluePrints.wires).map(([key, wire]) => {
+				if(wire.parent === action.payload){
+					return {...wire, parent: 'global'};
+				}
+				return null;
+			}).filter((wire): wire is NonNullable<typeof wire> => wire !== null);
+
+			wires.forEach(wire => {
+				state.currentComponent.wires[wire!.id] = wire;
+			});
+
+			while(nextGateIds.length > 0){
+				const nextGate = state.bluePrints.gates[nextGateIds.pop()!];
+				if(!nextGate){
+					throw new Error(`No blueprint`);
+				}
+				console.log(`put into state: ${nextGate.name} ${nextGate.parent.slice(0,6)}`);
+				putGateIntoState(nextGate.id);
+				nextGate.gates?.forEach(gateId => {
+					nextGateIds.push(gateId);
+				})
+			}
 		}
 	}
 });
@@ -1006,5 +1097,7 @@ export const {addWire,
 	setGateDescription,
 	switchCurrentComponent,
 	changeState,
-	changeIOName
+	changeIOName,
+	deleteBluePrint,
+	modifyComponent
 } = entities.actions;

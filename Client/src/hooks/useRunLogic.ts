@@ -67,10 +67,6 @@ export default function useRunLogic(){
             	}
             };
             console.log(`created worker`);
-            
-            
-           
-
             timeTookStart.current = Date.now();
             const message = JSON.stringify({
             	currentComponent: currentComponent,

@@ -29,6 +29,7 @@ export const ioEquality = (prev: BinaryIO, next:BinaryIO) => {
 		return false;
 	}
 	if(prev?.position?.x !== next?.position?.x || prev?.position?.y !== next?.position?.y){
+		// console.log(`input pos changed: ${prev?.position?.x} -> ${next?.position?.x}    ${prev?.position?.y} -> ${next?.position?.y}`);
 		return false;
 	}
 	return true;

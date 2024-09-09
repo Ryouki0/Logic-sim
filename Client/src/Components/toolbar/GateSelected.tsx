@@ -62,7 +62,7 @@ export default function GateSelected({gate}: {gate: Gate}){
 	return thisGate && <>
 		<div style={{
 			display: 'flex',
-			marginLeft: 5,
+			marginLeft: 10,
 			height: 'auto',
 			flexDirection: 'column',
 		}}>

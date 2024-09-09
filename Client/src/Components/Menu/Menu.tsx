@@ -18,6 +18,7 @@ export default function Menu(){
 	useAuth();
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<{isError: boolean, info: string}>({isError: false, info: ''});
 	const user = useSelector((state: RootState) => {return state.misc.user;});
 	const Simulation = () => {
 		navigate('/Simulation');
@@ -31,6 +32,7 @@ export default function Menu(){
 		}).then(res => {
 			if(!res.ok){
 				console.error(`error logging out: ${res.status}`);
+				setError({isError: true, info: res.statusText});
 				setLoading(false);
 				return;
 			}
@@ -64,10 +66,12 @@ export default function Menu(){
 				const binaryIO = JSON.parse(data.binaryIO);
 				setLoading(false);
 				dispatch(changeState({wires, gates, currentComponent, bluePrints, binaryIO} as entities));
+				navigate('/Simulation');
  		})
 			.catch(err => {
 				setLoading(false);
 				console.error(`An error occurred: ${err.message}`);
+				setError({isError: true, info: `${err.message}`});
 			});
 	};
 
@@ -89,12 +93,15 @@ export default function Menu(){
 			}}>
 				<span style={{...textStlye, fontSize: 22}}>Logged in as {user}</span>
 			</div>}
+			{error?.isError && <div style={{position: 'absolute', backgroundColor: 'red', padding: 15, top: 20, opacity: 0.9}}>
+				<span style={{fontSize: 22, color: 'white'}}>{error.info}</span>
+				</div>}
 			{loading && <div style={{
 				position: 'absolute',
 				top: 0,
 				display: 'inline-flex',
 			}}>
-				<span style={{...textStlye, fontSize: 22, marginRight: 10, alignSelf: 'center'}}>Loading</span>
+				<span style={{...textStlye, fontSize: 22, marginRight: 10, alignSelf: 'center'}}>Loading {'(might take up to 1 minute)'}</span>
 				<Spinner style={{width: 30, height: 30, alignSelf: 'center'}}></Spinner>
 			</div>}
 			<MenuButton buttonText='Simulation' fn={Simulation}></MenuButton>
