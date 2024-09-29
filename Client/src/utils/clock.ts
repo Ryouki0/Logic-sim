@@ -3,6 +3,7 @@ import { BinaryIO } from "../Interfaces/BinaryIO";
 import { Gate } from "../Interfaces/Gate";
 import { current } from "@reduxjs/toolkit";
 import { deepCopyComponent } from "./deepCopyComponent";
+import isBaseGate from "./isBaseGate";
 
 export class ShortCircuitError extends Error{
 	wireTree: string[] | null;
@@ -121,7 +122,157 @@ export function getPathRoots(gates:{[key: string]: Gate}, io: {[key: string]: Bi
 	}
 	return roots;
 }
- 
+
+/**
+ * Gets the full order, where the whole circuit is taken as a single graph
+ * @param gates The combined gates state
+ * @param io The combined IO state
+ * @returns {object} An object containing:
+ * - `mainDag`: The topologically sorted DAG
+ * - `SCCOrder`: All the SCCs combined
+ */
+export function globalSort(gates: {[key: string]: Gate}, io: {[key: string]: BinaryIO}){
+	const baseGateIds = getAllBaseGates(gates);
+	const mainDag = getGlobalDag(gates, io, baseGateIds);
+	const mainDagSet = new Set(mainDag);
+	const allRemainingGateIds = baseGateIds.filter(baseId => !mainDagSet.has(baseId));
+
+	const SCCOrder: string[] = [];
+	while(allRemainingGateIds.length > 0){
+		let delayGate: null | Gate = null;
+		allRemainingGateIds.forEach(id => {
+			if(gates[id].name === 'DELAY'){
+				delayGate = gates[id];
+			}
+		})
+
+		if(!delayGate) throw new CircularDependencyError();
+
+		let SCC = globalTopologicalSort(delayGate, gates, io, baseGateIds, allRemainingGateIds);
+
+		SCC.forEach(id => {
+			SCCOrder.push(id);
+			const thisIdx = allRemainingGateIds.findIndex(remainingId => remainingId === id);
+			if(thisIdx === -1) throw new Error(`${id} doesn't exist in the remaining IDs`);
+
+			allRemainingGateIds.splice(thisIdx, 1);
+		})
+	}
+	return {mainDag: mainDag, SCCOrder: SCCOrder};
+}
+
+export function getGlobalDag(gates: {[key: string]: Gate}, io: {[key: string]: BinaryIO}, baseGateIds: string[]){
+	const globalRoots = getGlobalPathRoot(gates, io, baseGateIds);
+	console.log(`globalRoots length inside: ${globalRoots.length}`);
+	let currentLayer: string[] = globalRoots;
+	const mainDag: string[] = [...currentLayer];
+	let nextLayer: string[] = [];
+	while(currentLayer.length > 0){
+		const currentId = currentLayer.pop()!;
+		const currentGate = gates[currentId];
+		if(!currentGate) throw new Error(`No gate at ID: ${currentId}`);
+
+		const connectedGates = getConnectedGates(currentGate, io, baseGateIds);
+		connectedGates.forEach(connectedGateId => {
+			const currentConnectedGate = gates[connectedGateId];
+			if(!currentConnectedGate) throw new Error(`No gate at ID: ${connectedGateId}`);
+
+			const backGateIds = getBackConnections(currentConnectedGate, io, baseGateIds);
+			let isNextLayer = true;
+			backGateIds.forEach(backGateId => {
+				if(!mainDag.includes(backGateId)){
+					isNextLayer = false;
+				}
+			})
+
+			if(isNextLayer){
+				if(nextLayer.includes(connectedGateId)){
+					return;
+				}else{
+					nextLayer.push(connectedGateId);
+				}
+			}
+		})
+
+		if(currentLayer.length === 0){
+			mainDag.push(...nextLayer);
+			currentLayer = [...nextLayer];
+			nextLayer = []
+		}
+	}
+	return mainDag;
+}
+
+/**
+ * Non-layered topological sort for the broken down graph
+ * @param root The root delay gate
+ * @param gates The whole gates state
+ * @param io The whole IO state
+ * @param baseGateIds All the base gate IDs
+ * @param allRemainingGateIds All remaining base gate IDs
+ */
+export function globalTopologicalSort(
+	root: Gate, 
+	gates: {[key: string]: Gate}, 
+	io: {[key: string]: BinaryIO}, 
+	baseGateIds: string[],
+	allRemainingGateIds: string[]
+){
+	const order: string[] = [root.id];
+	let nextLayer: string[] = [];
+	const currentLayer: string[] = [root.id]
+	while(currentLayer.length > 0){
+		const currentId = currentLayer.pop()!;
+		const currentGate = gates[currentId];
+		if(!currentGate) throw new Error(`No gate at ID: ${currentId}`);
+
+		const connectedGateIds = getConnectedGates(currentGate, io, baseGateIds);
+		connectedGateIds.forEach(connectedGateId => {
+			let isNextLayer = true;
+			const connectedGate = gates[connectedGateId];
+			// console.log(`connected gate name: ${connectedGate.name}`);
+			if(!connectedGate) throw new Error(`No gate at ID: ${connectedGateId}`);
+
+			const backGateIds = getBackConnections(connectedGate, io, baseGateIds);
+			backGateIds.forEach(gateId => {
+				if(allRemainingGateIds.includes(gateId) && !order.includes(gateId)){
+					isNextLayer = false;
+				}else if(connectedGate.name === 'DELAY'){
+					isNextLayer = false;
+				}
+			})
+
+			if(isNextLayer){
+				nextLayer.push(connectedGateId);
+			}
+		})
+
+		if(currentLayer.length === 0){
+			currentLayer.push(...nextLayer);
+			order.push(...nextLayer);
+			nextLayer = []
+		}
+	}
+	return order;
+}
+
+export function getGlobalPathRoot(gates: {[key: string]: Gate}, io: {[key: string]: BinaryIO}, baseGateIds: string[]){
+	const rootIds: string[] = [];
+
+	baseGateIds.forEach(baseId => {
+		const currentGate = gates[baseId];
+		if(!currentGate){
+			throw new Error(`No gate at ID: ${baseId}`);
+		}
+
+		if(getBackConnections(currentGate, io, baseGateIds).length === 0){
+			rootIds.push(baseId);
+		}
+	})
+	
+	return rootIds;
+}
+
 /**
 * Propagates an I/O's state
 * @param ioId The I/O ID whose state is propagated to every connected I/O 
@@ -152,6 +303,7 @@ export function propagateIoState(ioId: string, io: {[key: string]: BinaryIO}){
 
 export function propagateHighImpedance(ioId: string, io: {[key: string]: BinaryIO}){
 	const nextIos: string[] = [ioId];
+	const highImpedance = io[ioId].highImpedance;
 	while(nextIos.length > 0){
 		const currentIoId = nextIos.pop()!;
 		const currentIo = io[currentIoId];
@@ -168,32 +320,76 @@ export function propagateHighImpedance(ioId: string, io: {[key: string]: BinaryI
 		});
 		if(!shouldPropagate) continue;
 
-		currentIo.highImpedance = true;
+		currentIo.highImpedance = highImpedance;
 		currentIo.state = 0;
 		currentIo.to?.forEach(to => nextIos.push(to.id));
 	}
 }
 
-
 /**
- * Gives back a list of gate IDs that are connected to the "ioId"
- * @param ioId The ID whose gate connections are given back
- * @param io The IO state
+ * 
+ * @param startGate The starting  gate
+ * @param io The whole IO state
+ * @param baseGateIds 
+ * @returns 
  */
-export function getConnectedGates(ioId: string, io: {[key: string]: BinaryIO}){
-	const connectedGates: Set<string> = new Set();
-	io[ioId]?.to?.forEach(to => {
-		if(to.gateId && !io[to.id]?.isGlobalIo){
-			connectedGates.add(to.gateId);
+export function getConnectedGates(startGate:Gate, io: {[key: string]: BinaryIO}, baseGateIds: string[]){
+	const connectedGates = new Set<string>();
+	const nextIos: string[] = startGate.outputs.flatMap(outputId => {
+		return io[outputId].to!.map(to => {
+			return to.id;	
+		})
+	})
+	while(nextIos.length > 0){
+		const currentId = nextIos.pop()!;
+		const currentIo = io[currentId];
+		if(!currentIo){
+			throw new Error(`No IO at id: ${currentId}`);
 		}
-	});
+
+		if(baseGateIds.includes(currentIo.gateId!)){
+			connectedGates.add(currentIo.gateId!);
+		}else{
+			if(currentIo.to){
+				nextIos.push(...currentIo.to!.map(to => to.id))
+			}
+		}
+	}
 	return Array.from(connectedGates);
+}
+
+
+export function getBackConnections(endGate: Gate, io: {[key: string]: BinaryIO}, baseGateIds: string[]){
+	const nextIos = endGate.inputs.flatMap(inputId => {
+		return io[inputId].from?.map(from => from.id);
+	}).filter(ioId => ioId !== undefined);
+	const backGateIds: Set<string> = new Set<string>();
+	while(nextIos.length > 0){
+		const currentId = nextIos.pop()!;
+		const currentIo = io[currentId];
+		if(!currentIo){
+			throw new Error(`No IO at ID: ${currentId}`);
+		}
+
+		if(baseGateIds.includes(currentIo.gateId!)){
+			backGateIds.add(currentIo.gateId!);
+		}else{
+			if(currentIo.from){
+				nextIos.push(...currentIo.from.map(from => from.id));
+			}
+		}
+	}
+	
+	return Array.from(backGateIds)
 }
 
 /**
   * Sorts a DAG into a list of gate IDs
-  * @param root The root of the DAG
-  * @param gates The gates state
+  * @param root The root delay gate of the DAG
+  * @param gates The whole gates state
+  * @param io The whole io state
+  * @param thisLevel The level of the delay gate
+  * @param componentRemainingGateIds The ramaining gate IDs in the component
   */
 export function topologicalSort(
 	root: Gate, 
@@ -272,6 +468,32 @@ export function topologicalSort(
 	return order;
 }
 
+/**
+ * Gives back the basic gates
+ * @param gates The whole gates state
+ */
+export function getAllBaseGates(gates:{[key:string]:Gate}){
+	const nextGates: string[] = [];
+	const baseGates: string[] = [];
+	Object.entries(gates).forEach(([key, gate]) => {
+		if(gate.parent === 'global'){
+			nextGates.push(key);
+		}
+	});
+	
+	while(nextGates.length > 0){
+		const nextGate = gates[nextGates.pop()!];
+		if(!isBaseGate(nextGate)){
+			nextGates.push(...nextGate.gates!);
+		}else{
+			baseGates.push(nextGate.id);
+		}
+	}
+	console.log(`base gate length: ${baseGates.length}`);
+	return baseGates;
+}
+
+
 
 /**
  * Returns the whole path inside a component
@@ -305,8 +527,6 @@ export function getPathInComponent(gates: {[key: string]:Gate}, io: {[key: strin
 			}
 			if(!currentDelayGate){
 				throw new CircularDependencyError();
-				console.warn(`Actual circular dependency!`);
-				break;
 			}
 
 			const order = topologicalSort(currentDelayGate!, gates, io, thisLevel, remainingGateIds);
@@ -328,6 +548,7 @@ export function buildPath(gates: {[key: string]: Gate}, io: {[key: string]: Bina
 			i++;
 		}
 	}
+	getAllBaseGates(gates);
 	return completePath;
 }
 
@@ -342,6 +563,9 @@ export function getEvaluationMap(delayIds: string[], switchIds: string[]){
 			});
 			const output = io[thisGate.outputs[0]];
 			output.state = isInputTrue ? 0 : 1;
+			// if(thisGate.parent === 'global' && output.name === 'asd'){
+			// 	console.log(`NO state: ${isInputTrue} output: ${output.state}`);
+			// }
 			propagateIoState(output.id, io);
 		},
 		'AND': (thisGate: Gate, io: {[key: string]: BinaryIO}) => {
@@ -372,6 +596,15 @@ export function getEvaluationMap(delayIds: string[], switchIds: string[]){
 			}else{
 				output.highImpedance = true;
 				output.state = 0;
+				let shouldPropagate = true;
+				output.otherSourceIds?.forEach(srcId => {
+					if(srcId !== output.id && !switchIds.includes(io[srcId].gateId!)){
+						shouldPropagate = false;
+					}
+				})
+				if(shouldPropagate){
+					propagateHighImpedance(output.id, io);
+				}
 			}
 			
 			switchIds.push(thisGate.id);
@@ -384,11 +617,12 @@ export function evaluateGates(gates: {[key: string]:Gate}, io: {[key: string]: B
 	const delayIds: string[] = [];
 	const switchIds: string[] = [];
 	const evaluationMap = getEvaluationMap(delayIds, switchIds);
-	order.forEach(id => {
+	order.forEach((id,idx) => {
 		evaluationMap[gates[id].name](gates[id], io);
 	});
 
 	delayIds.forEach(id => {
+		
 		gates[id].nextTick = io[gates[id].inputs[0]].state;
 	});
 

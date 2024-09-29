@@ -36,7 +36,7 @@ export default function GlobalOutputs() {
 		}
  		const outputEntries = Object.entries(outputs);
  		for(const [key, output] of outputEntries){
- 			if(output?.position?.y === roundedY){
+ 			if(getClosestBlock(0, output?.position?.y!).roundedY === roundedY){
 				if(showGhostOutput){
 					setShowGhostOutput(false);
 				}

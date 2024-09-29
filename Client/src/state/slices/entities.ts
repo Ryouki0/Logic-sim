@@ -135,6 +135,7 @@ const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires:
 		[DELAYInputId1]: {
 			id: DELAYInputId1,
 			state: 0,
+			affectsOutput: true,
 			parent: 'global',
 			gateId: DELAYId,
 			name: 'input 1',

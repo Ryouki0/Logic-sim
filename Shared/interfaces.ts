@@ -1,6 +1,8 @@
 export interface BinaryIOBase{
     state: 0 | 1,
+    /**Only in a switch gate's output, a disabled state for the output */
     highImpedance?: boolean,
+    /**The gate that contains the I/O */
     gateId?: string,
     id: string,
     name: string,
@@ -10,6 +12,7 @@ export interface BinaryIOBase{
     position?: {x:number,y:number},
     to: {id: string, type: 'input' | 'output', gateId?: string | null}[] | null,
     from?: {id: string, type: 'input' | 'output', gateId?: string | null}[] | null,
+    /**Only in a switch gate's output, all the outputs that are connected to the same input (includes itself)*/
     otherSourceIds?: string[]
 }
 

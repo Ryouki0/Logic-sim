@@ -59,6 +59,16 @@ export default function Clock() {
 		window.URL.revokeObjectURL(url);  
 	}
 
+	const handleLoad = () => {
+		fetch(`CircularRegister2.json`).then(res => {
+			return res.json();
+		}).then(data => {
+			dispatch(changeState(data));
+		}).catch(err => {
+			console.error(`error: ${err.message}`);
+		})
+	}
+
 	return <div style={{
 		backgroundColor: 'rgb(100 100 100)',
 		width:'100%',
@@ -155,10 +165,10 @@ export default function Clock() {
 				console.log(`got back data: ${data.message}`);
 			});
 			}}>save</button>}
-			{user === 'Superuser' && <div>
+			{<div>
 				<button style={{width: 200, height: 50}} onClick={handleDownload}>Download</button>
 				</div>}
-			
+			<button onClick={handleLoad}>fetch json</button>
 		</div>
 		 <div style={{ display: 'flex', alignItems: 'center' }}>
       

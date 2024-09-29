@@ -66,8 +66,8 @@ export function Input({binaryInput }: InputProps) {
 			{/* {console.log(`RENDER INPUT -- ${thisInput?.gateId?.slice(0,5)}`)} */}
 			<div ref={eleRef}
 				style={{
-					width: DEFAULT_INPUT_DIM.width,
-					height: DEFAULT_INPUT_DIM.height,
+					width: thisInput?.affectsOutput ? DEFAULT_INPUT_DIM.width : DEFAULT_INPUT_DIM.width,
+					height: thisInput?.affectsOutput ? DEFAULT_INPUT_DIM.height : DEFAULT_INPUT_DIM.height,
 					position: 'relative',
 					userSelect: 'none',
 					left: -(DEFAULT_INPUT_DIM.width / 2),
@@ -75,13 +75,13 @@ export function Input({binaryInput }: InputProps) {
 				}}
 			>
 				<CircularProgressbar
-					value={100}
+					value={thisInput?.affectsOutput ? 100 : 100}
 					background={true}
 					styles={buildStyles({
-						backgroundColor: thisInput?.state ? "rgb(255 60 60)" : 'black',
-						pathColor: "black",
+						backgroundColor: thisInput?.affectsOutput ? 'white' : thisInput?.state ? "rgb(255 60 60)" : 'black',
+						pathColor:  'black',
 					})}
-					strokeWidth={14}
+					strokeWidth={thisInput?.affectsOutput ? 13 : 13}
 				></CircularProgressbar>
 			</div>
 		</>

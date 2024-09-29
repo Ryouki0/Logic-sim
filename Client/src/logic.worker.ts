@@ -1,7 +1,8 @@
 import { BinaryIO } from "./Interfaces/BinaryIO";
 import { Gate, Wire } from "@Shared/interfaces";
-import { buildPath, CircularDependencyError, evaluateGates } from "./utils/clock";
+import { buildPath, CircularDependencyError, evaluateGates, globalSort } from "./utils/clock";
 import { ShortCircuitError } from "./utils/clock";
+import findNonAffectingInputs from "./utils/findNonAffectingInputs";
 
 async function pause(ms: number) {
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -19,7 +20,18 @@ onmessage = async function (event: MessageEvent<{
     startTime: number
 }>) {
 	console.time(`parse`);
-	const parsedData = JSON.parse(event.data as unknown as string);
+	const parsedData: {
+		currentComponent: {
+			gates: {[key: string]: Gate},
+			binaryIO: {[key: string]: BinaryIO},
+			wires: {[key: string]: Wire},
+		},
+		gates: {[key: string]: Gate},
+		io: {[key: string]: BinaryIO},
+		refreshRate: number,
+		hertz: number,
+		startTime: number
+	} = JSON.parse(event.data as unknown as string);
 	
 	const copiedGates = JSON.parse(JSON.stringify(parsedData.gates));
 	Object.entries(parsedData.currentComponent.gates).forEach(([key, gate]) => {
@@ -39,8 +51,8 @@ onmessage = async function (event: MessageEvent<{
 	const loopTime = 1000 / refreshRate;
 	let prevError = 0;
 
-	const gates = copiedGates;
-	const io = copiedIo;
+	const gates:{[key: string]: Gate} = copiedGates;
+	const io: {[key: string]: BinaryIO} = copiedIo;
 	let actualHertz = 0;
 	const currentLoopNumber = 0;
     
@@ -65,8 +77,25 @@ onmessage = async function (event: MessageEvent<{
 		}
 	}
     
+	const {mainDag, SCCOrder} = globalSort(gates, io);
+	const order = [...mainDag, ...SCCOrder];
+	// order.forEach((id, idx) => {
+	// 	console.log(`${idx} -- ${gates[id].name}  parent: ${gates[id].parent === 'global' ? 'global' : gates[gates[id].parent].name}`);
+	// })
+	const propagatedDelays: string[] = [];
+	const allNonAffectingInputs: string[] = [];
+	while(true){
+		const {nonAffectingInputs, delayId} = findNonAffectingInputs(io, gates, SCCOrder, propagatedDelays) || {};
+		if(!delayId) break;
+
+		propagatedDelays.push(delayId);
+		allNonAffectingInputs.push(...nonAffectingInputs!);
+	}
+	// allNonAffectingInputs.forEach((input, idx) => {
+	// 	console.log(`${idx} -- ${io[input].name}`);
+	// })
 	let measureErrorStart = this.performance.now();
-	const order = buildPath(gates, io);
+	
 	while(true){
 		for(const currentMaxHertz of hertzList){
 			const thisStartTime = Date.now();
@@ -78,13 +107,15 @@ onmessage = async function (event: MessageEvent<{
 				}catch(err){
 					if(err instanceof ShortCircuitError){
 						this.postMessage({gates: gates, binaryIO: io, actualHertz: actualHertz, error: 'Short circuit'});
+						break;
 					}else if(err instanceof CircularDependencyError){
 						this.postMessage({gates: gates, binaryIO: io, actualHertz: actualHertz, error: 'Circular dependency'});
+						break;
 					}
 				}
                 
 				actualHertz++;
-				if(Date.now() - thisStartTime >= loopTime){
+				if(Date.now() - thisStartTime >= loopTime-prevError){
 					break;
 				}
 			}

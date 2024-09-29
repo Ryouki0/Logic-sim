@@ -45,6 +45,7 @@ export default function BinaryIOSelected({io} : {io: BinaryIO}){
 			<span className='clickable-text' onClick={handleLink}>{gate?.name}</span>
 		</div>
 		<span style={{...textStlye, marginLeft: 10}}>High impedance: {io.highImpedance ? 'true' : 'false'}</span>
-		
+		<span style={{...textStlye, marginLeft: 10}}>State: {io.state}</span>
+		<span style={{...textStlye, marginLeft: 10}}>{io.affectsOutput ? 'This input doesn\'t affect the output on the same tick': null}</span>
 	</>;
 }
