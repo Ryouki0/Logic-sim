@@ -7,6 +7,10 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
 import { BinaryIO } from "../Interfaces/BinaryIO";
+import { DEFAULT_NON_AFFECTING_COLOR, DEFAULT_WIRE_COLOR, RED_ORANGE } from "../Constants/colors";
+import { adjustBrightness } from "../utils/adjustBrightness";
+import Square from "./Square";
+import getIOPathColor from "../utils/getIOPathColor";
 
 interface InputProps{
 	binaryInput: BinaryIO,
@@ -78,11 +82,12 @@ export function Input({binaryInput }: InputProps) {
 					value={thisInput?.affectsOutput ? 100 : 100}
 					background={true}
 					styles={buildStyles({
-						backgroundColor: thisInput?.affectsOutput ? 'white' : thisInput?.state ? "rgb(255 60 60)" : 'black',
-						pathColor:  'black',
+						backgroundColor: thisInput?.affectsOutput ? DEFAULT_NON_AFFECTING_COLOR : 'black',
+						pathColor:  getIOPathColor(thisInput),
 					})}
-					strokeWidth={thisInput?.affectsOutput ? 13 : 13}
+					strokeWidth={16}
 				></CircularProgressbar>
+				
 			</div>
 		</>
 	);

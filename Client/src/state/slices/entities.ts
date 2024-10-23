@@ -1039,6 +1039,21 @@ const entities = createSlice({
 					nextGateIds.push(gateId);
 				})
 			}
+		},
+		updateNonAffectingInputs: (state, action: PayloadAction<Set<string>>) => {
+			const nonAffectingInputs = action.payload;
+			Object.entries(state.currentComponent.binaryIO).forEach(([key, io]) => {
+				io.affectsOutput = false;
+				if(nonAffectingInputs.has(key)){
+					io.affectsOutput = true;
+				}
+			})
+			Object.entries(state.binaryIO).forEach(([key, io]) => {
+				io.affectsOutput = false;
+				if(nonAffectingInputs.has(key)){
+					io.affectsOutput = true;
+				}
+			})
 		}
 	}
 });
@@ -1046,9 +1061,9 @@ const entities = createSlice({
 
 export const {updateStateRaw} = addRawReducers(entities, {
 	updateStateRaw: (state: entities, action: AnyAction): entities => {
-	  const { gates, binaryIO } = action.payload;
+	  const {gates, binaryIO} = action.payload;
   
-	  const newGates = { ...state.currentComponent.gates };
+	  const newGates = {...state.currentComponent.gates};
 	  Object.entries(state.currentComponent.gates).forEach(([key, gate]) => {
 			if(!gates[key]) {
 				throw new Error(`In the combined new state there is no gate at ID: ${key}\nLength of 'gates' from the worker: ${Object.entries(gates).length}`);
@@ -1100,5 +1115,6 @@ export const {addWire,
 	changeState,
 	changeIOName,
 	deleteBluePrint,
-	modifyComponent
+	modifyComponent,
+	updateNonAffectingInputs
 } = entities.actions;

@@ -9,6 +9,8 @@ import { RootState } from "../state/store";
 import { AMBER, DEFAULT_BACKGROUND_COLOR, DEFAULT_WIRE_COLOR, ORANGE } from "../Constants/colors";
 import { BinaryIO } from "../Interfaces/BinaryIO";
 import { ioEquality } from "./Input";
+import { adjustBrightness } from "../utils/adjustBrightness";
+import getIOPathColor from "../utils/getIOPathColor";
 
 interface BinaryOutputProps {
 	output: BinaryIO;
@@ -36,7 +38,6 @@ export function Output({style = null, output}:BinaryOutputProps) {
 		
 	};
 	
-	
 
 	return (
 		<>
@@ -50,10 +51,10 @@ export function Output({style = null, output}:BinaryOutputProps) {
 					value={100}
 					background={true}
 					styles={buildStyles({
-						backgroundColor: thisOutput?.highImpedance ? 'rgb(100 100 100)' : (thisOutput?.state ? 'red' : 'black'),
-						pathColor: 'black',
+						backgroundColor: thisOutput?.highImpedance ? 'rgb(100 100 100)' : ('black'),
+						pathColor: getIOPathColor(thisOutput),
 					})}
-					strokeWidth={13}
+					strokeWidth={16}
 				></CircularProgressbar>
 			</div>
 		</>

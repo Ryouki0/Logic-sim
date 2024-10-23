@@ -10,3 +10,5 @@ export const DEFAULT_BORDER_COLOR = 'rgb(60 60 60)';
 export const DEFAULT_BACKGROUND_COLOR = 'rgb(66 66 66)';
 export const DEFAULT_WIRE_COLOR = 'rgb(255, 155, 30)';
 export const DEFAULT_BUTTON_COLOR = '#28A745';
+export const DEFAULT_HIGH_IMPEDANCE_COLOR = 'rgb(100, 100, 100)';
+export const DEFAULT_NON_AFFECTING_COLOR = 'rgb(204, 134, 0)';

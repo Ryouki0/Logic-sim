@@ -63,8 +63,22 @@ db.serialize(() => {
 		}
 	});
 })
-app.use(cors({credentials: true, origin: 'https://logicsim-kmybep9pq-ryouki0s-projects.vercel.app'}));
-app.use(express.json({limit: '10mb'}));
+const allowedOrigins = [
+	'https://logicsim-kmybep9pq-ryouki0s-projects.vercel.app', 
+	'http://localhost:3000'
+  ];
+  
+  app.use(cors({
+	credentials: true,
+	origin: function (origin, callback) {
+	  if (!origin || allowedOrigins.includes(origin)) {
+		callback(null, true);
+	  } else {
+		callback(new Error('Not allowed by CORS'));
+	  }
+	}
+  }));
+  app.use(express.json({ limit: '40mb' }));
 
 
 

@@ -19,8 +19,8 @@ describe('multipleSCC', () => {
     })
 
     it('Should get the full path with multiple SCCs', () => {
-        const globalOrder = globalSort(combinedGates, combinedIo);
-
+        const {mainDag, SCCOrder} = globalSort(combinedGates, combinedIo);
+        const globalOrder = [...mainDag, ...SCCOrder];
         expect(globalOrder.length).toBe(7);
         expect(combinedGates[globalOrder[0]].name).toBe('DELAY');
         expect(combinedGates[combinedGates[globalOrder[0]].parent].name).not.toBe('global');

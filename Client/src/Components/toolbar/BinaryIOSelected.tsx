@@ -9,6 +9,9 @@ import { changeIOName } from '../../state/slices/entities';
 import { RootState } from '../../state/store';
 import { Gate } from '@Shared/interfaces';
 import { setSelectedEntity } from '../../state/slices/mouseEvents';
+import { DEFAULT_HIGH_IMPEDANCE_COLOR, DEFAULT_NON_AFFECTING_COLOR } from '../../Constants/colors';
+import getIOPathColor from '../../utils/getIOPathColor';
+import OutputPreview from '../Preview/OutputPreview';
 
 export default function BinaryIOSelected({io} : {io: BinaryIO}){
 	const gate = useSelector((state: RootState) => {return state.entities.gates[io.gateId!] ??
@@ -29,7 +32,7 @@ export default function BinaryIOSelected({io} : {io: BinaryIO}){
 			alignSelf: 'center',
 			marginTop: MINIMAL_BLOCKSIZE,
 		}}>
-			<InputPreview inputId={io.id} style={{}}></InputPreview>
+			{io.type === 'input' ? <InputPreview inputId={io.id} style={{}}></InputPreview> : <OutputPreview outputId={io.id} style={{}}></OutputPreview>}
 		</div>
 		<div style={{
 			marginLeft: 10,
@@ -44,8 +47,26 @@ export default function BinaryIOSelected({io} : {io: BinaryIO}){
 			<span style={{...textStlye, marginLeft: 10}}>Gate: </span>
 			<span className='clickable-text' onClick={handleLink}>{gate?.name}</span>
 		</div>
-		<span style={{...textStlye, marginLeft: 10}}>High impedance: {io.highImpedance ? 'true' : 'false'}</span>
-		<span style={{...textStlye, marginLeft: 10}}>State: {io.state}</span>
-		<span style={{...textStlye, marginLeft: 10}}>{io.affectsOutput ? 'This input doesn\'t affect the output on the same tick': null}</span>
+		<span 
+			style={{...textStlye, marginLeft: 10, 
+			borderColor: `${DEFAULT_HIGH_IMPEDANCE_COLOR}`, 
+			borderLeftWidth: 5}}>
+			High impedance: {io.highImpedance ? 'true' : 'false'}
+		</span>
+		<span style={{...textStlye, 
+			marginLeft: 10,
+			borderColor: `${getIOPathColor(io)}`, 
+			borderLeftWidth: 5
+		}}>
+			State: {io.state}
+		</span>
+		<span style={{
+			...textStlye, 
+			marginLeft: 10,
+			borderColor: `${DEFAULT_NON_AFFECTING_COLOR}`,
+			borderLeftWidth: 5
+		}}>
+			{io.affectsOutput ? 'This input doesn\'t affect the output on the same tick.': 'This input affects the output on the same tick.'}
+		</span>
 	</>;
 }

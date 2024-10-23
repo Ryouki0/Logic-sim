@@ -16,6 +16,7 @@ import { useDispatch } from "react-redux";
 import { setCanvasDim } from "./state/slices/misc";
 import { getClosestBlock, MINIMAL_BLOCKSIZE } from "./Constants/defaultDimensions";
 import BackToMenu from "./Components/toolbar/BackToMenu";
+import WireHead from "./Components/WireHead";
 function Simulation() {
 	const dispatch = useDispatch();
 	const divRef = useRef<HTMLDivElement | null>(null);
@@ -49,7 +50,6 @@ function Simulation() {
 			<DrawWireFromIo></DrawWireFromIo>
 			<GlobalOutputs></GlobalOutputs>
 			<Toolbar></Toolbar>
-			
 			<BackToMenu></BackToMenu>
 
 		</div>

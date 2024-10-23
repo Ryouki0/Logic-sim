@@ -3,9 +3,10 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { drawLine } from '../drawingFunctions/drawLine';
 import { CANVAS_WIDTH, LINE_WIDTH } from '../Constants/defaultDimensions';
-import { DARK_RED, ORANGE, RED_ORANGE } from '../Constants/colors';
+import { DARK_RED, DEFAULT_WIRE_COLOR, ORANGE, RED_ORANGE } from '../Constants/colors';
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import { SourceMap } from 'module';
+import { adjustBrightness } from '../utils/adjustBrightness';
 
 export const checkWireSourceEquality = (prev:{[key: string]: BinaryIO[]|undefined}, next: {[key: string]: BinaryIO[]|undefined}) => {
 	const prevEntries = Object.entries(prev);
@@ -92,11 +93,11 @@ export default function useRedrawCanvas(){
 			line_width = LINE_WIDTH;
 			
 			const trueSource = findTrueSource(key);
-			context.strokeStyle = 'rgb(255, 155, 30)'; //'rgb(255, 170, 51)';
+			context.strokeStyle = DEFAULT_WIRE_COLOR; //'rgb(255, 170, 51)';
 			if(hoveringOverWire?.id === wire.id){
 				line_width = LINE_WIDTH +2;
 			}if(trueSource?.state){
-				context.strokeStyle = RED_ORANGE;
+				context.strokeStyle = adjustBrightness(DEFAULT_WIRE_COLOR, 20)//'rgb(255 200 0)';
 			}if(trueSource?.highImpedance){
 				context.strokeStyle = 'rgb(100 100 100)';
 			}

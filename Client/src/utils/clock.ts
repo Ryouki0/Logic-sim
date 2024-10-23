@@ -163,7 +163,6 @@ export function globalSort(gates: {[key: string]: Gate}, io: {[key: string]: Bin
 
 export function getGlobalDag(gates: {[key: string]: Gate}, io: {[key: string]: BinaryIO}, baseGateIds: string[]){
 	const globalRoots = getGlobalPathRoot(gates, io, baseGateIds);
-	console.log(`globalRoots length inside: ${globalRoots.length}`);
 	let currentLayer: string[] = globalRoots;
 	const mainDag: string[] = [...currentLayer];
 	let nextLayer: string[] = [];
@@ -327,11 +326,11 @@ export function propagateHighImpedance(ioId: string, io: {[key: string]: BinaryI
 }
 
 /**
- * 
- * @param startGate The starting  gate
+ * Returns a list of base gate IDs that are connected to the `startGate`
+ * @param startGate The starting base gate
  * @param io The whole IO state
- * @param baseGateIds 
- * @returns 
+ * @param baseGateIds All the base gate IDs
+ * @returns A list of the connected base gate IDs
  */
 export function getConnectedGates(startGate:Gate, io: {[key: string]: BinaryIO}, baseGateIds: string[]){
 	const connectedGates = new Set<string>();
@@ -358,7 +357,13 @@ export function getConnectedGates(startGate:Gate, io: {[key: string]: BinaryIO},
 	return Array.from(connectedGates);
 }
 
-
+/**
+ * Returns the list of base gate IDs that are connected to the `endGate`
+ * @param endGate The base gate whose source gate connections are given back
+ * @param io The entire IO state
+ * @param baseGateIds The base gate IDs
+ * @returns A list of base gate IDs
+ */
 export function getBackConnections(endGate: Gate, io: {[key: string]: BinaryIO}, baseGateIds: string[]){
 	const nextIos = endGate.inputs.flatMap(inputId => {
 		return io[inputId].from?.map(from => from.id);
@@ -489,7 +494,6 @@ export function getAllBaseGates(gates:{[key:string]:Gate}){
 			baseGates.push(nextGate.id);
 		}
 	}
-	console.log(`base gate length: ${baseGates.length}`);
 	return baseGates;
 }
 

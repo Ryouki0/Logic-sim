@@ -4,6 +4,8 @@ import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import { useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { checkSingleIo } from "./InputPreview";
+import getIOPathColor from "../../utils/getIOPathColor";
+import { DEFAULT_HIGH_IMPEDANCE_COLOR } from "../../Constants/colors";
 
 export default function OutputPreview({outputId, style}: {outputId: string, style: React.CSSProperties}){
 	const thisOutput = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO[outputId];}, checkSingleIo);
@@ -21,10 +23,10 @@ export default function OutputPreview({outputId, style}: {outputId: string, styl
 				value={100}
 				background={true}
 				styles={buildStyles({
-					backgroundColor: thisOutput?.state ? 'red' : 'black',
-					pathColor: 'black',
+					backgroundColor: thisOutput?.highImpedance ? DEFAULT_HIGH_IMPEDANCE_COLOR : 'black',
+					pathColor: getIOPathColor(thisOutput),
 				})}
-				strokeWidth={12}
+				strokeWidth={16}
 			></CircularProgressbar>
 		</div>
 	</>;

@@ -47,7 +47,7 @@ export default function Menu(){
 
 	const loadCPU = () => {
 		setLoading(true);
-		fetch(`https://reacttest-5vuh.onrender.com/api/cpu`, {
+		fetch(`http://localhost:3002/api/cpu`, {
 			method: 'GET',
 			credentials: 'include'
 		})

@@ -60,7 +60,7 @@ export default function Clock() {
 	}
 
 	const handleLoad = () => {
-		fetch(`CircularRegister2.json`).then(res => {
+		fetch(`register.json`).then(res => {
 			return res.json();
 		}).then(data => {
 			dispatch(changeState(data));
@@ -148,7 +148,7 @@ export default function Clock() {
 		}}>
 			<span style={textStlye}>Actual hz: {actualHertz.toLocaleString('de-DE')}</span>
 			<span style={textStlye}>Actual refresh rate: {actualRefreshRate}</span>
-			{user === 'Superuser' && <button onClick={e => {fetch(`https://reacttest-5vuh.onrender.com/api/cpu`, {
+			{user === 'Superuser' && <button onClick={e => {fetch(`http://localhost:3002/api/cpu`, {
 				method: 'PUT',
 				credentials: 'include',
 				headers: {

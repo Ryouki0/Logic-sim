@@ -1,6 +1,6 @@
 import { BinaryIO } from "./Interfaces/BinaryIO";
 import { Gate, Wire } from "@Shared/interfaces";
-import { buildPath, CircularDependencyError, evaluateGates, globalSort } from "./utils/clock";
+import { buildPath, CircularDependencyError, evaluateGates, getAllBaseGates, globalSort } from "./utils/clock";
 import { ShortCircuitError } from "./utils/clock";
 import findNonAffectingInputs from "./utils/findNonAffectingInputs";
 
@@ -19,7 +19,6 @@ onmessage = async function (event: MessageEvent<{
     hertz: number,
     startTime: number
 }>) {
-	console.time(`parse`);
 	const parsedData: {
 		currentComponent: {
 			gates: {[key: string]: Gate},
@@ -43,7 +42,6 @@ onmessage = async function (event: MessageEvent<{
 		copiedIo[key] = ioItem;
 	});
 	
-	console.timeEnd(`parse`);
 
 	const hertz = parsedData.hertz;
 	const refreshRate = parsedData.refreshRate;
@@ -57,7 +55,6 @@ onmessage = async function (event: MessageEvent<{
 	const currentLoopNumber = 0;
     
 	let hertzList:number[];
-	console.log(``);
 	//Create a hertz list, where the remainders are evenly spread out.
 	if(hertz >= refreshRate){
 		hertzList = Array(refreshRate).fill(Math.floor(maxHertzInLoop));
@@ -79,23 +76,24 @@ onmessage = async function (event: MessageEvent<{
     
 	const {mainDag, SCCOrder} = globalSort(gates, io);
 	const order = [...mainDag, ...SCCOrder];
-	// order.forEach((id, idx) => {
-	// 	console.log(`${idx} -- ${gates[id].name}  parent: ${gates[id].parent === 'global' ? 'global' : gates[gates[id].parent].name}`);
-	// })
-	const propagatedDelays: string[] = [];
-	const allNonAffectingInputs: string[] = [];
-	while(true){
-		const {nonAffectingInputs, delayId} = findNonAffectingInputs(io, gates, SCCOrder, propagatedDelays) || {};
-		if(!delayId) break;
-
-		propagatedDelays.push(delayId);
-		allNonAffectingInputs.push(...nonAffectingInputs!);
-	}
-	// allNonAffectingInputs.forEach((input, idx) => {
-	// 	console.log(`${idx} -- ${io[input].name}`);
-	// })
-	let measureErrorStart = this.performance.now();
 	
+
+	const propagatedDelays: Set<string> = new Set();
+	const allNonAffectingInputs: string[] = [];
+	const baseGateIds = getAllBaseGates(gates);
+	while(true){
+		const delayId = SCCOrder.find(id => gates[id].name === 'DELAY' && !propagatedDelays.has(id));
+		const delayGate = gates[delayId!];
+		console.log(`delayGate: ${delayGate}`);
+		if(!delayGate) break;
+		
+		const nonAffectingInputs = findNonAffectingInputs(gates, io, delayGate.outputs[0], baseGateIds);
+		allNonAffectingInputs.push(...nonAffectingInputs);
+		propagatedDelays.add(delayId!);
+	}
+	this.postMessage({nonAffectingInputs: allNonAffectingInputs});
+	
+	let measureErrorStart = this.performance.now();
 	while(true){
 		for(const currentMaxHertz of hertzList){
 			const thisStartTime = Date.now();
@@ -136,5 +134,6 @@ export interface WorkerEvent {
     binaryIO: {[key: string]: BinaryIO},
     actualHertz: number,
 	error?: 'Short circuit' | 'Circular dependency',
-	starting?: boolean
+	starting?: boolean,
+	nonAffectingInputs?: string[]
 };

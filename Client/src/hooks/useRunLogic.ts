@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { setActuals, setError, setIsRunning } from '../state/slices/clock';
-import { updateState, updateStateRaw } from '../state/slices/entities';
+import { updateNonAffectingInputs, updateState, updateStateRaw } from '../state/slices/entities';
 import { WorkerEvent } from '../logic.worker';
 
 
@@ -62,7 +62,15 @@ export default function useRunLogic(){
             	if(event.data.error){
             		dispatch(setError({isError: true, extraInfo: event.data.error}));
             		dispatch(setIsRunning(false));
-            	}else{
+            	}else if(event.data.nonAffectingInputs){
+					event.data.nonAffectingInputs.forEach(id => {
+						console.log(`${io[id]?.name ?? currentComponent.binaryIO[id]?.name} -- ${id}`);
+					})
+					const nonAffectingInputsSet = new Set(event.data.nonAffectingInputs);
+            		shouldUpdateWorker.current = false;
+					dispatch(updateNonAffectingInputs(nonAffectingInputsSet));
+				}
+				else{
             		update();
             	}
             };
