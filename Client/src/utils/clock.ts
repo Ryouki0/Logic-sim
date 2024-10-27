@@ -144,11 +144,11 @@ export function globalSort(gates: {[key: string]: Gate}, io: {[key: string]: Bin
 			if(gates[id].name === 'DELAY'){
 				delayGate = gates[id];
 			}
-		})
+		});
 
 		if(!delayGate) throw new CircularDependencyError();
 
-		let SCC = globalTopologicalSort(delayGate, gates, io, baseGateIds, allRemainingGateIds);
+		const SCC = globalTopologicalSort(delayGate, gates, io, baseGateIds, allRemainingGateIds);
 
 		SCC.forEach(id => {
 			SCCOrder.push(id);
@@ -156,7 +156,7 @@ export function globalSort(gates: {[key: string]: Gate}, io: {[key: string]: Bin
 			if(thisIdx === -1) throw new Error(`${id} doesn't exist in the remaining IDs`);
 
 			allRemainingGateIds.splice(thisIdx, 1);
-		})
+		});
 	}
 	return {mainDag: mainDag, SCCOrder: SCCOrder};
 }
@@ -182,7 +182,7 @@ export function getGlobalDag(gates: {[key: string]: Gate}, io: {[key: string]: B
 				if(!mainDag.includes(backGateId)){
 					isNextLayer = false;
 				}
-			})
+			});
 
 			if(isNextLayer){
 				if(nextLayer.includes(connectedGateId)){
@@ -191,12 +191,12 @@ export function getGlobalDag(gates: {[key: string]: Gate}, io: {[key: string]: B
 					nextLayer.push(connectedGateId);
 				}
 			}
-		})
+		});
 
 		if(currentLayer.length === 0){
 			mainDag.push(...nextLayer);
 			currentLayer = [...nextLayer];
-			nextLayer = []
+			nextLayer = [];
 		}
 	}
 	return mainDag;
@@ -219,7 +219,7 @@ export function globalTopologicalSort(
 ){
 	const order: string[] = [root.id];
 	let nextLayer: string[] = [];
-	const currentLayer: string[] = [root.id]
+	const currentLayer: string[] = [root.id];
 	while(currentLayer.length > 0){
 		const currentId = currentLayer.pop()!;
 		const currentGate = gates[currentId];
@@ -239,17 +239,17 @@ export function globalTopologicalSort(
 				}else if(connectedGate.name === 'DELAY'){
 					isNextLayer = false;
 				}
-			})
+			});
 
 			if(isNextLayer){
 				nextLayer.push(connectedGateId);
 			}
-		})
+		});
 
 		if(currentLayer.length === 0){
 			currentLayer.push(...nextLayer);
 			order.push(...nextLayer);
-			nextLayer = []
+			nextLayer = [];
 		}
 	}
 	return order;
@@ -267,7 +267,7 @@ export function getGlobalPathRoot(gates: {[key: string]: Gate}, io: {[key: strin
 		if(getBackConnections(currentGate, io, baseGateIds).length === 0){
 			rootIds.push(baseId);
 		}
-	})
+	});
 	
 	return rootIds;
 }
@@ -337,8 +337,8 @@ export function getConnectedGates(startGate:Gate, io: {[key: string]: BinaryIO},
 	const nextIos: string[] = startGate.outputs.flatMap(outputId => {
 		return io[outputId].to!.map(to => {
 			return to.id;	
-		})
-	})
+		});
+	});
 	while(nextIos.length > 0){
 		const currentId = nextIos.pop()!;
 		const currentIo = io[currentId];
@@ -350,7 +350,7 @@ export function getConnectedGates(startGate:Gate, io: {[key: string]: BinaryIO},
 			connectedGates.add(currentIo.gateId!);
 		}else{
 			if(currentIo.to){
-				nextIos.push(...currentIo.to!.map(to => to.id))
+				nextIos.push(...currentIo.to!.map(to => to.id));
 			}
 		}
 	}
@@ -385,7 +385,7 @@ export function getBackConnections(endGate: Gate, io: {[key: string]: BinaryIO},
 		}
 	}
 	
-	return Array.from(backGateIds)
+	return Array.from(backGateIds);
 }
 
 /**
@@ -605,7 +605,7 @@ export function getEvaluationMap(delayIds: string[], switchIds: string[]){
 					if(srcId !== output.id && !switchIds.includes(io[srcId].gateId!)){
 						shouldPropagate = false;
 					}
-				})
+				});
 				if(shouldPropagate){
 					propagateHighImpedance(output.id, io);
 				}

@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { goBack } from '../state/slices/misc';
 import { RootState } from '../state/store';
 import { switchCurrentComponent } from '../state/slices/entities';
+import { MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 
 
 export function BackArrow({style}:{style?: React.CSSProperties}){
@@ -21,7 +22,7 @@ export function BackArrow({style}:{style?: React.CSSProperties}){
 			const lastId = componentHistory[componentHistory.length-2];
 			dispatch(goBack());
 
-			dispatch(switchCurrentComponent({componentId: lastId, prevComponent: componentHistory[componentHistory.length-1]}));
+			dispatch(switchCurrentComponent({componentId: lastId, prevComponent: componentHistory[componentHistory.length-1], blockSize: MINIMAL_BLOCKSIZE}));
 			
 		};
 

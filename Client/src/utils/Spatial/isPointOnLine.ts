@@ -5,8 +5,8 @@ import { Wire } from "@Shared/interfaces";
 export function calculateLinePoints(line:Line){
 	let { startX, endX, startY, endY } = line;
         
-	const newStartX = (Math.min(startX, endX)) + CANVAS_OFFSET_LEFT;
-	const newEndX = Math.max(startX, endX) + CANVAS_OFFSET_LEFT;
+	const newStartX = (Math.min(startX, endX)); //+ CANVAS_OFFSET_LEFT;
+	const newEndX = Math.max(startX, endX); //+ CANVAS_OFFSET_LEFT;
 
 	const newStartY = Math.min(startY, endY);
 	const newEndY = Math.max(startY, endY);
@@ -33,8 +33,8 @@ export function isPointOnLine(startX:number,startY:number,endX:number,endY:numbe
 
 export function isPointOnDiagonalLine(startX: number, startY: number, endX: number, endY: number, x: number, y: number) {
 	const m = (endY - startY) / (endX - startX);
-	const startPointX = startX + CANVAS_OFFSET_LEFT;
-	const endPointX = endX + CANVAS_OFFSET_LEFT;
+	const startPointX = startX; //+ CANVAS_OFFSET_LEFT;
+	const endPointX = endX; //+CANVAS_OFFSET_LEFT;
 
 	const b = startY - m * startPointX;
 

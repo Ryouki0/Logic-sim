@@ -92,7 +92,6 @@ export default function MainCanvas(){
 					backgroundColor: 'rgb(160 160 160 / 80%)',
 					position: 'absolute',
 					left: 0,
-					marginLeft: CANVAS_OFFSET_LEFT,
 					zIndex: 0,
 				}}
 			>

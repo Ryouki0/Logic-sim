@@ -16,21 +16,21 @@ const checkSource = (prev: BinaryIO[] | undefined, next: BinaryIO[] | undefined)
 		if(io?.to?.length !== next?.[idx]?.to?.length){
 			isEqual = false;
 		}
-	})
+	});
 	return isEqual;
-}
+};
 
 export default function WireSelected({wire} : {wire:Wire}){
 	const dispatch = useDispatch();
 	const sourceMap = useSelector((state: RootState) => {
 		return wire.from?.map(source => {
 			return state.entities.binaryIO[source.id] ?? state.entities.currentComponent.binaryIO[source.id];
-		})
-	}, checkSource)
+		});
+	}, checkSource);
 
 	const handleLinkClick = (io: BinaryIO) => {
-		dispatch(setSelectedEntity({entity: io, type: 'BinaryIO'}))
-	}
+		dispatch(setSelectedEntity({entity: io, type: 'BinaryIO'}));
+	};
  
 	let list = sourceMap?.flatMap(source => source?.to?.map(to => to?.id));
 	
@@ -41,8 +41,8 @@ export default function WireSelected({wire} : {wire:Wire}){
 	const targetMap = useSelector((state: RootState) => {
 		return toList.map(targetId => {
 			return state.entities.binaryIO[targetId!] ?? state.entities.currentComponent.binaryIO[targetId!];
-		})
-	}, checkSource)
+		});
+	}, checkSource);
 
 	return <div style={{justifyContent: 'center', display: 'flex', flexDirection: 'column'}}>
 		<div style={{width: 150, height: 10, backgroundColor:ORANGE, alignSelf: 'center', marginTop: '30%'}}>
@@ -53,24 +53,26 @@ export default function WireSelected({wire} : {wire:Wire}){
     			color: 'white', 
     			fontSize: 16,
     			marginTop: 10
-				}}>
+			}}>
     			Sources:{' '}
 			</span>
 			{sourceMap?.map((source, idx, array) => {
-				return <span 
-				onClick={e => {handleLinkClick(source)}}
-				className="clickable-text">
+				return <span
+					key={idx}
+					onClick={e => {handleLinkClick(source);}}
+					className="clickable-text">
 					{source?.name}{idx === array.length - 1 ? null : ', '}
-				</span>
+				</span>;
 			})}
 			
 		</div>
 		<div style={{marginTop: 10, marginLeft: 10}}>
 			<span style={{color: 'white', fontSize: 16, marginTop: 10}}>Targets:{' '}</span>
-		{targetMap?.map((target, idx, array) => {
+			{targetMap?.map((target, idx, array) => {
 				return <span
-				onClick={e => {handleLinkClick(target)}}
-				className="clickable-text">{target?.name}{idx === array.length-1 ? null : ', '}</span> 
+					key={idx}
+					onClick={e => {handleLinkClick(target);}}
+					className="clickable-text">{target?.name}{idx === array.length-1 ? null : ', '}</span>; 
 			})}
 		</div>
 		

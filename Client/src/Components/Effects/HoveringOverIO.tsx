@@ -10,6 +10,7 @@ export default function HoveringOverIO(){
 
 	const io = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO;});
 	const dispatch = useDispatch();
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const currentlyHoveringOverIo = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverIo;});
 	const currentComponent = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const spanRef = useRef<HTMLSpanElement | null>(null);
@@ -60,7 +61,7 @@ export default function HoveringOverIO(){
         		position: 'absolute',
         		userSelect: 'none',
         		zIndex: 2, 
-        		top: currentlyHoveringOverIo.position!.y - 1.5*MINIMAL_BLOCKSIZE,
+        		top: currentlyHoveringOverIo.position!.y - 1.5*blockSize,
         		left: currentlyHoveringOverIo.position!.x,
         		transform: 'translateX(-40%)'
         	}}>{currentlyHoveringOverIo.name}</span>}

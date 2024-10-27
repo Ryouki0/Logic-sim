@@ -3,13 +3,15 @@ import {Wire} from'@Shared/interfaces';
 import { changeWirePosition } from "../state/slices/entities";
 import { getClosestBlock } from "../Constants/defaultDimensions";
 import { v4 as uuidv4 } from 'uuid';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setDrawingWire } from "../state/slices/mouseEvents";
 import useIsWireClicked from "./useIsWireClicked";
+import { RootState } from "../state/store";
 
 
 export default function useDrawWire() {
 	const dispatch = useDispatch();
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	function startDrawing(
 		e: React.MouseEvent<any>,
 	){
@@ -44,7 +46,7 @@ export default function useDrawWire() {
 		const mouseDownListener = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 
 			const {x, y} = getClientOffset(event);
-			const {roundedX, roundedY} = getClosestBlock(x,y);
+			const {roundedX, roundedY} = getClosestBlock(x,y, blockSize);
 			line.startX = roundedX;
 			line.startY = roundedY;
 			lastPosition.x = roundedX;
@@ -86,7 +88,7 @@ export default function useDrawWire() {
 		const mouseMoveListener = (event: MouseEvent) => {
       
 			const {x, y} = getClientOffset((event as unknown) as React.MouseEvent<HTMLCanvasElement, MouseEvent>);
-			const {roundedX, roundedY} = getClosestBlock(x,y);
+			const {roundedX, roundedY} = getClosestBlock(x,y, blockSize);
       
 			if(lastPosition.x !== roundedX || lastPosition.y !== roundedY){
 				line.endX = roundedX;

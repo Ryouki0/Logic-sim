@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { MINIMAL_BLOCKSIZE } from '../../Constants/defaultDimensions';
 import { textSpanContainsPosition } from 'typescript';
 import { textStlye } from '../../Constants/commonStyles';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../state/store';
 
 export default function BackToMenu(){
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const navigation = useNavigate();
 	const toMenu = () => {
 		navigation('/');

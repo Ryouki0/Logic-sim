@@ -63,14 +63,15 @@ export default function useRunLogic(){
             		dispatch(setError({isError: true, extraInfo: event.data.error}));
             		dispatch(setIsRunning(false));
             	}else if(event.data.nonAffectingInputs){
-					event.data.nonAffectingInputs.forEach(id => {
-						console.log(`${io[id]?.name ?? currentComponent.binaryIO[id]?.name} -- ${id}`);
-					})
-					const nonAffectingInputsSet = new Set(event.data.nonAffectingInputs);
+            		event.data.nonAffectingInputs.forEach(id => {
+            			console.log(`${io[id]?.name ?? currentComponent.binaryIO[id]?.name} -- ${id}`);
+            		});
+            		const nonAffectingInputsSet = new Set(event.data.nonAffectingInputs);
             		shouldUpdateWorker.current = false;
-					dispatch(updateNonAffectingInputs(nonAffectingInputsSet));
-				}
-				else{
+            		console.log(`calling update`);
+            		dispatch(updateNonAffectingInputs(nonAffectingInputsSet));
+            	}
+            	else{
             		update();
             	}
             };

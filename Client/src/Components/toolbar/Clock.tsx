@@ -57,7 +57,7 @@ export default function Clock() {
 		
 		document.body.removeChild(link);  
 		window.URL.revokeObjectURL(url);  
-	}
+	};
 
 	const handleLoad = () => {
 		fetch(`register.json`).then(res => {
@@ -66,8 +66,8 @@ export default function Clock() {
 			dispatch(changeState(data));
 		}).catch(err => {
 			console.error(`error: ${err.message}`);
-		})
-	}
+		});
+	};
 
 	return <div style={{
 		backgroundColor: 'rgb(100 100 100)',
@@ -167,7 +167,7 @@ export default function Clock() {
 			}}>save</button>}
 			{<div>
 				<button style={{width: 200, height: 50}} onClick={handleDownload}>Download</button>
-				</div>}
+			</div>}
 			<button onClick={handleLoad}>fetch json</button>
 		</div>
 		 <div style={{ display: 'flex', alignItems: 'center' }}>

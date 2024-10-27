@@ -7,14 +7,14 @@ import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDim
  * @param arrayLength The inputs length
  * @returns The relative position for the customGate
  */
-export const calculateInputTop = (idx: number, arrayLength: number) : number => {
+export const calculateInputTop = (idx: number, arrayLength: number, blockSize: number) : number => {
 	if(arrayLength == 1){
-		return MINIMAL_BLOCKSIZE -DEFAULT_INPUT_DIM.height/2;
+		return blockSize -DEFAULT_INPUT_DIM.height/2;
 	}
-	const defaultExpression = -((DEFAULT_INPUT_DIM.height/2)) + (idx*(MINIMAL_BLOCKSIZE - DEFAULT_INPUT_DIM.height));
+	const defaultExpression = -((DEFAULT_INPUT_DIM.height/2)) + (idx*(blockSize - DEFAULT_INPUT_DIM.height));
 	if(arrayLength % 2 === 0){
 		if(idx >= (arrayLength / 2)){
-			return -((DEFAULT_INPUT_DIM.height/2)) + ((idx+1)*(MINIMAL_BLOCKSIZE - DEFAULT_INPUT_DIM.height)) + DEFAULT_INPUT_DIM.height;
+			return -((DEFAULT_INPUT_DIM.height/2)) + ((idx+1)*(blockSize - DEFAULT_INPUT_DIM.height)) + DEFAULT_INPUT_DIM.height;
 		}
 	}
 	return defaultExpression; 

@@ -5,9 +5,9 @@ import { transform } from "typescript";
 const handleMouseDown = (
 	e: MouseEvent, 
 	eleRef:React.MutableRefObject<HTMLDivElement | null>, 
-	dispatch:Dispatch<UnknownAction>,
 	dx: number,
 	dy: number,
+	blockSize: number,
 	setOffset:(dx: number, dy: number) => void,
 	setPosition: (x: number, y: number) => void) => {
     
@@ -30,7 +30,7 @@ const handleMouseDown = (
 		// How far the mouse has been moved
 		const dx = e.pageX - startPos.x;
 		const dy = e.pageY - startPos.y;
-		const {roundedX, roundedY} = getClosestBlock(dx, dy);
+		const {roundedX, roundedY} = getClosestBlock(dx, dy, blockSize);
 		const currentPos = ele.getBoundingClientRect();
 		// Set the position of element to the nearest block
 		if(roundedX !== currentPos.x || roundedY !== currentPos.y){

@@ -6,6 +6,7 @@ import { RootState } from '../state/store';
 
 export default function GhostInput({x, y, type}: {x:number, y:number, type: 'input' | 'output'}) {
 	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth;});
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 
 	const getLeftPos = () => {
 		if(type === 'input'){

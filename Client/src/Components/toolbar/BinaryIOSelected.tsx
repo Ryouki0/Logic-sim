@@ -15,7 +15,9 @@ import OutputPreview from '../Preview/OutputPreview';
 
 export default function BinaryIOSelected({io} : {io: BinaryIO}){
 	const gate = useSelector((state: RootState) => {return state.entities.gates[io.gateId!] ??
-		state.entities.currentComponent.gates[io.gateId!]});
+		state.entities.currentComponent.gates[io.gateId!];
+	});
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 
 	const dispatch = useDispatch();
 	const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -24,7 +26,7 @@ export default function BinaryIOSelected({io} : {io: BinaryIO}){
 
 	const handleLink = () => {
 		dispatch(setSelectedEntity({entity: gate, type: 'Gate'}));
-	}
+	};
 
 	return <>
 		<div style={{
@@ -49,8 +51,8 @@ export default function BinaryIOSelected({io} : {io: BinaryIO}){
 		</div>
 		<span 
 			style={{...textStlye, marginLeft: 10, 
-			borderColor: `${DEFAULT_HIGH_IMPEDANCE_COLOR}`, 
-			borderLeftWidth: 5}}>
+				borderColor: `${DEFAULT_HIGH_IMPEDANCE_COLOR}`, 
+				borderLeftWidth: 5}}>
 			High impedance: {io.highImpedance ? 'true' : 'false'}
 		</span>
 		<span style={{...textStlye, 

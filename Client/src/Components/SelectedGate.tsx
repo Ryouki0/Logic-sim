@@ -11,7 +11,7 @@ import calculateGateHeight from '../utils/Spatial/calculateGateHeight';
 export default function SelectedGate(){
 	const selectedGateId = useSelector((state: RootState) => {return state.mouseEventsSlice.selectedGate;});
 	const currentGate = useSelector((state: RootState) => {return state.entities.bluePrints.gates[selectedGateId!];});
-
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const dispatch = useDispatch();
 
 	const handleMouseMove = (e: MouseEvent) => {
@@ -19,12 +19,12 @@ export default function SelectedGate(){
 			return;
 		}
 		const gateWidth = DEFAULT_GATE_DIM.width;
-		const gateHeight = calculateGateHeight(currentGate);
+		const gateHeight = calculateGateHeight(currentGate, blockSize);
 		const middleX = e.x - gateWidth / 2;
 		const middleY = e.y - gateHeight / 2;
-		const {roundedX, roundedY} = getClosestBlock(middleX, middleY);
+		const {roundedX, roundedY} = getClosestBlock(middleX, middleY, blockSize);
 		if(roundedX !== currentGate?.position?.x || roundedY !== currentGate.position?.y){
-			dispatch(changeBluePrintPosition({gateId: currentGate!.id, position: {x:roundedX, y:roundedY}}));
+			dispatch(changeBluePrintPosition({gateId: currentGate!.id, position: {x:roundedX, y:roundedY}, blockSize: blockSize}));
 		}
 	};
 

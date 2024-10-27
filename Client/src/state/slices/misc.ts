@@ -5,14 +5,16 @@ export interface Misc{
     history: string[],
 	canvasWidth: number,
 	canvasHeight: number,
+	blockSize: number,
 	user: string | null,
 }
 
 const initialState:Misc = {
 	currentComponentId: 'global',
 	history: ['global'],
-	canvasWidth: getClosestBlock(0.8*window.innerWidth, 0).roundedX,
+	canvasWidth: getClosestBlock(0.8*window.innerWidth, 0, MINIMAL_BLOCKSIZE).roundedX,
 	canvasHeight: window.innerHeight - 2*MINIMAL_BLOCKSIZE,
+	blockSize: MINIMAL_BLOCKSIZE,
 	user: null,
 };
 
@@ -38,6 +40,14 @@ const misc = createSlice({
 		},
 		setUser: (state, action: PayloadAction<string | null>) => {
 			state.user = action.payload;
+		},
+		changeBlockSize: (state, action: PayloadAction<number>) => {
+			const newSize = parseFloat((action.payload > 0 ? state.blockSize * 0.9 : state.blockSize / 0.9).toFixed(20));
+			if(newSize < 5.9 || newSize > 44){
+				return;
+			}
+			state.blockSize = newSize;
+			console.log(`NEW SIZE: ${state.blockSize}`);
 		}
 	}
 });
@@ -47,5 +57,6 @@ export const {
 	setCurrentComponentId,
 	goBack,
 	setCanvasDim,
-	setUser
+	setUser,
+	changeBlockSize
 } = misc.actions;

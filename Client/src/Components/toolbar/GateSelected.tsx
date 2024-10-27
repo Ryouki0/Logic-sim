@@ -23,6 +23,7 @@ const checkGateEquality = (prev: Gate, next: Gate) => {
 export default function GateSelected({gate}: {gate: Gate}){
 
 	const thisGate = useSelector((state: RootState) => {return state.entities.currentComponent.gates[gate.id];}, checkGateEquality);
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const gateChanged = useRef<boolean>(true);
 	const currentText = useRef<string>('');
 	const [text, setText] = useState<string>('');
@@ -35,7 +36,7 @@ export default function GateSelected({gate}: {gate: Gate}){
 		gateChanged.current = false;
 	}
 
-	const gateHeight = calculateGateHeight(gate);
+	const gateHeight = calculateGateHeight(gate, MINIMAL_BLOCKSIZE);
 	
 	const textareaRef = useRef<any>(null);
 	

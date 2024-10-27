@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { BackArrow } from '../BackArrow';
 export default function CanvasTop(){
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const currentComponent = useSelector((state: RootState) => {return state.entities.gates[currentComponentId];});
@@ -48,7 +49,7 @@ export default function CanvasTop(){
 		{currentComponent && <div
 			style={{
 				zIndex: 2000,
-				height: 2*MINIMAL_BLOCKSIZE,
+				height: 2*blockSize,
 				position: 'absolute',
 				display: 'flex',
 				alignSelf: 'flex-start',

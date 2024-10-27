@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CANVASTOP_HEIGHT, CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE,getClosestBlock } from '../Constants/defaultDimensions';
+import { CANVASTOP_HEIGHT, CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM,MINIMAL_BLOCKSIZE,getClosestBlock } from '../Constants/defaultDimensions';
 import { Input } from './Input';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
@@ -25,6 +25,7 @@ export function checkIo(prev:BinaryIO[],next:BinaryIO[]){
 }
 export default function GlobalInputs(){
 	const [pointerEvents, setPointerEvents] = useState<'auto' | 'none'>('auto');
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const inputs = useSelector((state: RootState) => {
 		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => 
@@ -44,7 +45,7 @@ export default function GlobalInputs(){
 	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight;});
  	const handleRightClick = (e: MouseEvent) => {
  		e.preventDefault();
- 		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY);
+ 		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY, blockSize);
 		if(roundedY < CANVASTOP_HEIGHT){
 			
 			return;
@@ -63,7 +64,7 @@ export default function GlobalInputs(){
  	};
 
  	const throttledMouseMove = throttle((e:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY);
+		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY, blockSize);
 		if(roundedY < CANVASTOP_HEIGHT){
 			return;
 		}
@@ -89,15 +90,15 @@ export default function GlobalInputs(){
 	};
 
 	useEffect(() => {
-		eleRef.current?.addEventListener('contextmenu', handleRightClick);
-		eleRef.current?.addEventListener('mousemove', throttledMouseMove);
-		eleRef.current?.addEventListener('mouseleave', handleMouseLeave);
+		// eleRef.current?.addEventListener('contextmenu', handleRightClick);
+		// eleRef.current?.addEventListener('mousemove', throttledMouseMove);
+		// eleRef.current?.addEventListener('mouseleave', handleMouseLeave);
 
-		return () => {
-			eleRef.current?.removeEventListener('contextmenu', handleRightClick);
-			eleRef.current?.removeEventListener('mousemove', throttledMouseMove);
-			eleRef.current?.removeEventListener('mouseleave', handleMouseLeave);
-		};
+		// return () => {
+		// 	eleRef.current?.removeEventListener('contextmenu', handleRightClick);
+		// 	eleRef.current?.removeEventListener('mousemove', throttledMouseMove);
+		// 	eleRef.current?.removeEventListener('mouseleave', handleMouseLeave);
+		// };
 	}, [ghostInputPosition, showGhostInput]);
 
  	return <div style={{backgroundColor: DEFAULT_BACKGROUND_COLOR, 
@@ -112,7 +113,6 @@ export default function GlobalInputs(){
 		borderWidth: DEFAULT_BORDER_WIDTH,
 		borderBottom: 0,
  			zIndex: 2,
- 			marginLeft: CANVAS_OFFSET_LEFT
 	}}
 	ref={eleRef}
  		>
@@ -139,7 +139,7 @@ export default function GlobalInputs(){
 		}}>
 
 		</div>
- 		{inputs.map(( input, idx) => {
+ 		{/* {inputs.map(( input, idx) => {
  			return (
  				<div key={uuidv4()} style={{
 					alignItems: 'center', 
@@ -172,7 +172,7 @@ export default function GlobalInputs(){
  					</button>}
  				</div>
  			);
- 		})}
+ 		})} */}
  		{showGhostInput && <GhostInput x={ghostInputPosition.x} y={ghostInputPosition.y} type='input'></GhostInput>}
  	</div>;
 }

@@ -1,4 +1,4 @@
-import { CANVAS_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
+import { CANVAS_WIDTH, DEFAULT_INPUT_DIM } from "../../Constants/defaultDimensions";
 import { BinaryIO } from "../../Interfaces/BinaryIO";
 
 export default function isOnIo(x:number,y:number, io:BinaryIO){

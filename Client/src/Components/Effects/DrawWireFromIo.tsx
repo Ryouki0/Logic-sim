@@ -13,7 +13,6 @@ export default function DrawWireFromIo(){
 	useEffect(() => {
 		if(currentComponentId !== 'global') return;
 		const handleMouseDown = (e: MouseEvent) => {
-			console.log(`clicked`);
 			for(const [key, io] of ioEntries){
 				if(isOnIo(e.x, e.y, io)){
 					startDrawing(e as unknown as React.MouseEvent<any>);

@@ -38,8 +38,8 @@ onmessage = async function (event: MessageEvent<{
 	});
 
 	const copiedIo = JSON.parse(JSON.stringify(parsedData.io));
-	Object.entries(parsedData.currentComponent.binaryIO).forEach(([key, ioItem]) => {
-		copiedIo[key] = ioItem;
+	Object.entries(parsedData.currentComponent.binaryIO).forEach(([key, io]) => {
+		copiedIo[key] = {...io, affectsOutput: false};
 	});
 	
 
@@ -82,17 +82,31 @@ onmessage = async function (event: MessageEvent<{
 	const allNonAffectingInputs: string[] = [];
 	const baseGateIds = getAllBaseGates(gates);
 	while(true){
-		const delayId = SCCOrder.find(id => gates[id].name === 'DELAY' && !propagatedDelays.has(id));
+		const delayId = order.find(id => gates[id].name === 'DELAY' && !propagatedDelays.has(id));
 		const delayGate = gates[delayId!];
 		console.log(`delayGate: ${delayGate}`);
 		if(!delayGate) break;
-		
-		const nonAffectingInputs = findNonAffectingInputs(gates, io, delayGate.outputs[0], baseGateIds);
-		allNonAffectingInputs.push(...nonAffectingInputs);
+		const nextIos = [delayGate.outputs[0]];
+		allNonAffectingInputs.push(delayGate.inputs[0]);
+		while(nextIos.length > 0){
+			const currentId = nextIos.pop()!;
+
+			const nonAffectingInputs = findNonAffectingInputs(gates, io, currentId, baseGateIds);
+
+			nonAffectingInputs.forEach(id => {
+				if(allNonAffectingInputs.includes(id)) return;
+				allNonAffectingInputs.push(id);
+				nextIos.push(id);
+			});
+
+		}
 		propagatedDelays.add(delayId!);
+
 	}
-	this.postMessage({nonAffectingInputs: allNonAffectingInputs});
-	
+	//this.postMessage({nonAffectingInputs: allNonAffectingInputs});
+	allNonAffectingInputs.forEach(id => {
+		io[id].affectsOutput = true;
+	});
 	let measureErrorStart = this.performance.now();
 	while(true){
 		for(const currentMaxHertz of hertzList){

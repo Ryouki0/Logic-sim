@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import handleMouseDown from '../handleGateEvents';
 import { Input } from './Input';
-import { DEFAULT_INPUT_DIM, LINE_WIDTH, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { Output } from './Output';
 import { Gate } from '../Interfaces/Gate';
 import { RootState } from '../state/store';
@@ -39,7 +39,8 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 	const eleRef = useRef<HTMLDivElement>(null);
 	const spanRef = useRef<HTMLSpanElement>(null);
 	const dispatch = useDispatch();
-	
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
+	const prevSize = useRef<number>(blockSize);
 	const thisGate = useSelector((state: RootState) => {
 		if(isBluePrint){
 			return state.entities.bluePrints.gates[gateProps.id];
@@ -80,7 +81,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 	}, () => true);
 
 	function setPositions(x: number, y: number){
-		dispatch(changeGatePosition({gate: thisGate, position: {x: x,y: y}}));
+		dispatch(changeGatePosition({gate: thisGate, position: {x: x,y: y}, blockSize: blockSize}));
 	};
 
 	const handleMouseDownEvent = (e: MouseEvent) => {
@@ -89,7 +90,8 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 		if(!isBluePrint){
 			e.preventDefault();
 			dispatch(setSelectedEntity({ type: 'Gate', entity: thisGate }));
-			handleMouseDown(e as any, eleRef, dispatch, offsetRef.current.dx, offsetRef.current.dy, setOffset, setPositions);
+			console.log(`POSITION: x:${thisGate.position?.x} y:${thisGate.position?.y} OFFSET: dx:${offsetRef.current.dx} dy:${offsetRef.current.dy}`);
+			handleMouseDown(e as any, eleRef, offsetRef.current.dx, offsetRef.current.dy, blockSize, setOffset, setPositions);
 		}
 	  };
 
@@ -119,13 +121,23 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 		};
 	}, [inputs, outputs, thisGate]);
 
+	//When zooming, the old offset would make the gate teleport, so change the offset to the new position
+	useEffect(() => {
+		
+		const multipliers = {x: (thisGate.position!.x - 2*MINIMAL_BLOCKSIZE) / prevSize.current, y: (thisGate.position!.y - 2*MINIMAL_BLOCKSIZE) / prevSize.current};
+		const newPosition = {x: multipliers.x * blockSize + 2*MINIMAL_BLOCKSIZE, y: multipliers.y * blockSize + 2*MINIMAL_BLOCKSIZE};
+		offsetRef.current.dx = newPosition.x;
+		offsetRef.current.dy = newPosition.y;
+		prevSize.current = blockSize;
+	}, [blockSize]);
+
 	return	(
 		<>
 			{/* {console.log(`rendering customgate: ${thisGate?.id.slice(0,6)}`)} */}
 			<div ref={eleRef}
 				className='Gate-container'
-				style={{width: 3*MINIMAL_BLOCKSIZE, 
-					height: calculateGateHeight(thisGate),
+				style={{width: 3*blockSize, 
+					height: calculateGateHeight(thisGate, blockSize),
 					position: position ? position : 'relative',
 					top: thisGate?.position ? thisGate.position.y : 0,
 					left: thisGate?.position ? thisGate.position.x : 0,
@@ -140,7 +152,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 				{inputs?.map((input, idx, array) => {
 					return <Input binaryInput={{...input, 
 						style: {
-							top: calculateInputTop(idx, array.length)
+							top: calculateInputTop(idx, array.length, blockSize)
 						}}} 
 					key={input?.id}></Input>;
 				})}
@@ -152,7 +164,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 						transform: "translate(-50%, -50%)"
 					}}> 
 					<span ref={spanRef}
-						style={{fontSize: MINIMAL_BLOCKSIZE/2 +4, 
+						style={{fontSize: blockSize/2 +4, 
         				userSelect: 'none', 
 				        color: 'white'}}>
 						{gateProps.name}
@@ -161,9 +173,9 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 				{outputs.map((output,idx,array) => {
 					return <Output output={output} style={
 						{
-							top: calculateInputTop(idx, array.length) + (idx*DEFAULT_INPUT_DIM.height),
+							top: calculateInputTop(idx, array.length, blockSize) + (idx*DEFAULT_INPUT_DIM.height),
 							position:'absolute',
-							left:3*MINIMAL_BLOCKSIZE - DEFAULT_INPUT_DIM.height/2}} key={output?.id}></Output>;
+							left:3*blockSize - DEFAULT_INPUT_DIM.height/2}} key={output?.id}></Output>;
 				})}
 			</div>
 		</>

@@ -95,7 +95,7 @@ export default function Menu(){
 			</div>}
 			{error?.isError && <div style={{position: 'absolute', backgroundColor: 'red', padding: 15, top: 20, opacity: 0.9}}>
 				<span style={{fontSize: 22, color: 'white'}}>{error.info}</span>
-				</div>}
+			</div>}
 			{loading && <div style={{
 				position: 'absolute',
 				top: 0,

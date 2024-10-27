@@ -12,6 +12,7 @@ import { throttle } from '../utils/throttle';
 import GhostInput from './GhostInput';
 
 export default function GlobalOutputs() {
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const outputs = useSelector((state: RootState) => {
 		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => {
@@ -30,13 +31,13 @@ export default function GlobalOutputs() {
 	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight;});
 
 	const throttledMouseMove = throttle((e:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY);
+		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY, blockSize);
 		if(roundedY < CANVASTOP_HEIGHT){
 			return;
 		}
  		const outputEntries = Object.entries(outputs);
  		for(const [key, output] of outputEntries){
- 			if(getClosestBlock(0, output?.position?.y!).roundedY === roundedY){
+ 			if(getClosestBlock(0, output?.position?.y!, blockSize).roundedY === roundedY){
 				if(showGhostOutput){
 					setShowGhostOutput(false);
 				}
@@ -47,16 +48,16 @@ export default function GlobalOutputs() {
 			setShowGhostOutput(true);
 		}
 		if(ghostOutputPosition.y !== roundedY){
-			setGhostOutputPosition({x:2*MINIMAL_BLOCKSIZE, y: roundedY + DEFAULT_BORDER_WIDTH});
+			setGhostOutputPosition({x:2*blockSize, y: roundedY + DEFAULT_BORDER_WIDTH});
 		}
  	}, 16);
 
 
  	const handleRightClick = (e:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
  		e.preventDefault();
- 		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY);
+ 		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY, blockSize);
  		dispatch(addGlobalOutput(
- 		 	{
+ 		 	{io: {
  		 		state:0,
 				type: 'output',
  		 		id: uuidv4(),
@@ -65,21 +66,21 @@ export default function GlobalOutputs() {
 				to: [],
 				isGlobalIo: true,
  		 		position: {
- 		 			x: canvasWidth - MINIMAL_BLOCKSIZE,
+ 		 			x: canvasWidth - blockSize,
  		 			y: roundedY
  		 		},
  		 		style: {
  		 			top: roundedY - DEFAULT_INPUT_DIM.height/2,
 					position: 'absolute',
- 		 			left: (-DEFAULT_INPUT_DIM.height/2 - DEFAULT_BORDER_WIDTH) + canvasWidth - MINIMAL_BLOCKSIZE + DEFAULT_BORDER_WIDTH
+ 		 			left: (-DEFAULT_INPUT_DIM.height/2 - DEFAULT_BORDER_WIDTH) + canvasWidth - blockSize + DEFAULT_BORDER_WIDTH
  		 		}
- 			}
+ 			}, blockSize: blockSize}
  		));
  	};
 
  	return <div 
  		style={{
- 			width: MINIMAL_BLOCKSIZE,
+ 			width: blockSize,
  			height: canvasHeight,
  			zIndex: 0,
 			display: 'inline-block',
@@ -95,16 +96,16 @@ export default function GlobalOutputs() {
  		onContextMenu={e=> {handleRightClick(e);}}>
 		<div style={{
 			background: `linear-gradient(${DEFAULT_BACKGROUND_COLOR}, rgb(140, 140, 140))`,
-			width: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
+			width: blockSize - 2*DEFAULT_BORDER_WIDTH,
 			position: 'absolute',
-			height: 2*MINIMAL_BLOCKSIZE,
-			top: canvasHeight + DEFAULT_BORDER_WIDTH -2*MINIMAL_BLOCKSIZE
+			height: 2*blockSize,
+			top: canvasHeight + DEFAULT_BORDER_WIDTH -2*blockSize
 		}}>
 		</div>
 		<div style={{
 			backgroundColor: DEFAULT_BACKGROUND_COLOR,
 			position: 'absolute',
-			width: MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
+			width: blockSize - 2*DEFAULT_BORDER_WIDTH,
 			height: CANVASTOP_HEIGHT - 2*DEFAULT_BORDER_WIDTH,
 			left: -DEFAULT_BORDER_WIDTH
 		}}>

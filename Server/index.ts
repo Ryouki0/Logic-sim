@@ -62,6 +62,21 @@ db.serialize(() => {
 			console.error(err.message);
 		}
 	});
+
+	db.run(`CREATE TABLE IF NOT EXISTS projects (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		wires TEXT NOT NULL,
+		gates TEXT NOT NULL,
+		bluePrints TEXT NOT NULL,
+		binaryIO TEXT NOT NULL,
+		currentComponent TEXT NOT NULL,
+		name TEXT NOT NULL,
+		userId INTEGER NOT NULL,
+		FOREIGN KEY (userId) REFERENCES users(id))`, (err:any) => {
+		if(err){
+			console.error(err.message);
+		}
+	});
 })
 const allowedOrigins = [
 	'https://logicsim-kmybep9pq-ryouki0s-projects.vercel.app', 
@@ -108,9 +123,6 @@ function checkRole(requiredRole: string){
 	}
 }
 
-app.post('/api/adminAccess', checkRole('admin'), (req, res) => {
-	
-})
 
 app.get('/api/cpu', (req, res) => {
 	db.get(`SELECT * FROM cpu WHERE id = ?`, [1], (err:any, row:any) => {

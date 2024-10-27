@@ -1,11 +1,11 @@
 import { Action, AnyAction, PayloadAction, createSlice, current } from "@reduxjs/toolkit";
-import { Wire } from "@Shared/interfaces";
+import { Line, Wire } from "@Shared/interfaces";
 import { Gate } from "../../Interfaces/Gate";
 import {v4 as uuidv4} from 'uuid';
 
 import { BinaryIO } from "../../Interfaces/BinaryIO";
 import { calculateInputTop } from "../../utils/Spatial/calculateInputTop";
-import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, getClosestBlock, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
+import { CANVAS_OFFSET_LEFT, CANVAS_WIDTH, CANVASTOP_HEIGHT, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, getClosestBlock, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
 import { propagateIo } from "../../utils/propagateIo";
 import { addRawReducers } from "../../utils/addRawReducers";
 import calculateAbsoluteIOPos from "../../utils/Spatial/calculateAbsoluteIOPos";
@@ -13,6 +13,8 @@ import { forEachChild } from "typescript";
 import { Output } from "../../Components/Output";
 import changeGlobalInputPosition from "../../utils/Spatial/changeGlobalInputPos";
 import changeGlobalOutputPosition from "../../utils/Spatial/changeGlobalOutputPos";
+import { BlockList } from "net";
+import changeGateIoPos from "../../utils/Spatial/changeGateIoPos";
 
 const ANDInputId1 = uuidv4();
 const ANDInputId2 = uuidv4();
@@ -520,17 +522,18 @@ const entities = createSlice({
 			
 		},
 		
-		changeGatePosition: (state, action: PayloadAction<{gate:Gate,position: {x:number,y:number}}>) => {
+		changeGatePosition: (state, action: PayloadAction<{gate:Gate,position: {x:number,y:number}, blockSize: number}>) => {
 			
 			const gate = state.currentComponent.gates[action.payload.gate.id];
+			const blockSize = action.payload.blockSize;
 			gate.position = action.payload.position;
 			const newInputPositions: {[key: string]: {x: number, y: number}} = {};
 			gate.inputs.forEach((inputId, idx, array) => {
-				newInputPositions[inputId] = calculateAbsoluteIOPos(gate, state.currentComponent.binaryIO[inputId]);
+				newInputPositions[inputId] = calculateAbsoluteIOPos(gate, state.currentComponent.binaryIO[inputId], blockSize);
 			});
 
 			gate.outputs.forEach((outputId, idx, array) => {
-				newInputPositions[outputId] = calculateAbsoluteIOPos(gate, state.currentComponent.binaryIO[outputId]);
+				newInputPositions[outputId] = calculateAbsoluteIOPos(gate, state.currentComponent.binaryIO[outputId], blockSize);
 			});
 
 			Object.entries(newInputPositions).forEach(([key, position]) => {
@@ -542,10 +545,10 @@ const entities = createSlice({
 			const inputs = Object.entries(state.currentComponent.binaryIO);
 			for(const [key, input] of inputs){
 				if(input.type === 'input' && !input.gateId){
-					if(input.position?.y === action.payload.position?.y){
-						delete state.currentComponent.binaryIO[key];
-						return;
-					}
+					// if(input.position?.y === action.payload.position?.y){
+					// 	delete state.currentComponent.binaryIO[key];
+					// 	return;
+					// }
 				}
 			}
 			state.currentComponent.binaryIO[action.payload.id] = action.payload;
@@ -558,18 +561,19 @@ const entities = createSlice({
 			
 			
 		},
-		addGlobalOutput: (state, action: PayloadAction<BinaryIO>) => {
+		addGlobalOutput: (state, action: PayloadAction<{io: BinaryIO, blockSize: number}>) => {
 			const ioEntries = Object.entries(state.currentComponent.binaryIO);
+			const blockSize = action.payload.blockSize;
 			for(const [key, io] of ioEntries){
 				if(io.type === 'output' && !io.gateId){
-					const roundedY = getClosestBlock(0, io.position!.y).roundedY;
-					if(roundedY === action.payload.position?.y){
+					const roundedY = getClosestBlock(0, io.position!.y, blockSize).roundedY;
+					if(roundedY === action.payload.io.position?.y){
 						delete state.currentComponent.binaryIO[key];
 						return;
 					}
 				}
 			}
-			state.currentComponent.binaryIO[action.payload.id] = action.payload;
+			state.currentComponent.binaryIO[action.payload.io.id] = action.payload.io;
 		},
 		changeIOPosition: (state, action:PayloadAction<{id: string, position: {x:number, y:number}}>) => {
 			state.currentComponent.binaryIO[action.payload.id].position = action.payload.position;
@@ -782,7 +786,7 @@ const entities = createSlice({
 			});
 			Object.entries(state.gates).forEach(([key, gate]) => {
 				state.bluePrints.gates[key] = gate;
-			})
+			});
 
 
 			Object.entries(state.currentComponent.binaryIO).forEach(([key, io]) => {
@@ -790,7 +794,7 @@ const entities = createSlice({
 			});
 			Object.entries(state.binaryIO).forEach(([key, io]) => {
 				state.bluePrints.io[key] = io;
-			})
+			});
 
 			globalOutputs.forEach(output => {
 				state.bluePrints.io[output.id].gateId = newGateId;
@@ -810,8 +814,9 @@ const entities = createSlice({
 				state.currentComponent.wires[wireId].error = true;
 			});
 		},
-		changeBluePrintPosition: (state, action:PayloadAction<{gateId: string, position: {x: number, y: number}}>) => {
+		changeBluePrintPosition: (state, action:PayloadAction<{gateId: string, position: {x: number, y: number}, blockSize: number}>) => {
 			const gateId = action.payload.gateId;
+			const blockSize = action.payload.blockSize;
 			const topLevelGate = state.bluePrints.gates[gateId];
 			const newPosition = action.payload.position;
 			topLevelGate.position = action.payload.position;
@@ -819,14 +824,14 @@ const entities = createSlice({
 			topLevelGate.inputs.forEach((inputId, idx, array) => {
 				state.bluePrints.io[inputId].position = {
 					x: newPosition.x,
-					y: newPosition.y + calculateInputTop(idx, array.length) + DEFAULT_INPUT_DIM.height/2 + idx*DEFAULT_INPUT_DIM.height
+					y: newPosition.y + calculateInputTop(idx, array.length, blockSize) + DEFAULT_INPUT_DIM.height/2 + idx*DEFAULT_INPUT_DIM.height
 				};
 			});
 
 			topLevelGate.outputs.forEach((outputId, idx, array) => {
 				state.bluePrints.io[outputId].position = {
-					x: newPosition.x + 3*MINIMAL_BLOCKSIZE,
-					y: newPosition.y + calculateInputTop(idx, array.length) + 
+					x: newPosition.x + 3*blockSize,
+					y: newPosition.y + calculateInputTop(idx, array.length, blockSize) + 
 					(idx*DEFAULT_INPUT_DIM.height) + DEFAULT_INPUT_DIM.height/2
 				};
 			});
@@ -839,10 +844,10 @@ const entities = createSlice({
 
 			gate.description = action.payload.description;
 		},
-		switchCurrentComponent: (state, action: PayloadAction<{componentId: string, prevComponent: string | null}>) => {
+		switchCurrentComponent: (state, action: PayloadAction<{componentId: string, prevComponent: string | null, blockSize: number}>) => {
 			const componentId = action.payload.componentId;
 			const component = state.currentComponent.gates[componentId] ?? state.gates[componentId];
-
+			const blockSize = action.payload.blockSize;
 			const currentGateEntries = Object.entries(state.currentComponent.gates);
 			const currentIoEntries = Object.entries(state.currentComponent.binaryIO);
 			const currentWireEntries = Object.entries(state.currentComponent.wires);
@@ -894,10 +899,10 @@ const entities = createSlice({
 			if(componentId === 'global'){
 				Object.entries(state.binaryIO).forEach(([key, io], idx) => {
 					if(!io.gateId && io.type === 'input'){
-						const newInput = changeGlobalInputPosition(io);
+						const newInput = changeGlobalInputPosition(io, blockSize);
 						newCurrentComponentIo.push(newInput);
 					}else if(!io.gateId && io.type === 'output'){
-						const newOutput = changeGlobalOutputPosition(io, CANVAS_WIDTH);
+						const newOutput = changeGlobalOutputPosition(io, CANVAS_WIDTH, blockSize);
 						newCurrentComponentIo.push(newOutput);
 					}
 				});
@@ -905,12 +910,12 @@ const entities = createSlice({
 			}else{
 				component.inputs.forEach(inputId => {
 					const prevInput = state.binaryIO[inputId];
-					const newInput = changeGlobalInputPosition(prevInput);
+					const newInput = changeGlobalInputPosition(prevInput, blockSize);
 					newCurrentComponentIo.push(newInput);
 				});
 				component.outputs.forEach(outputId => {
 					const prevOutput = state.binaryIO[outputId];
-					const newOutput = changeGlobalOutputPosition(prevOutput, CANVAS_WIDTH);
+					const newOutput = changeGlobalOutputPosition(prevOutput, CANVAS_WIDTH, blockSize);
 					newCurrentComponentIo.push(newOutput);
 				});
 			}
@@ -921,7 +926,7 @@ const entities = createSlice({
 					if(!prevGate){
 						throw new Error(`There is no gate in the state at ID: ${io.gateId}`);
 					}	
-					const newPos = calculateAbsoluteIOPos(prevGate, io);
+					const newPos = calculateAbsoluteIOPos(prevGate, io, blockSize);
 					io.position = newPos;
 				}
  				state.currentComponent.binaryIO[io.id] = io;
@@ -954,13 +959,14 @@ const entities = createSlice({
 
 			delete state.bluePrints.gates[mainGate.id];
 		},
-		modifyComponent: (state, action: PayloadAction<string>) => {
-			const mainGate = state.bluePrints.gates[action.payload];
+		modifyComponent: (state, action: PayloadAction<{id: string, blockSize: number}>) => {
+			const mainGate = state.bluePrints.gates[action.payload.id];
+			const blockSize = action.payload.blockSize;
 			if(!mainGate){
 				throw new Error(`No blueprint at ID: ${action.payload}`);
 			}
 			state.currentComponent = {gates: {}, binaryIO: {}, wires: {}};
-			let nextGateIds: string[] = [];
+			const nextGateIds: string[] = [];
 
 			function putGateIntoState(gateId: string){
 				const thisGate = state.bluePrints.gates[gateId];
@@ -970,16 +976,16 @@ const entities = createSlice({
 
 				thisGate.inputs.forEach(inputId => {
 					state.binaryIO[inputId] = state.bluePrints.io[inputId];
-				})
+				});
 
 				thisGate.outputs.forEach(outputId => {
 					state.binaryIO[outputId] = state.bluePrints.io[outputId];
-				})
+				});
 				
 				thisGate.wires?.forEach(wireId => {
 					console.log(`putting wires: ${wireId.slice(0,6)}`);
 					state.wires[wireId] = state.bluePrints.wires[wireId];
-				})
+				});
 				
 				state.gates[gateId] = thisGate;
 			}
@@ -989,12 +995,12 @@ const entities = createSlice({
 				currentGate.gates?.forEach(gateId => {
 					console.log(`nextGates: ${state.bluePrints.gates[gateId].name}`);
 					nextGateIds.push(gateId);
-				})
+				});
 				
 				state.currentComponent.gates[gateId] = {...state.bluePrints.gates[gateId], parent: 'global'};
 				currentGate.inputs.forEach(inputId => {
 					state.currentComponent.binaryIO[inputId] = {...state.bluePrints.io[inputId], parent: 'global'};
-				})
+				});
 
 				currentGate.outputs.forEach(outputId => {
 					state.currentComponent.binaryIO[outputId] = {...state.bluePrints.io[outputId], parent: 'global'};
@@ -1002,23 +1008,23 @@ const entities = createSlice({
 
 				currentGate.wires?.forEach(wireId => {
 					state.wires[wireId] = state.bluePrints.wires[wireId];
-				})
+				});
 			});
 
 			mainGate.inputs.forEach(inputId => {
 				let newInput = {...state.bluePrints.io[inputId], parent: 'global'}; 
-				newInput = changeGlobalInputPosition(newInput);
+				newInput = changeGlobalInputPosition(newInput, blockSize);
 				state.currentComponent.binaryIO[inputId] = {...newInput, parent: 'global', gateId: undefined};
 			});
 
 			mainGate.outputs.forEach(outputId => {
 				let newOutput = {...state.bluePrints.io[outputId], parent: 'global'};
-				newOutput = changeGlobalOutputPosition(newOutput, CANVAS_WIDTH);
+				newOutput = changeGlobalOutputPosition(newOutput, CANVAS_WIDTH, blockSize);
 				state.currentComponent.binaryIO[outputId] = {...newOutput, gateId: undefined};
 			});
 
 			const wires = Object.entries(state.bluePrints.wires).map(([key, wire]) => {
-				if(wire.parent === action.payload){
+				if(wire.parent === action.payload.id){
 					return {...wire, parent: 'global'};
 				}
 				return null;
@@ -1037,7 +1043,7 @@ const entities = createSlice({
 				putGateIntoState(nextGate.id);
 				nextGate.gates?.forEach(gateId => {
 					nextGateIds.push(gateId);
-				})
+				});
 			}
 		},
 		updateNonAffectingInputs: (state, action: PayloadAction<Set<string>>) => {
@@ -1045,15 +1051,66 @@ const entities = createSlice({
 			Object.entries(state.currentComponent.binaryIO).forEach(([key, io]) => {
 				io.affectsOutput = false;
 				if(nonAffectingInputs.has(key)){
-					io.affectsOutput = true;
+					console.log(`Updating ${key}`);
+					state.currentComponent.binaryIO[key].affectsOutput = true;
 				}
-			})
+			});
 			Object.entries(state.binaryIO).forEach(([key, io]) => {
 				io.affectsOutput = false;
 				if(nonAffectingInputs.has(key)){
 					io.affectsOutput = true;
 				}
-			})
+			});
+		},
+		recalculatePositions: (state, action: PayloadAction<{blockSize: number, prevSize: number}>) => {
+			const newSize = action.payload.blockSize;
+			const prevSize = action.payload.prevSize;
+			Object.entries(state.currentComponent.gates).forEach(([key, gate]) => {
+				if(gate.name === 'NO'){
+					console.log(`RECALCULATING FOR NO: PREVSIZE: ${prevSize} -> ${newSize}`);
+				}
+				//CANVAS_OFFSET_LEFT - the width of the global inputs
+				const multipliers = {x:(gate.position!.x - CANVAS_OFFSET_LEFT) / prevSize, y: (gate.position!.y - CANVASTOP_HEIGHT) / prevSize};
+				const newPosition = {x: (multipliers.x * newSize)+CANVAS_OFFSET_LEFT, y: multipliers.y * newSize + CANVASTOP_HEIGHT};
+				const newRoundedPosition = getClosestBlock(newPosition.x, newPosition.y, newSize);
+				const {newIoPositions} = changeGateIoPos(gate, {
+					x: newRoundedPosition.roundedX,
+					y: newRoundedPosition.roundedY,
+				}, newSize, state.currentComponent.binaryIO);
+				Object.entries(newIoPositions).forEach(([key, ioPos]) => {
+					state.currentComponent.binaryIO[key].position = ioPos;
+				});
+				gate.position = {x: newRoundedPosition.roundedX, y: newRoundedPosition.roundedY};
+			});
+
+			const transformLine = (line: Line, prevSize: number, newSize: number) => {
+				const multipliers = {
+					startX: (line.startX - CANVAS_OFFSET_LEFT) / prevSize,
+					endX: (line.endX - CANVAS_OFFSET_LEFT) / prevSize,
+					startY: (line.startY - CANVASTOP_HEIGHT) / prevSize,
+					endY: (line.endY - CANVASTOP_HEIGHT) / prevSize
+				};
+				const newPosition = {
+					startX: (multipliers.startX * newSize) + CANVAS_OFFSET_LEFT,
+					endX: (multipliers.endX * newSize) + CANVAS_OFFSET_LEFT,
+					startY: (multipliers.startY * newSize) + CANVASTOP_HEIGHT,
+					endY: (multipliers.endY * newSize) + CANVASTOP_HEIGHT
+				};
+				const newRoundedStartPos = getClosestBlock(newPosition.startX, newPosition.startY, newSize);
+				const newRoundedEndPos = getClosestBlock(newPosition.endX, newPosition.endY, newSize);
+			
+				return {
+					startX: newRoundedStartPos.roundedX,
+					startY: newRoundedStartPos.roundedY,
+					endX: newRoundedEndPos.roundedX,
+					endY: newRoundedEndPos.roundedY
+				};
+			};
+			
+			Object.entries(state.currentComponent.wires).forEach(([key, wire]) => {
+				wire.linearLine = transformLine(wire.linearLine, prevSize, newSize);
+				wire.diagonalLine = transformLine(wire.diagonalLine, prevSize, newSize);
+			});
 		}
 	}
 });
@@ -1116,5 +1173,6 @@ export const {addWire,
 	changeIOName,
 	deleteBluePrint,
 	modifyComponent,
-	updateNonAffectingInputs
+	updateNonAffectingInputs,
+	recalculatePositions
 } = entities.actions;

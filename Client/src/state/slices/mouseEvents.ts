@@ -9,6 +9,7 @@ interface MouseEvents {
 	hoveringOverWire: Wire | null,
     drawingWire: string | null,
 	selectedGate: string | null,
+	selectedIo: 'input' | 'output' | null,
 	hoveringOverIo: BinaryIO | null,
 }
 const initialState: MouseEvents = { 
@@ -16,6 +17,7 @@ const initialState: MouseEvents = {
 	hoveringOverWire: null, 
 	drawingWire:null,
 	selectedGate: null,
+	selectedIo: null,
 	hoveringOverIo: null,
 };
 
@@ -35,6 +37,9 @@ const mouseEventsSlice = createSlice({
 		setSelectedGateId: (state, action: PayloadAction<string | null>) => {
 			state.selectedGate = action.payload;
 		},
+		setSelectedIo: (state, action: PayloadAction<'input' | 'output' | null>) => {
+			state.selectedIo = action.payload;
+		},
 		setHoveringOverIo: (state, action: PayloadAction<BinaryIO | null>) => {
 			state.hoveringOverIo = action.payload;
 		}
@@ -46,7 +51,8 @@ export const {
 	setHoveringOverWire,
 	setDrawingWire,
 	setSelectedGateId,
-	setHoveringOverIo
+	setHoveringOverIo,
+	setSelectedIo
 } = mouseEventsSlice.actions;
     
 export default mouseEventsSlice.reducer;

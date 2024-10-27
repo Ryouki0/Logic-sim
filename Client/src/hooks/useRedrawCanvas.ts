@@ -97,7 +97,7 @@ export default function useRedrawCanvas(){
 			if(hoveringOverWire?.id === wire.id){
 				line_width = LINE_WIDTH +2;
 			}if(trueSource?.state){
-				context.strokeStyle = adjustBrightness(DEFAULT_WIRE_COLOR, 20)//'rgb(255 200 0)';
+				context.strokeStyle = adjustBrightness(DEFAULT_WIRE_COLOR, 20);//'rgb(255 200 0)';
 			}if(trueSource?.highImpedance){
 				context.strokeStyle = 'rgb(100 100 100)';
 			}

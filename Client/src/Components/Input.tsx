@@ -14,8 +14,6 @@ import getIOPathColor from "../utils/getIOPathColor";
 
 interface InputProps{
 	binaryInput: BinaryIO,
-	extraFn?: () => void;
-	pointerEvents?: 'auto' | 'none',
 }
 
 export const ioEquality = (prev: BinaryIO, next:BinaryIO) => {
@@ -32,6 +30,9 @@ export const ioEquality = (prev: BinaryIO, next:BinaryIO) => {
 	if(prev?.state !== next?.state){
 		return false;
 	}
+	if(prev?.affectsOutput !== next?.affectsOutput){
+		return false;
+	}
 	if(prev?.position?.x !== next?.position?.x || prev?.position?.y !== next?.position?.y){
 		// console.log(`input pos changed: ${prev?.position?.x} -> ${next?.position?.x}    ${prev?.position?.y} -> ${next?.position?.y}`);
 		return false;
@@ -43,7 +44,7 @@ export function Input({binaryInput }: InputProps) {
 	const eleRef = useRef<HTMLDivElement>(null);
 	const thisInput = useSelector((state: RootState) => {
 		return state.entities.binaryIO[binaryInput.id] ?? state.entities.currentComponent.binaryIO[binaryInput.id];}, ioEquality);
-	
+	const isGlobal = thisInput?.parent === 'global' && !thisInput?.gateId;
 	const handleMouseDown = (e:MouseEvent) => {
 		e.preventDefault();
 		console.log(`\n\n`);
@@ -55,6 +56,7 @@ export function Input({binaryInput }: InputProps) {
 		thisInput?.to?.forEach(to => {
 			console.log(`this input is to: ${to.id.slice(0,5)}`);
 		});
+		console.log(`this input affects the output: ${thisInput?.affectsOutput}`);
 	};
 	
 	useEffect(() => {
@@ -70,16 +72,16 @@ export function Input({binaryInput }: InputProps) {
 			{/* {console.log(`RENDER INPUT -- ${thisInput?.gateId?.slice(0,5)}`)} */}
 			<div ref={eleRef}
 				style={{
-					width: thisInput?.affectsOutput ? DEFAULT_INPUT_DIM.width : DEFAULT_INPUT_DIM.width,
-					height: thisInput?.affectsOutput ? DEFAULT_INPUT_DIM.height : DEFAULT_INPUT_DIM.height,
+					width: DEFAULT_INPUT_DIM.width,
+					height: DEFAULT_INPUT_DIM.height,
 					position: 'relative',
 					userSelect: 'none',
 					left: -(DEFAULT_INPUT_DIM.width / 2),
-					...binaryInput?.style,
+					...(isGlobal ? {} : binaryInput.style),
 				}}
 			>
 				<CircularProgressbar
-					value={thisInput?.affectsOutput ? 100 : 100}
+					value={100}
 					background={true}
 					styles={buildStyles({
 						backgroundColor: thisInput?.affectsOutput ? DEFAULT_NON_AFFECTING_COLOR : 'black',

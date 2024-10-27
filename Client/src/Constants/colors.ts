@@ -12,3 +12,4 @@ export const DEFAULT_WIRE_COLOR = 'rgb(255, 155, 30)';
 export const DEFAULT_BUTTON_COLOR = '#28A745';
 export const DEFAULT_HIGH_IMPEDANCE_COLOR = 'rgb(100, 100, 100)';
 export const DEFAULT_NON_AFFECTING_COLOR = 'rgb(204, 134, 0)';
+export const DEFAULT_GATE_COLOR = 'rgb(117,117,117)';

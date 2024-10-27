@@ -38,6 +38,7 @@ export default function SelectedComponent(){
 	const selectedComponent = useSelector((state: RootState) => {
  		return state.mouseEventsSlice.entityClicked;
  	});
+	 const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 
 	const currentEntity = useSelector((state: RootState) => {
 		if(selectedComponent?.type === 'Gate'){
@@ -52,7 +53,7 @@ export default function SelectedComponent(){
 	const dispatch = useDispatch();
 
 	const handleClick = (e: React.MouseEvent<any>) => {
-		dispatch(switchCurrentComponent({componentId: selectedComponent.entity!.id, prevComponent: null}));
+		dispatch(switchCurrentComponent({componentId: selectedComponent.entity!.id, prevComponent: null, blockSize}));
 		dispatch(setCurrentComponentId(selectedComponent.entity!.id));
 	};
 

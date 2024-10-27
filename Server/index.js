@@ -15,7 +15,6 @@ const app = (0, express_1.default)();
 const port = 3002;
 app.use(cookieParser());
 db.serialize(() => {
-    db.run('CREATE TABLE IF NOT EXISTS ayaya_data (x INTEGER)');
     db.run(`CREATE TABLE IF NOT EXISTS binary_io 
 		(
 			id TEXT PRIMARY KEY, 
