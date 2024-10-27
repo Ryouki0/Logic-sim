@@ -8,7 +8,7 @@ import GlobalOutputs from "./Components/GlobalOutputs";
 import EmptyComponent from "./Components/Effects/ConnectLogic";
 import Toolbar from "./Components/toolbar/Toolbar";
 import CanvasTop from "./Components/Canvas/CanvasTop";
-import BootstrapLogic from "./Components/Effects/Tempname";
+import BootstrapLogic from "./Components/Effects/BootstrapLogic";
 import SelectedGate from "./Components/SelectedGate";
 import HoveringOverIO from "./Components/Effects/HoveringOverIO";
 import DrawWireFromIo from "./Components/Effects/DrawWireFromIo";
