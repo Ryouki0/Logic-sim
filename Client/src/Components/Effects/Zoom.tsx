@@ -5,10 +5,8 @@ import { changeBlockSize } from "../../state/slices/misc";
 import { recalculatePositions } from "../../state/slices/entities";
 
 export default function Zoom(){
-	const wires = useSelector((state: RootState) => {return state.entities.currentComponent.wires;});
-	const gates = useSelector((state: RootState) => {return state.entities.currentComponent.gates;});
-	const io = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO;});
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
 	const prevSize = useRef<number>(blockSize);
 	const dispatch = useDispatch();
 	useEffect(() => {
@@ -17,7 +15,7 @@ export default function Zoom(){
 			dispatch(changeBlockSize(e.deltaY));
 		};
 
-		dispatch(recalculatePositions({blockSize: blockSize, prevSize: prevSize.current}));
+		dispatch(recalculatePositions({blockSize: blockSize, prevSize: prevSize.current, currentComponentId: currentComponentId}));
 
 		window.addEventListener('wheel', handleWheel);
 		return () => {

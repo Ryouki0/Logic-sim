@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { BinaryIO } from "../Interfaces/BinaryIO";
+import { BinaryIO } from "../../Interfaces/BinaryIO";
 import { Input } from "./Input";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../state/store";
-import { DEFAULT_INPUT_DIM, getClosestBlock } from "../Constants/defaultDimensions";
+import { RootState } from "../../state/store";
+import { DEFAULT_INPUT_DIM, getClosestBlock, LINE_WIDTH } from "../../Constants/defaultDimensions";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
-import { DEFAULT_GATE_COLOR } from "../Constants/colors";
-import { addInput } from "../state/slices/entities";
+import { DEFAULT_GATE_COLOR } from "../../Constants/colors";
+import { addInput } from "../../state/slices/entities";
 import { checkIo } from "./GlobalInputs";
 import {v4 as uuidv4} from 'uuid';
 import { getTokenSourceMapRange } from "typescript";
-import { setSelectedIo } from "../state/slices/mouseEvents";
+import { setSelectedIo } from "../../state/slices/mouseEvents";
 
 export default function SelectedIo(){
 
@@ -28,37 +28,39 @@ export default function SelectedIo(){
 		})
 			.filter((io): io is NonNullable<typeof io> => io !== null);
 	}, checkIo);
-	const [position, setPosition] = useState({x: 0, y:0});
+	const [position, setPosition] = useState({x: selectedIo?.startPos.x ?? 0, y:selectedIo?.startPos.y ?? 0});
 	const [shouldShow, setShouldShow] = useState(false);
 	const dispatch = useDispatch();
 	const handleMouseMove = (e:MouseEvent) => {
 		const middleX = e.x - blockSize ;
 		const middleY = e.y;
 		const {roundedX, roundedY} = getClosestBlock(middleX, middleY, blockSize);
-		setPosition({x: roundedX, y: roundedY - blockSize/2});
+		setPosition({x: roundedX, y: roundedY - DEFAULT_INPUT_DIM.height/2});
 
 	};
 
 	const handleMouseDown = (e: MouseEvent) => {
+		console.log(`selectedIo: ${selectedIo}`);
 		if(e.button !== 0 || !selectedIo) return;
 		console.log(`ASKOPA`);
 		dispatch(addInput({
 			name: `input ${inputs.length + 1}`,
 			id: uuidv4(),
-			type: `${selectedIo!}`,
+			type: `${selectedIo!.type}`,
 			state: 0,
 			isGlobalIo: true,
 			parent: 'global',
 			to: [],
 			style: {
-				top: position.y - DEFAULT_INPUT_DIM.height/2,
+				top: position.y + blockSize/2,
 				left: position.x + 2*blockSize 
 			},
-			position: {x: position.x + 2*blockSize, y:position.y - DEFAULT_INPUT_DIM.height/2}
+			position: {x: position.x + 2*blockSize, y:position.y + blockSize/2}
 		}));
 	};
 
 	const handleContextMenu = (e:MouseEvent) => {
+		e.preventDefault();
 		dispatch(setSelectedIo(null));
 		setShouldShow(false);
 	};
@@ -70,13 +72,19 @@ export default function SelectedIo(){
 			document.addEventListener('contextmenu', handleContextMenu);
 			setShouldShow(true);
 		}
-
+		// console.log(`useEffect: selectedIo: ${selectedIo}`)
 		return () => {
 			document.removeEventListener('mousemove', handleMouseMove);
 			document.removeEventListener('mousedown', handleMouseDown);
 			document.removeEventListener('contextmenu', handleContextMenu);
 		};
 	}, [selectedIo, position]);
+
+	useEffect(() => {
+		if(selectedIo){
+			setPosition({x: selectedIo!.startPos!.x, y: selectedIo.startPos!.y});
+		}
+	}, [selectedIo])
 	return <>
 		{shouldShow && <div style={{
 			position: 'absolute',
@@ -84,9 +92,21 @@ export default function SelectedIo(){
 			top: position.y ,
 			width: 2*blockSize,
 			height: blockSize,
+			borderTopLeftRadius: 10,
+			borderBottomLeftRadius: 10,
 			display: 'flex',
 			backgroundColor: DEFAULT_GATE_COLOR,
 		}}>
+			<span onClick={e => {e.preventDefault();}} 
+        style={{
+            color: 'whitesmoke',
+            position: 'absolute',
+            userSelect: 'none',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)'}}>
+				Off
+      </span>
 			<div style={{
 				width: DEFAULT_INPUT_DIM.width,
 				height: DEFAULT_INPUT_DIM.height,

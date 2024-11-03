@@ -1,5 +1,5 @@
 import React from 'react';
-import { DEFAULT_INPUT_DIM } from '../Constants/defaultDimensions';
+import { DEFAULT_INPUT_DIM } from '../../Constants/defaultDimensions';
 
 
 export default function Square({ size = DEFAULT_INPUT_DIM.width, color = 'blue', borderColor = 'black' }) {

@@ -5,16 +5,17 @@ import { RootState } from '../../state/store';
 import isOnIo from '../../utils/Spatial/isOnIo';
 
 export default function DrawWireFromIo(){
-	const startDrawing = useDrawWire();
 	const io = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO;});
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
+	const startDrawing = useDrawWire(cameraOffset);
     
 
 	useEffect(() => {
 		if(currentComponentId !== 'global') return;
 		const handleMouseDown = (e: MouseEvent) => {
 			for(const [key, io] of ioEntries){
-				if(isOnIo(e.x, e.y, io)){
+				if(isOnIo(e.x, e.y, io, cameraOffset)){
 					startDrawing(e as unknown as React.MouseEvent<any>);
 					return;
 				}
@@ -26,7 +27,7 @@ export default function DrawWireFromIo(){
 		return () => {
 			document.removeEventListener('mousedown', handleMouseDown);
 		};
-	}, [startDrawing, io, currentComponentId]);
+	}, [startDrawing, io, currentComponentId, cameraOffset]);
 
 	return null;
 }

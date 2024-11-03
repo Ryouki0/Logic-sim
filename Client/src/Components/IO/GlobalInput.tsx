@@ -1,11 +1,11 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../state/store";
+import { RootState } from "../../state/store";
 import { checkIo } from "./GlobalInputs";
 import { Input } from "./Input";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
-import { DEFAULT_INPUT_DIM } from "../Constants/defaultDimensions";
-import { DEFAULT_GATE_COLOR } from "../Constants/colors";
+import { DEFAULT_INPUT_DIM } from "../../Constants/defaultDimensions";
+import { DEFAULT_GATE_COLOR } from "../../Constants/colors";
 import CustomInput from "./CustomInput";
 
 export default function GlobalInput(){
@@ -24,7 +24,7 @@ export default function GlobalInput(){
 	}, checkIo);
 	return <>
 		{inputs.map((input, idx) => {
-			return <CustomInput id={input.id} key={input.id}></CustomInput>
+			return <CustomInput id={input.id} key={input.id} showButton={currentComponentId === 'global' ? true : false}></CustomInput>
 		})}
 	</>;
 }

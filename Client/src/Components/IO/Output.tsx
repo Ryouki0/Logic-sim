@@ -3,14 +3,14 @@ import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import {
 	DEFAULT_INPUT_DIM,
-} from "../Constants/defaultDimensions";
+} from "../../Constants/defaultDimensions";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../state/store";
-import { AMBER, DEFAULT_BACKGROUND_COLOR, DEFAULT_WIRE_COLOR, ORANGE } from "../Constants/colors";
-import { BinaryIO } from "../Interfaces/BinaryIO";
+import { RootState } from "../../state/store";
+import { AMBER, DEFAULT_BACKGROUND_COLOR, DEFAULT_WIRE_COLOR, ORANGE } from "../../Constants/colors";
+import { BinaryIO } from "../../Interfaces/BinaryIO";
 import { ioEquality } from "./Input";
-import { adjustBrightness } from "../utils/adjustBrightness";
-import getIOPathColor from "../utils/getIOPathColor";
+import { adjustBrightness } from "../../utils/adjustBrightness";
+import getIOPathColor from "../../utils/getIOPathColor";
 
 interface BinaryOutputProps {
 	output: BinaryIO;

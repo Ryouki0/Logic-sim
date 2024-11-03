@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
-import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, MINIMAL_BLOCKSIZE } from "../Constants/defaultDimensions";
+import { CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, getClosestBlock, MINIMAL_BLOCKSIZE } from "../Constants/defaultDimensions";
 import { Gate } from "../Interfaces/Gate";
 import { setSelectedGateId, setSelectedIo } from "../state/slices/mouseEvents";
 import { changeBluePrintPosition } from "../state/slices/entities";
 import { createSelector } from "@reduxjs/toolkit";
 import '../menu.css';
 import BlueprintSettings from "./BlueprintSettings";
+import SelectedIo from "./IO/SelectedIo";
 const checkAllGatesEquality = (prev: {[key: string]: Gate}, next: {[key: string]: Gate}) => {
 	const prevEntries = Object.entries(prev);
 	const nextEntries = Object.entries(next);
@@ -23,6 +24,7 @@ export default function DisplayAllGates(){
 	const scrollRef = useRef<HTMLDivElement | null>(null);
 	const [showSettings, setShowSettings] = useState<{show: boolean, x: number, y:number, gate: Gate | null}>
 	({show: false, x: 0, y: 0, gate: null});
+	const [showSelectedIo, setShowSelectedIo] = useState(false);
 	const bluePrintsSelector = createSelector(
   		[selectGates],
   		(gates) => {
@@ -67,7 +69,8 @@ export default function DisplayAllGates(){
 		if(e.button === 0){
 			e.stopPropagation();
 			dispatch(setSelectedGateId(key));
-			dispatch(changeBluePrintPosition({gateId: key, position: {x: e.pageX, y: e.pageY}, blockSize: blockSize}));
+			const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY, blockSize);
+			dispatch(changeBluePrintPosition({gateId: key, position: {x: roundedX, y: roundedY}, blockSize: blockSize}));
 		}else if(e.button === 2){
 			e.preventDefault();
 			if(gate.name === 'NO' || gate.name ==='AND' || gate.name === 'SWITCH' || gate.name ==='DELAY'){
@@ -76,6 +79,14 @@ export default function DisplayAllGates(){
 			setShowSettings({show: true, x:e.pageX, y:e.pageY,gate: gate});
 		}
 	};
+
+	const handleInputClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+		if(e.button !== 0) return;
+		e.stopPropagation();
+		setShowSelectedIo(true);
+		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY, blockSize);
+		dispatch(setSelectedIo({type: 'input', startPos: {x: roundedX, y: roundedY}}));
+	}
 
 	const bluePrints = useSelector(bluePrintsSelector);
 	const dispatch = useDispatch();
@@ -115,7 +126,7 @@ export default function DisplayAllGates(){
 					onMouseDown={e => e.preventDefault()}
 				>
 					<div
-						onMouseDown={e => {e.stopPropagation(); dispatch(setSelectedIo('input'));}}
+						onMouseDown={handleInputClick}
 						onContextMenu={e=> {e.preventDefault(); e.stopPropagation();}}
 						style={{
 							backgroundColor: isDisabled ? 'rgb(90 90 90)': 'rgb(70 70 70)',

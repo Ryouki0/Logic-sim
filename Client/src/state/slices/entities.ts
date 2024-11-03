@@ -9,8 +9,6 @@ import { CANVAS_OFFSET_LEFT, CANVAS_WIDTH, CANVASTOP_HEIGHT, DEFAULT_BORDER_WIDT
 import { propagateIo } from "../../utils/propagateIo";
 import { addRawReducers } from "../../utils/addRawReducers";
 import calculateAbsoluteIOPos from "../../utils/Spatial/calculateAbsoluteIOPos";
-import { forEachChild } from "typescript";
-import { Output } from "../../Components/Output";
 import changeGlobalInputPosition from "../../utils/Spatial/changeGlobalInputPos";
 import changeGlobalOutputPosition from "../../utils/Spatial/changeGlobalOutputPos";
 import { BlockList } from "net";
@@ -542,17 +540,10 @@ const entities = createSlice({
 			});
 		},
 		addInput: (state, action:PayloadAction<BinaryIO>) => {
-			const inputs = Object.entries(state.currentComponent.binaryIO);
-			for(const [key, input] of inputs){
-				if(input.type === 'input' && !input.gateId){
-					// if(input.position?.y === action.payload.position?.y){
-					// 	delete state.currentComponent.binaryIO[key];
-					// 	return;
-					// }
-				}
-			}
 			state.currentComponent.binaryIO[action.payload.id] = action.payload;
-
+		},
+		deleteInput: (state, action: PayloadAction<string>) => {
+			delete state.currentComponent.binaryIO[action.payload];
 		},
 		changeInputState: (state, action:PayloadAction<string>) => {
 			const newState = state.currentComponent.binaryIO[action.payload].state ? 0 : 1;
@@ -1062,14 +1053,13 @@ const entities = createSlice({
 				}
 			});
 		},
-		recalculatePositions: (state, action: PayloadAction<{blockSize: number, prevSize: number}>) => {
+		recalculatePositions: (state, action: PayloadAction<{blockSize: number, prevSize: number, currentComponentId: string}>) => {
 			const newSize = action.payload.blockSize;
 			const prevSize = action.payload.prevSize;
+			const currentComponentId = action.payload.currentComponentId;
 			Object.entries(state.currentComponent.gates).forEach(([key, gate]) => {
-				if(gate.name === 'NO'){
-					console.log(`RECALCULATING FOR NO: PREVSIZE: ${prevSize} -> ${newSize}`);
-				}
-				//CANVAS_OFFSET_LEFT - the width of the global inputs
+				
+				//CANVAS_OFFSET_LEFT - the width of the canvas left side
 				const multipliers = {x:(gate.position!.x - CANVAS_OFFSET_LEFT) / prevSize, y: (gate.position!.y - CANVASTOP_HEIGHT) / prevSize};
 				const newPosition = {x: (multipliers.x * newSize)+CANVAS_OFFSET_LEFT, y: multipliers.y * newSize + CANVASTOP_HEIGHT};
 				const newRoundedPosition = getClosestBlock(newPosition.x, newPosition.y, newSize);
@@ -1111,6 +1101,39 @@ const entities = createSlice({
 				wire.linearLine = transformLine(wire.linearLine, prevSize, newSize);
 				wire.diagonalLine = transformLine(wire.diagonalLine, prevSize, newSize);
 			});
+
+			Object.entries(state.currentComponent.binaryIO).forEach(([key, io]) => {
+				if(io.type === 'input' && !io.gateId || io.type === 'input' && io.gateId === currentComponentId){
+					const multipliers = {
+						x:(io.position!.x - CANVAS_OFFSET_LEFT) / prevSize, 
+						y: (io.position!.y - CANVASTOP_HEIGHT) / prevSize
+					};
+
+					const newPosition = {
+						x: (multipliers.x * newSize)+CANVAS_OFFSET_LEFT, 
+						y: multipliers.y * newSize + CANVASTOP_HEIGHT
+					};
+
+					const newRoundedPosition = getClosestBlock(newPosition.x, newPosition.y, newSize);
+					io.position!.x = newRoundedPosition.roundedX;
+					io.position!.y = newRoundedPosition.roundedY;
+					io.style!.top = newRoundedPosition.roundedY;
+					io.style!.left = newRoundedPosition.roundedX;
+				}
+			})
+
+		},
+		changeIOStyle: (state, action:PayloadAction<{id: string, top: number, left: number}>) => {
+			const id = action.payload.id;
+			const io = state.currentComponent.binaryIO[id] ?? state.binaryIO[id];
+			if(!io) {
+				throw new Error(`No IO at ID: ${id}`);
+			}
+
+			io.style!.top = action.payload.top;
+			io.style!.left = action.payload.left;
+			io.position!.x = action.payload.left;
+			io.position!.y = action.payload.top;
 		}
 	}
 });
@@ -1174,5 +1197,7 @@ export const {addWire,
 	deleteBluePrint,
 	modifyComponent,
 	updateNonAffectingInputs,
-	recalculatePositions
+	recalculatePositions,
+	changeIOStyle,
+	deleteInput
 } = entities.actions;

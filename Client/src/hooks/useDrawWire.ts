@@ -9,7 +9,7 @@ import useIsWireClicked from "./useIsWireClicked";
 import { RootState } from "../state/store";
 
 
-export default function useDrawWire() {
+export default function useDrawWire(cameraOffset: {x: number, y:number}) {
 	const dispatch = useDispatch();
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	function startDrawing(
@@ -35,6 +35,11 @@ export default function useDrawWire() {
 		};
 		dispatch(setDrawingWire(thisWireId));
 		
+		/**
+		 * It calculates the offset of the main canvas (if there is an offset)
+		 * @param event The `mousedown` event on the main canvas
+		 * @returns The top-left edge of the main canvas
+		 */
 		const getClientOffset = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 			const { pageX, pageY } = event;
 			const x = pageX - canvasEle.offsetLeft;
@@ -45,7 +50,10 @@ export default function useDrawWire() {
 
 		const mouseDownListener = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 
-			const {x, y} = getClientOffset(event);
+			let {x, y} = getClientOffset(event);
+			console.log(`client offset X: ${x} y: ${y}`);
+			x = x - cameraOffset.x;
+			y = y - cameraOffset.y;
 			const {roundedX, roundedY} = getClosestBlock(x,y, blockSize);
 			line.startX = roundedX;
 			line.startY = roundedY;
@@ -87,7 +95,9 @@ export default function useDrawWire() {
 
 		const mouseMoveListener = (event: MouseEvent) => {
       
-			const {x, y} = getClientOffset((event as unknown) as React.MouseEvent<HTMLCanvasElement, MouseEvent>);
+			let {x, y} = getClientOffset((event as unknown) as React.MouseEvent<HTMLCanvasElement, MouseEvent>);
+			x = x - cameraOffset.x;
+			y = y - cameraOffset.y;
 			const {roundedX, roundedY} = getClosestBlock(x,y, blockSize);
       
 			if(lastPosition.x !== roundedX || lastPosition.y !== roundedY){

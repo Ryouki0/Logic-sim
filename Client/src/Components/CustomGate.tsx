@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import handleMouseDown from '../handleGateEvents';
-import { Input } from './Input';
-import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
-import { Output } from './Output';
+import { Input } from './IO/Input';
+import { CANVAS_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { Output } from './IO/Output';
 import { Gate } from '../Interfaces/Gate';
 import { RootState } from '../state/store';
 import './../gate.css';
@@ -46,8 +46,11 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 			return state.entities.bluePrints.gates[gateProps.id];
 		}
 		return state.entities.gates[gateProps.id] ?? 
-		state.entities.currentComponent.gates[gateProps.id];}, checkGateEquality);
+		state.entities.currentComponent.gates[gateProps.id];
+	}, checkGateEquality);
     
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
+
 	const offsetRef = useRef({dx: 
 		thisGate?.position ? thisGate.position.x : 0, 
 	dy: thisGate?.position ? thisGate.position.y : 0});
@@ -93,7 +96,8 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 			console.log(`POSITION: x:${thisGate.position?.x} y:${thisGate.position?.y} OFFSET: dx:${offsetRef.current.dx} dy:${offsetRef.current.dy}`);
 			handleMouseDown(e as any, eleRef, offsetRef.current.dx, offsetRef.current.dy, blockSize, setOffset, setPositions);
 		}
-	  };
+	};
+
 
 	const handleContextMenu = (e: MouseEvent) => {
 		e.preventDefault();
@@ -133,14 +137,13 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 
 	return	(
 		<>
-			{/* {console.log(`rendering customgate: ${thisGate?.id.slice(0,6)}`)} */}
 			<div ref={eleRef}
 				className='Gate-container'
 				style={{width: 3*blockSize, 
 					height: calculateGateHeight(thisGate, blockSize),
 					position: position ? position : 'relative',
-					top: thisGate?.position ? thisGate.position.y : 0,
-					left: thisGate?.position ? thisGate.position.x : 0,
+					top: thisGate?.position ? thisGate.position.y + cameraOffset.y : 0,
+					left: thisGate?.position ? thisGate.position.x  + cameraOffset.x: 0,
 					borderTopRightRadius: 30,
 					borderBottomRightRadius: 30,
 					display: 'inline-block',

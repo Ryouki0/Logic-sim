@@ -1,6 +1,6 @@
 
 
-import React from 'react';
+import React, { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -15,7 +15,8 @@ const root = ReactDOM.createRoot(
 
 
 root.render(
-	<Provider store={store}>
+	<StrictMode>
+<Provider store={store}>
 		<Router>
 			<Routes>
 				<Route path='/' element={<Menu></Menu>}/>
@@ -23,6 +24,8 @@ root.render(
 			</Routes>
 		</Router>
 	</Provider>
+	</StrictMode>
+	
   
 );
 

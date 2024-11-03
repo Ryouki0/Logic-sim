@@ -1,8 +1,8 @@
 import React from 'react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../../Constants/defaultDimensions';
 import { useSelector } from 'react-redux';
-import { RootState } from '../state/store';
+import { RootState } from '../../state/store';
 
 export default function GhostInput({x, y, type}: {x:number, y:number, type: 'input' | 'output'}) {
 	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth;});

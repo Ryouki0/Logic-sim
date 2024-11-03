@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { CANVASTOP_HEIGHT, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { CANVASTOP_HEIGHT, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../../Constants/defaultDimensions';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../state/store';
-import { getClosestBlock } from '../Constants/defaultDimensions';
+import { RootState } from '../../state/store';
+import { getClosestBlock } from '../../Constants/defaultDimensions';
 import {v4 as uuidv4} from 'uuid';
 import { Output } from './Output';
-import { addGlobalOutput } from '../state/slices/entities';
-import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../Constants/colors';
+import { addGlobalOutput } from '../../state/slices/entities';
+import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../../Constants/colors';
 import { checkIo } from './GlobalInputs';
-import { throttle } from '../utils/throttle';
+import { throttle } from '../../utils/throttle';
 import GhostInput from './GhostInput';
 
 export default function GlobalOutputs() {

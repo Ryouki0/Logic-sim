@@ -14,14 +14,14 @@ export default function HoveringOverIO(){
 	const currentlyHoveringOverIo = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverIo;});
 	const currentComponent = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const spanRef = useRef<HTMLSpanElement | null>(null);
-
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
 	useEffect(() => {
 		const ioEntries = Object.entries(io);
 
 		const handleMouseMove = (e:MouseEvent) => {
 			for(const [key, io] of ioEntries){
                 
-				if(isOnIo(e.x, e.y, io)){
+				if(isOnIo(e.x, e.y, io, cameraOffset)){
 					if(currentlyHoveringOverIo?.id === key){
 						return;
 					}
@@ -36,7 +36,7 @@ export default function HoveringOverIO(){
 		const handleMouseDown = (e:MouseEvent) => {
 			for(const [key, io] of ioEntries){
                 
-				if(isOnIo(e.x, e.y, io)){
+				if(isOnIo(e.x, e.y, io, cameraOffset)){
 					dispatch(setSelectedEntity({entity: io, type: 'BinaryIO'}));
 					return;
 				}
@@ -48,7 +48,7 @@ export default function HoveringOverIO(){
 			document.removeEventListener('mousemove', handleMouseMove);
 			document.removeEventListener('mousedown', handleMouseDown);
 		};
-	}, [io, currentlyHoveringOverIo]);
+	}, [io, currentlyHoveringOverIo, cameraOffset]);
    
 
 	return <>
@@ -61,8 +61,8 @@ export default function HoveringOverIO(){
         		position: 'absolute',
         		userSelect: 'none',
         		zIndex: 2, 
-        		top: currentlyHoveringOverIo.position!.y - 1.5*blockSize,
-        		left: currentlyHoveringOverIo.position!.x,
+        		top: currentlyHoveringOverIo.position!.y - 1.5*blockSize + cameraOffset.y,
+        		left: currentlyHoveringOverIo.position!.x + cameraOffset.x,
         		transform: 'translateX(-40%)'
         	}}>{currentlyHoveringOverIo.name}</span>}
 	</>;

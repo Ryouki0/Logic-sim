@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CANVASTOP_HEIGHT, CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM,MINIMAL_BLOCKSIZE,getClosestBlock } from '../Constants/defaultDimensions';
+import { CANVASTOP_HEIGHT, CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM,MINIMAL_BLOCKSIZE,getClosestBlock } from '../../Constants/defaultDimensions';
 import { Input } from './Input';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../state/store';
+import { RootState } from '../../state/store';
 import {v4 as uuidv4} from 'uuid';
 import GhostInput from './GhostInput';
-import { throttle } from '../utils/throttle';
-import { BinaryIO } from '../Interfaces/BinaryIO';
-import { addInput, changeInputState } from '../state/slices/entities';
-import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../Constants/colors';
-import { textStlye } from '../Constants/commonStyles';
+import { throttle } from '../../utils/throttle';
+import { BinaryIO } from '../../Interfaces/BinaryIO';
+import { addInput, changeInputState } from '../../state/slices/entities';
+import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../../Constants/colors';
+import { textStlye } from '../../Constants/commonStyles';
 import { createSelector } from '@reduxjs/toolkit';
 
 export function checkIo(prev:BinaryIO[],next:BinaryIO[]){
@@ -24,7 +24,6 @@ export function checkIo(prev:BinaryIO[],next:BinaryIO[]){
 	return true;
 }
 export default function GlobalInputs(){
-	const [pointerEvents, setPointerEvents] = useState<'auto' | 'none'>('auto');
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const inputs = useSelector((state: RootState) => {
@@ -139,40 +138,5 @@ export default function GlobalInputs(){
 		}}>
 
 		</div>
- 		{/* {inputs.map(( input, idx) => {
- 			return (
- 				<div key={uuidv4()} style={{
-					alignItems: 'center', 
-					justifyContent: 'center', 
-					position: 'absolute', 
-					userSelect: 'none', 
-					zIndex: 1}}
-				>
- 					<Input binaryInput={{
-						...input,
-						style: {
-							top: (input.style?.top as number) - DEFAULT_BORDER_WIDTH, 
-							position: 'relative', 
-							left: 2*MINIMAL_BLOCKSIZE - (DEFAULT_INPUT_DIM.width/2) - (1*DEFAULT_BORDER_WIDTH)}, 
-					}}
- 					></Input>
- 					{currentComponentId === 'global' && <button style={{
-						top: input.style?.top, 
-						
-						position: 'absolute',
-						alignSelf:'center', 
-						borderRadius: 10,
-						fontSize: MINIMAL_BLOCKSIZE/2,
-						borderWidth: 0, 
-						userSelect: 'none'
-					}} onClick={e => {
-						e.preventDefault();
-						dispatch(changeInputState(input.id));}}>
- 						{input.state ? 'ON' : 'OFF'}
- 					</button>}
- 				</div>
- 			);
- 		})} */}
- 		{showGhostInput && <GhostInput x={ghostInputPosition.x} y={ghostInputPosition.y} type='input'></GhostInput>}
  	</div>;
 }

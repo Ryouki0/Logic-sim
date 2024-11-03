@@ -7,6 +7,7 @@ import { DARK_RED, DEFAULT_WIRE_COLOR, ORANGE, RED_ORANGE } from '../Constants/c
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import { SourceMap } from 'module';
 import { adjustBrightness } from '../utils/adjustBrightness';
+import { Root } from 'react-dom/client';
 
 export const checkWireSourceEquality = (prev:{[key: string]: BinaryIO[]|undefined}, next: {[key: string]: BinaryIO[]|undefined}) => {
 	const prevEntries = Object.entries(prev);
@@ -60,7 +61,7 @@ export default function useRedrawCanvas(){
 
 	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth;});
 	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight;});
-
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
 	useEffect(() => {
 		const canvasEle = canvasRef.current;
 		if (!canvasRef.current || !canvasEle) return;
@@ -105,11 +106,11 @@ export default function useRedrawCanvas(){
 				context.strokeStyle = DARK_RED;
 			}
 			
-			drawLine(wire.linearLine, context, line_width);
-			drawLine(wire.diagonalLine, context, line_width);
+			drawLine(wire.linearLine, context, line_width, cameraOffset);
+			drawLine(wire.diagonalLine, context, line_width, cameraOffset);
 		});
 		//console.timeEnd('drawing');
-	}, [wires, hoveringOverWire, wireSources, canvasHeight, canvasWidth]);
+	}, [wires, hoveringOverWire, wireSources, canvasHeight, canvasWidth, cameraOffset]);
 	return canvasRef;
 
 }
