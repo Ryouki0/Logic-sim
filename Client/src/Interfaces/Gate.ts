@@ -10,5 +10,6 @@ export interface Gate{
     nextTick?: 0 | 1,
     complexity: number,
     description?: string,
-    wires?: string[]
+    wires?: string[],
+    lastBlockSize?: number
 }

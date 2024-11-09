@@ -108,7 +108,7 @@ export default function GateSelected({gate}: {gate: Gate}){
 					<label 
 						htmlFor="description" 
 						style={{ 
-							marginRight: '10px',
+							marginLeft: '5px',
 							alignSelf: 'center',
 							marginTop: 10,
 							fontSize: 16}}

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH } from '../../Constants/defaultDimensions';
 import { useDispatch, useSelector } from 'react-redux';
-import { createBluePrint } from '../../state/slices/entities';
+import { createBluePrint, recalculatePositions } from '../../state/slices/entities';
 import '../../index.css';
 import { RootState } from '../../state/store';
 import { setIsRunning } from '../../state/slices/clock';
@@ -9,16 +9,21 @@ import { textStlye } from '../../Constants/commonStyles';
 import { createSelector } from '@reduxjs/toolkit';
 import { Gate } from '@Shared/interfaces';
 import { DEFAULT_BORDER_COLOR } from '../../Constants/colors';
+import { changeBlockSize } from '../../state/slices/misc';
 export default function CreateButton(){
 	const dispatch = useDispatch();
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const [name, setName] = useState<string>('');
 	const [description, setDescription] = useState<string>('');
 	const [localError, setLocalError] = useState<string | null>(null);
+	const [hasBlockSizeUpdated, setHasBlockSizeUpdated] = useState(false);
 	const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 	const currentGates = useSelector((state: RootState) => {return state.entities.currentComponent.gates;});
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize});
+	const prevSize = useRef(blockSize);
+	const shouldSizeChange = useRef(false);
 	const selectGates = (state: RootState) => state.entities.bluePrints.gates;
-
+	
 	const bluePrintsSelector = createSelector(
   		[selectGates],
   		(gates) => {
@@ -64,7 +69,8 @@ export default function CreateButton(){
 		setName('');
 		setDescription('');
 		dispatch(setIsRunning(false));
-		dispatch(createBluePrint({name: name, description: description}));
+		dispatch(createBluePrint({name: name, description: description, blockSize: blockSize}));
+		setHasBlockSizeUpdated(false);
 	};
 
 	return <div style={{

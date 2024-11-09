@@ -2,7 +2,7 @@
 import React, { LegacyRef, useEffect, useRef } from 'react';
 import '../index.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { goBack } from '../state/slices/misc';
+import { changeBlockSize, goBack } from '../state/slices/misc';
 import { RootState } from '../state/store';
 import { switchCurrentComponent } from '../state/slices/entities';
 import { MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
@@ -12,6 +12,7 @@ export function BackArrow({style}:{style?: React.CSSProperties}){
 
 	const svgRef = useRef<SVGSVGElement | null>(null);
 	const componentHistory = useSelector((state: RootState) => {return state.misc.history;});
+	const globalBlockSize = useSelector((state: RootState) => {return state.misc.globalBlockSize});
 	const dispatch = useDispatch();
 
 	useEffect(() => {
@@ -21,7 +22,7 @@ export function BackArrow({style}:{style?: React.CSSProperties}){
 			}
 			const lastId = componentHistory[componentHistory.length-2];
 			dispatch(goBack());
-
+			dispatch(changeBlockSize(globalBlockSize));
 			dispatch(switchCurrentComponent({componentId: lastId, prevComponent: componentHistory[componentHistory.length-1], blockSize: MINIMAL_BLOCKSIZE}));
 			
 		};
@@ -30,7 +31,7 @@ export function BackArrow({style}:{style?: React.CSSProperties}){
 		return () => {
 			svgRef.current?.removeEventListener('mousedown', handleBack);
 		};
-	}, [componentHistory]);
+	}, [componentHistory, globalBlockSize]);
 	
 	return <svg
 		ref={svgRef}

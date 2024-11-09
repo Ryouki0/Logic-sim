@@ -8,8 +8,8 @@ export const LINE_WIDTH = 8;
 export const CANVAS_OFFSET_LEFT = 2*MINIMAL_BLOCKSIZE;
 
 export const getClosestBlock = (x:number, y:number, blockSize: number) => {
-	const distanceX = (x - CANVAS_OFFSET_LEFT) % blockSize;
-	const distanceY = (y - CANVASTOP_HEIGHT) % blockSize;
+	const distanceX = (x - 0) % blockSize;
+	const distanceY = (y - 0) % blockSize;
 
 	//console.log(`distanceX: ${distanceX} distanceY: ${distanceY}`);
 

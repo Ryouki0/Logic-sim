@@ -21,7 +21,7 @@ export default function BottomCanvas(){
 			}
 			context.strokeStyle = 'black';
 		    context.lineWidth = 1;
-			for (let x = cameraOffset.x; x < width; x += blockSize) {
+			for (let x = cameraOffset.x % blockSize; x < width; x += blockSize) {
 				context.beginPath();
 				context.moveTo(x, 0);          // Start line at the top of the canvas
 				context.lineTo(x, height);     // Draw line to the bottom of the canvas
@@ -29,7 +29,7 @@ export default function BottomCanvas(){
 			}
 		
 			// Draw horizontal lines
-			for (let y = cameraOffset.y; y < height; y += blockSize) {
+			for (let y = cameraOffset.y % blockSize; y < height; y += blockSize) {
 				context.beginPath();
 				context.moveTo(0, y);          // Start line at the left of the canvas
 				context.lineTo(width, y);      // Draw line to the right of the canvas
@@ -45,8 +45,8 @@ export default function BottomCanvas(){
 				willChange: 'transform',
 				opacity: 0.4,
 				position: 'absolute',
-				left: CANVAS_OFFSET_LEFT,
-				top: CANVASTOP_HEIGHT,
+				left: 0,
+				top: 0,
 				zIndex: -1,
 			}}></canvas>
 	);

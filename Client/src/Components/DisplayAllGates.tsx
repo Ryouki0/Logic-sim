@@ -9,6 +9,7 @@ import { createSelector } from "@reduxjs/toolkit";
 import '../menu.css';
 import BlueprintSettings from "./BlueprintSettings";
 import SelectedIo from "./IO/SelectedIo";
+import { resolveObjectURL } from "buffer";
 const checkAllGatesEquality = (prev: {[key: string]: Gate}, next: {[key: string]: Gate}) => {
 	const prevEntries = Object.entries(prev);
 	const nextEntries = Object.entries(next);
@@ -80,12 +81,15 @@ export default function DisplayAllGates(){
 		}
 	};
 
-	const handleInputClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+	const handleIOClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, type: 'input' | 'output') => {
 		if(e.button !== 0) return;
+		if(isDisabled) return;
 		e.stopPropagation();
+		e.preventDefault();
 		setShowSelectedIo(true);
 		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY, blockSize);
-		dispatch(setSelectedIo({type: 'input', startPos: {x: roundedX, y: roundedY}}));
+
+		dispatch(setSelectedIo({type: type, startPos: {x: roundedX, y: roundedY}}));
 	}
 
 	const bluePrints = useSelector(bluePrintsSelector);
@@ -126,7 +130,7 @@ export default function DisplayAllGates(){
 					onMouseDown={e => e.preventDefault()}
 				>
 					<div
-						onMouseDown={handleInputClick}
+						onMouseDown={e => {handleIOClick(e, 'input')}}
 						onContextMenu={e=> {e.preventDefault(); e.stopPropagation();}}
 						style={{
 							backgroundColor: isDisabled ? 'rgb(90 90 90)': 'rgb(70 70 70)',
@@ -148,7 +152,29 @@ export default function DisplayAllGates(){
 							userSelect: 'none',
 						}}>Input</span>
 					</div>
-
+					<div
+						onMouseDown={e => {handleIOClick(e, 'output')}}
+						onContextMenu={e=> {e.preventDefault(); e.stopPropagation();}}
+						style={{
+							backgroundColor: isDisabled ? 'rgb(90 90 90)': 'rgb(70 70 70)',
+							height: 40,
+							opacity: isDisabled ? 0.5 : 1,
+							marginRight: 7,
+							left: 3*MINIMAL_BLOCKSIZE,
+							alignSelf: 'center',
+							display: 'flex',
+							flexShrink: 0,
+							justifyContent: 'center',
+							alignItems: 'center',
+							cursor: isDisabled ? 'not-allowed' : 'pointer',
+							width: 3*MINIMAL_BLOCKSIZE,
+						}} key={'Output'}>
+						<span style={{
+							color: 'white',
+							fontSize: 18,
+							userSelect: 'none',
+						}}>Output</span>
+					</div>
 					{Object.entries(bluePrints)?.map(([key, gate]) => {
 						return <div
 							onMouseDown={e => {handleMouseDown(e, key, gate);}}

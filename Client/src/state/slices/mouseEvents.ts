@@ -27,15 +27,31 @@ const mouseEventsSlice = createSlice({
 	name: "mouseEventsSlice",
 	initialState,
 	reducers: {
+		/**
+		 * Sets the entity that has information displayed about it
+		 * @param {PayloadAction<EntityClicked>} action - The action containing the payload of type `EntityClicked`
+		 */
 		setSelectedEntity: (state, action: PayloadAction<EntityClicked>) => {
 			state.entityClicked = action.payload;
 		},
+		/**
+		 * Sets the current wire that is being hovered over.
+		 * @param {PayloadAction<Wire | null>} action - The wire that is under the cursor, or null.
+		 */
 		setHoveringOverWire: (state, action: PayloadAction<Wire | null>) => {
 			state.hoveringOverWire = action.payload;
 		},
+		/**
+		 * Sets the currently drawn wire's ID. (To not run the connection logic everytime there is a change in this wire)
+		 * @param {PayloadAction<string | null>} action - The new wire ID, or null 
+		 */
 		setDrawingWire: (state, action: PayloadAction<string | null>) => {
 			state.drawingWire = action.payload;
 		},
+		/**
+		 * Sets the selected blueprint ID, while dragging the blueprint
+		 * @param {PayloadAction<string | null>} action - The selected blueprint's ID, or null 
+		 */
 		setSelectedGateId: (state, action: PayloadAction<string | null>) => {
 			state.selectedGate = action.payload;
 		},

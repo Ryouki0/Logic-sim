@@ -11,6 +11,7 @@ import { BinaryIO } from "../../Interfaces/BinaryIO";
 import { ioEquality } from "./Input";
 import { adjustBrightness } from "../../utils/adjustBrightness";
 import getIOPathColor from "../../utils/getIOPathColor";
+import getIOBGColor from "../../utils/getIOBGColor";
 
 interface BinaryOutputProps {
 	output: BinaryIO;
@@ -51,7 +52,7 @@ export function Output({style = null, output}:BinaryOutputProps) {
 					value={100}
 					background={true}
 					styles={buildStyles({
-						backgroundColor: thisOutput?.highImpedance ? 'rgb(100 100 100)' : ('black'),
+						backgroundColor: getIOBGColor(thisOutput),
 						pathColor: getIOPathColor(thisOutput),
 					})}
 					strokeWidth={16}

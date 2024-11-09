@@ -6,7 +6,9 @@ export interface Misc{
 	canvasWidth: number,
 	canvasHeight: number,
 	blockSize: number,
+	prevBlockSize: number,
 	user: string | null,
+	globalBlockSize: number
 }
 
 const initialState:Misc = {
@@ -15,7 +17,9 @@ const initialState:Misc = {
 	canvasWidth: getClosestBlock(0.8*window.innerWidth, 0, MINIMAL_BLOCKSIZE).roundedX,
 	canvasHeight: window.innerHeight - 2*MINIMAL_BLOCKSIZE,
 	blockSize: MINIMAL_BLOCKSIZE,
+	prevBlockSize: MINIMAL_BLOCKSIZE,
 	user: null,
+	globalBlockSize: MINIMAL_BLOCKSIZE
 };
 
 const misc = createSlice({
@@ -41,13 +45,26 @@ const misc = createSlice({
 		setUser: (state, action: PayloadAction<string | null>) => {
 			state.user = action.payload;
 		},
-		changeBlockSize: (state, action: PayloadAction<number>) => {
+		changeBlockSizeByTenPercent: (state, action: PayloadAction<number>) => {
 			const newSize = parseFloat((action.payload > 0 ? state.blockSize * 0.9 : state.blockSize / 0.9).toFixed(20));
-			if(newSize < 5.9 || newSize > 44){
+			if(newSize < 10 || newSize > 44){
 				return;
 			}
+			state.prevBlockSize = state.blockSize;
 			state.blockSize = newSize;
 			console.log(`NEW SIZE: ${state.blockSize}`);
+		},
+		changeBlockSize: (state, action: PayloadAction<number>) => {
+			const newSize = action.payload;
+			if(newSize < 10 || newSize > 44){
+				return;
+			}
+			state.prevBlockSize = state.blockSize;
+			state.blockSize = newSize;
+			
+		},
+		changeGlobalBlockSize: (state, action: PayloadAction<number>) => {
+			state.globalBlockSize = action.payload;
 		}
 	}
 });
@@ -58,5 +75,7 @@ export const {
 	goBack,
 	setCanvasDim,
 	setUser,
-	changeBlockSize
+	changeBlockSizeByTenPercent,
+	changeBlockSize,
+	changeGlobalBlockSize
 } = misc.actions;

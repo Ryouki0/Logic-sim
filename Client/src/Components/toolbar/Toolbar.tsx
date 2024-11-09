@@ -20,6 +20,7 @@ export default function Toolbar() {
 		height: '100%',
 		display: 'flex',
 		flexDirection: 'column',
+		zIndex: 3,
 		borderWidth: DEFAULT_BORDER_WIDTH,
 		borderStyle: 'solid',
 		borderLeft: 0,

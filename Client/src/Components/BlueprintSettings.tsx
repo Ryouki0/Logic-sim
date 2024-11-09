@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Gate } from '@Shared/interfaces';
 import { deleteBluePrint, modifyComponent } from '../state/slices/entities';
 import { RootState } from '../state/store';
+import { changeBlockSize } from '../state/slices/misc';
 export default function BlueprintSettings({
 	style, 
 	gate, 
@@ -25,6 +26,7 @@ export default function BlueprintSettings({
 	};
 
 	const handleModify = () => {
+		dispatch(changeBlockSize(gate.lastBlockSize!));
 		dispatch(modifyComponent({id: gate.id, blockSize: blockSize}));
 		dispatch(deleteBluePrint(gate.id));
 		setShowSettings({gate: null, x:0,y:0,show: false});

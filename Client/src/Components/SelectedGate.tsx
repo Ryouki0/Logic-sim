@@ -24,7 +24,7 @@ export default function SelectedGate(){
 		const middleX = (e.x - gateWidth / 2) - cameraOffset.x;
 		const middleY = (e.y - gateHeight / 2) - cameraOffset.y;
 		const {roundedX, roundedY} = getClosestBlock(middleX, middleY, blockSize);
-		console.log(`x:${roundedX}`)
+		//console.log(`x:${roundedX}`)
 		if(roundedX !== currentGate?.position?.x || roundedY !== currentGate.position?.y){
 			dispatch(changeBluePrintPosition({gateId: currentGate!.id, position: {x:roundedX, y:roundedY}, blockSize: blockSize}));
 		}

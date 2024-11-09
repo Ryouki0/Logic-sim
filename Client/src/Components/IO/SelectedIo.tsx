@@ -7,15 +7,17 @@ import { DEFAULT_INPUT_DIM, getClosestBlock, LINE_WIDTH } from "../../Constants/
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import { DEFAULT_GATE_COLOR } from "../../Constants/colors";
 import { addInput } from "../../state/slices/entities";
-import { checkIo } from "./GlobalInputs";
+import { checkIo } from "../Canvas/CanvasLeftSide";
 import {v4 as uuidv4} from 'uuid';
 import { getTokenSourceMapRange } from "typescript";
 import { setSelectedIo } from "../../state/slices/mouseEvents";
+import { getIOLeftStyle, getLeftStyle } from "../../utils/Spatial/getIOStyles";
 
 export default function SelectedIo(){
 
 	const selectedIo = useSelector((state: RootState) => {return state.mouseEventsSlice.selectedIo;});
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const inputs = useSelector((state: RootState) => {
 		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => 
@@ -28,23 +30,34 @@ export default function SelectedIo(){
 		})
 			.filter((io): io is NonNullable<typeof io> => io !== null);
 	}, checkIo);
+
+	const outputs = useSelector((state: RootState) => {
+		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => {
+			if((io.type === 'output' && !io.gateId) || (io.type === 'output' && io.gateId === currentComponentId)){
+				return io;
+			}else{
+				return null;
+			}
+		}).filter((io): io is NonNullable<typeof io> => io !== null);
+    }, checkIo);
+
 	const [position, setPosition] = useState({x: selectedIo?.startPos.x ?? 0, y:selectedIo?.startPos.y ?? 0});
 	const [shouldShow, setShouldShow] = useState(false);
 	const dispatch = useDispatch();
 	const handleMouseMove = (e:MouseEvent) => {
-		const middleX = e.x - blockSize ;
-		const middleY = e.y;
+		const middleX = e.x - cameraOffset.x;
+		const middleY = e.y - cameraOffset.y;
 		const {roundedX, roundedY} = getClosestBlock(middleX, middleY, blockSize);
-		setPosition({x: roundedX, y: roundedY - DEFAULT_INPUT_DIM.height/2});
+		setPosition({x: roundedX, y: roundedY});
 
 	};
 
 	const handleMouseDown = (e: MouseEvent) => {
 		console.log(`selectedIo: ${selectedIo}`);
 		if(e.button !== 0 || !selectedIo) return;
-		console.log(`ASKOPA`);
+		console.log(`putting in at x: ${position.x} y: ${position.y}`);
 		dispatch(addInput({
-			name: `input ${inputs.length + 1}`,
+			name: `${selectedIo.type} ${(selectedIo?.type === 'input' ? inputs : outputs).length + 1}`,
 			id: uuidv4(),
 			type: `${selectedIo!.type}`,
 			state: 0,
@@ -52,10 +65,10 @@ export default function SelectedIo(){
 			parent: 'global',
 			to: [],
 			style: {
-				top: position.y + blockSize/2,
-				left: position.x + 2*blockSize 
+				top: position.y,
+				left: position.x 
 			},
-			position: {x: position.x + 2*blockSize, y:position.y + blockSize/2}
+			position: {x: position.x , y:position.y}
 		}));
 	};
 
@@ -85,15 +98,19 @@ export default function SelectedIo(){
 			setPosition({x: selectedIo!.startPos!.x, y: selectedIo.startPos!.y});
 		}
 	}, [selectedIo])
+
+
 	return <>
 		{shouldShow && <div style={{
 			position: 'absolute',
-			left: position.x,
-			top: position.y ,
+			left: getLeftStyle(selectedIo?.type, blockSize, cameraOffset, position),
+			top: position.y - blockSize/2 + cameraOffset.y,
 			width: 2*blockSize,
 			height: blockSize,
-			borderTopLeftRadius: 10,
-			borderBottomLeftRadius: 10,
+			borderTopLeftRadius: selectedIo?.type === 'input' ? 10 : 0,
+			borderBottomLeftRadius: selectedIo?.type === 'input' ? 10 : 0,
+			borderTopRightRadius: selectedIo?.type === 'output' ? 10 : 0,
+			borderBottomRightRadius: selectedIo?.type === 'output' ? 10 : 0,
 			display: 'flex',
 			backgroundColor: DEFAULT_GATE_COLOR,
 		}}>
@@ -112,7 +129,7 @@ export default function SelectedIo(){
 				height: DEFAULT_INPUT_DIM.height,
 				position: 'relative',
 				userSelect: 'none',
-				left: 2*blockSize - (DEFAULT_INPUT_DIM.width / 2),
+				left: getIOLeftStyle(selectedIo?.type, blockSize),
 				alignSelf: 'center',
 			}}
 			>

@@ -97,8 +97,6 @@ export default function MainCanvas(){
 		}
 		const movementX = e.pageX - lastDragCall.current.lastPos.x;
 		const movementY = e.pageY - lastDragCall.current.lastPos.y;
-		const minMovement = blockSize - dragError; 
-		const maxMovement = blockSize + dragError; 
 		
     	lastDragCall.current.lastPos = { x: e.pageX, y: e.pageY };
     	dispatch(setCameraOffset({ dx: movementX, dy: movementY }));
@@ -130,6 +128,7 @@ export default function MainCanvas(){
 					willChange: 'transform',
 					backgroundColor: 'rgb(160 160 160 / 80%)',
 					position: 'absolute',
+					cursor: isWheelDown ? 'grabbing' : 'auto',
 					left: 0,
 					zIndex: 0,
 				}}

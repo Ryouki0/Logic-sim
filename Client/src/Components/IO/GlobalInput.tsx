@@ -1,12 +1,12 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { checkIo } from "./GlobalInputs";
+import { checkIo } from "../Canvas/CanvasLeftSide";
 import { Input } from "./Input";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import { DEFAULT_INPUT_DIM } from "../../Constants/defaultDimensions";
 import { DEFAULT_GATE_COLOR } from "../../Constants/colors";
-import CustomInput from "./CustomInput";
+import CustomInput from "./CustomIO";
 
 export default function GlobalInput(){
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});

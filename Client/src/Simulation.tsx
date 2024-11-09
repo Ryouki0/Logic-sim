@@ -3,8 +3,8 @@ import MainCanvas from "./Components/Canvas/MainCanvas";
 import BottomCanvas from "./Components/Canvas/BottomCanvas";
 import DisplayAllGates from "./Components/DisplayAllGates";
 import MovableGates from "./Components/MovableGates";
-import GlobalInputs from "./Components/IO/GlobalInputs";
-import GlobalOutputs from "./Components/IO/GlobalOutputs";
+import GlobalInputs from "./Components/Canvas/CanvasLeftSide";
+import GlobalOutputs from "./Components/Canvas/CanvasRightSide";
 import EmptyComponent from "./Components/Effects/ConnectLogic";
 import Toolbar from "./Components/toolbar/Toolbar";
 import CanvasTop from "./Components/Canvas/CanvasTop";
@@ -13,14 +13,14 @@ import SelectedGate from "./Components/SelectedGate";
 import HoveringOverIO from "./Components/Effects/HoveringOverIO";
 import DrawWireFromIo from "./Components/Effects/DrawWireFromIo";
 import { useDispatch, useSelector } from "react-redux";
-import { changeBlockSize, setCanvasDim } from "./state/slices/misc";
+import { setCanvasDim } from "./state/slices/misc";
 import { getClosestBlock } from "./Constants/defaultDimensions";
 import BackToMenu from "./Components/toolbar/BackToMenu";
-import WireHead from "./Components/WireHead";
 import { RootState } from "./state/store";
 import Zoom from "./Components/Effects/Zoom";
 import GlobalInput from "./Components/IO/GlobalInput";
 import SelectedIo from "./Components/IO/SelectedIo";
+import GlobalOutput from "./Components/IO/GlobalOutput";
 function Simulation() {
 	const dispatch = useDispatch();
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
@@ -45,6 +45,7 @@ function Simulation() {
 				height: '100vh',
 			}}>
 			<GlobalInput></GlobalInput>
+			<GlobalOutput></GlobalOutput>
 			<Zoom></Zoom>
 			<GlobalInputs></GlobalInputs>
 			<DisplayAllGates></DisplayAllGates>

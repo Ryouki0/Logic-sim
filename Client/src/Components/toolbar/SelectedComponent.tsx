@@ -8,7 +8,7 @@ import { Gate } from "@Shared/interfaces";
 import GateSelected from "./GateSelected";
 import { DEFAULT_BORDER_COLOR, DEFAULT_BUTTON_COLOR, ONYX } from "../../Constants/colors";
 import entities, { switchCurrentComponent } from "../../state/slices/entities";
-import { setCurrentComponentId } from "../../state/slices/misc";
+import { changeBlockSize, setCurrentComponentId } from "../../state/slices/misc";
 import { BinaryIO } from "../../Interfaces/BinaryIO";
 import getType from "../../utils/getType";
 import BinaryIOSelected from "./BinaryIOSelected";
@@ -54,10 +54,13 @@ export default function SelectedComponent(){
 
 	const handleClick = (e: React.MouseEvent<any>) => {
 		dispatch(switchCurrentComponent({componentId: selectedComponent.entity!.id, prevComponent: null, blockSize}));
+		dispatch(changeBlockSize((selectedComponent.entity! as Gate)!.lastBlockSize!));
 		dispatch(setCurrentComponentId(selectedComponent.entity!.id));
 	};
 
- 	return <div style={{
+ 	return <div
+	onWheel={e => {e.stopPropagation()}} 
+	style={{
  		width: '100%',
  		minHeight: '30%',
 		maxHeight: '40%',

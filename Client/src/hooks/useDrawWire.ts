@@ -51,7 +51,6 @@ export default function useDrawWire(cameraOffset: {x: number, y:number}) {
 		const mouseDownListener = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
 
 			let {x, y} = getClientOffset(event);
-			console.log(`client offset X: ${x} y: ${y}`);
 			x = x - cameraOffset.x;
 			y = y - cameraOffset.y;
 			const {roundedX, roundedY} = getClosestBlock(x,y, blockSize);
