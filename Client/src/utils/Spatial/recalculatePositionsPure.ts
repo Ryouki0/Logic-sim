@@ -4,26 +4,28 @@ import { entities } from "../../state/slices/entities";
 import { CANVAS_OFFSET_LEFT, CANVASTOP_HEIGHT, getClosestBlock } from "../../Constants/defaultDimensions";
 import changeGateIoPos from "./changeGateIoPos";
 
-export default function recalculatePositionsPure(state:entities, action: PayloadAction<{blockSize: number, prevSize: number, currentComponentId: string}>) {
+export default function recalculatePositionsPure(
+    state:entities, 
+    action: PayloadAction<{blockSize: number, prevSize: number, currentComponentId: string, ioRadius: number}>
+) {
     const newSize = action.payload.blockSize;
     const prevSize = action.payload.prevSize;
+    const ioRadius = action.payload.ioRadius;
     const currentComponentId = action.payload.currentComponentId;
     Object.entries(state.currentComponent.gates).forEach(([key, gate]) => {
         
         //CANVAS_OFFSET_LEFT - the width of the canvas left side
         const multipliers = {x:(gate.position!.x - 0) / prevSize, y: (gate.position!.y - 0) / prevSize};
         const newPosition = {x: (multipliers.x * newSize)+0, y: multipliers.y * newSize + 0};
-        console.log(`BEFORE ROUNDING: X: ${newPosition.x} Y: ${newPosition.y} multipliers: x: ${multipliers.x} y: ${multipliers.y}`);
         const newRoundedPosition = getClosestBlock(newPosition.x, newPosition.y, newSize);
         const {newIoPositions} = changeGateIoPos(gate, {
             x: newRoundedPosition.roundedX,
             y: newRoundedPosition.roundedY,
-        }, newSize, state.currentComponent.binaryIO);
+        }, newSize, state.currentComponent.binaryIO, ioRadius);
         Object.entries(newIoPositions).forEach(([key, ioPos]) => {
             state.currentComponent.binaryIO[key].position = ioPos;
         });
         gate.position = {x: newRoundedPosition.roundedX, y: newRoundedPosition.roundedY};
-        console.log(`GATE POSITIONS: X: ${newRoundedPosition.roundedX} Y: ${newRoundedPosition.roundedY}`);
     });
 
     const transformLine = (line: Line, prevSize: number, newSize: number) => {

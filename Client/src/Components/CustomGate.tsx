@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import handleMouseDown from '../handleGateEvents';
 import { Input } from './IO/Input';
-import { CANVAS_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
+import { MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 import { Output } from './IO/Output';
 import { Gate } from '../Interfaces/Gate';
 import { RootState } from '../state/store';
@@ -48,7 +48,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 		return state.entities.gates[gateProps.id] ?? 
 		state.entities.currentComponent.gates[gateProps.id];
 	}, checkGateEquality);
-    
+    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
 	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
 
 	const offsetRef = useRef({dx: 
@@ -84,7 +84,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 	}, () => true);
 
 	function setPositions(x: number, y: number){
-		dispatch(changeGatePosition({gate: thisGate, position: {x: x,y: y}, blockSize: blockSize}));
+		dispatch(changeGatePosition({gate: thisGate, position: {x: x,y: y}, blockSize: blockSize, ioRadius}));
 	};
 
 	const handleMouseDownEvent = (e: MouseEvent) => {
@@ -155,7 +155,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 				{inputs?.map((input, idx, array) => {
 					return <Input binaryInput={{...input, 
 						style: {
-							top: calculateInputTop(idx, array.length, blockSize)
+							top: calculateInputTop(idx, array.length, blockSize, ioRadius)
 						}}} 
 					key={input?.id}></Input>;
 				})}
@@ -176,9 +176,9 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 				{outputs.map((output,idx,array) => {
 					return <Output output={output} style={
 						{
-							top: calculateInputTop(idx, array.length, blockSize) + (idx*DEFAULT_INPUT_DIM.height),
+							top: calculateInputTop(idx, array.length, blockSize, ioRadius) + (idx*ioRadius),
 							position:'absolute',
-							left:3*blockSize - DEFAULT_INPUT_DIM.height/2}} key={output?.id}></Output>;
+							left:3*blockSize - ioRadius/2}} key={output?.id}></Output>;
 				})}
 			</div>
 		</>

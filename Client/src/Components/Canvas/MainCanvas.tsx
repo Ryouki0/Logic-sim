@@ -16,7 +16,7 @@ export default function MainCanvas(){
 	const [isWheelDown, setIsWheelDown] = useState(false);
 	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize});
-	const dragError = blockSize / 10;
+	const lineWidth = useSelector((state: RootState) => {return state.misc.lineWidth});
 	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire;});
 	const {checkWire} = useIsWireClicked();
 	const startDrawing = useDrawWire(cameraOffset);
@@ -26,7 +26,7 @@ export default function MainCanvas(){
 	const throttledCheckWire = throttle((e: MouseEvent) => {
 		const x = e.x - cameraOffset.x;
 		const y = e.y - cameraOffset.y;
-		const wire = checkWire(x,y);
+		const wire = checkWire(x,y, lineWidth);
 		if(!isRightMouseDown){
 			if(hoveringOverWire && hoveringOverWire?.id === wire?.id){
 				return;
@@ -46,7 +46,7 @@ export default function MainCanvas(){
 	const handleContextMenu = (e: MouseEvent) => {
 		e.preventDefault();
 		const {x, y} = {x: e.pageX - cameraOffset.x, y: e.pageY - cameraOffset.y};
-		const wire = checkWire(x, y);
+		const wire = checkWire(x, y, lineWidth);
 		if(!wire || currentComponentId !== 'global'){
 			return;
 		}
@@ -66,7 +66,7 @@ export default function MainCanvas(){
 		if(e.button === 0){
 			startDrawing(e as unknown as React.MouseEvent<HTMLCanvasElement, MouseEvent>);
 			const {x, y} = {x: e.pageX - cameraOffset.x, y: e.pageY - cameraOffset.y};
-			const wire = checkWire(x, y);
+			const wire = checkWire(x, y, lineWidth);
 			if(!wire){
 				return;
 			}

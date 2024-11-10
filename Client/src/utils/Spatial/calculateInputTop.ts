@@ -1,4 +1,3 @@
-import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
 /**
  * It calculates the relative position for the "customGate" component. To get the absolute
  * position of the input add half the input's height, and the current index times the input's height to the gate's Y.
@@ -7,14 +6,14 @@ import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDim
  * @param arrayLength The inputs length
  * @returns The relative position for the customGate
  */
-export const calculateInputTop = (idx: number, arrayLength: number, blockSize: number) : number => {
+export const calculateInputTop = (idx: number, arrayLength: number, blockSize: number, ioRadius: number) : number => {
 	if(arrayLength == 1){
-		return blockSize -DEFAULT_INPUT_DIM.height/2;
+		return blockSize -ioRadius/2;
 	}
-	const defaultExpression = -((DEFAULT_INPUT_DIM.height/2)) + (idx*(blockSize - DEFAULT_INPUT_DIM.height));
+	const defaultExpression = -((ioRadius/2)) + (idx*(blockSize - ioRadius));
 	if(arrayLength % 2 === 0){
 		if(idx >= (arrayLength / 2)){
-			return -((DEFAULT_INPUT_DIM.height/2)) + ((idx+1)*(blockSize - DEFAULT_INPUT_DIM.height)) + DEFAULT_INPUT_DIM.height;
+			return -((ioRadius/2)) + ((idx+1)*(blockSize - ioRadius)) + ioRadius;
 		}
 	}
 	return defaultExpression; 

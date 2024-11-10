@@ -1,9 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import {
-	DEFAULT_INPUT_DIM,
-} from "../../Constants/defaultDimensions";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { BinaryIO } from "../../Interfaces/BinaryIO";
@@ -58,6 +55,7 @@ export function Input({binaryInput }: InputProps) {
 		});
 		console.log(`this input affects the output: ${thisInput?.affectsOutput}`);
 	};
+    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
 	
 	useEffect(() => {
 		eleRef.current?.addEventListener('mousedown', handleMouseDown);
@@ -72,11 +70,11 @@ export function Input({binaryInput }: InputProps) {
 			{/* {console.log(`RENDER INPUT -- ${thisInput?.gateId?.slice(0,5)}`)} */}
 			<div ref={eleRef}
 				style={{
-					width: DEFAULT_INPUT_DIM.width,
-					height: DEFAULT_INPUT_DIM.height,
+					width: ioRadius,
+					height: ioRadius,
 					position: 'relative',
 					userSelect: 'none',
-					left: -(DEFAULT_INPUT_DIM.width / 2),
+					left: -(ioRadius / 2),
 					...(isGlobal ? {} : binaryInput.style),
 				}}
 			>

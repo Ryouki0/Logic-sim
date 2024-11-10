@@ -23,16 +23,15 @@ export default function BottomCanvas(){
 		    context.lineWidth = 1;
 			for (let x = cameraOffset.x % blockSize; x < width; x += blockSize) {
 				context.beginPath();
-				context.moveTo(x, 0);          // Start line at the top of the canvas
-				context.lineTo(x, height);     // Draw line to the bottom of the canvas
+				context.moveTo(x, 0);          
+				context.lineTo(x, height);  
 				context.stroke();
 			}
 		
-			// Draw horizontal lines
 			for (let y = cameraOffset.y % blockSize; y < height; y += blockSize) {
 				context.beginPath();
-				context.moveTo(0, y);          // Start line at the left of the canvas
-				context.lineTo(width, y);      // Draw line to the right of the canvas
+				context.moveTo(0, y);         
+				context.lineTo(width, y);
 				context.stroke();
 			}
 		}

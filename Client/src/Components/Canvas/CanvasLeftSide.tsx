@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CANVASTOP_HEIGHT, CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM,MINIMAL_BLOCKSIZE,getClosestBlock } from '../../Constants/defaultDimensions';
+import { CANVASTOP_HEIGHT, CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, MINIMAL_BLOCKSIZE,getClosestBlock } from '../../Constants/defaultDimensions';
 import { Input } from '../IO/Input';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../state/store';

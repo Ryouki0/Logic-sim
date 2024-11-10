@@ -9,6 +9,7 @@ export default function Zoom(){
 	const prevBlockSize = useSelector((state: RootState) => {return state.misc.prevBlockSize});
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
 	const prevSize = useRef<number>(blockSize);
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
 	const isWheelEvent = useRef(false);
 	const dispatch = useDispatch();
 	useEffect(() => {
@@ -19,7 +20,7 @@ export default function Zoom(){
 
 		if(isWheelEvent.current){
 			//console.log(`recalculating positions for: newSize: ${blockSize} prev:${prevBlockSize} componentID: ${currentComponentId}`);
-			dispatch(recalculatePositions({blockSize: blockSize, prevSize: prevBlockSize, currentComponentId: currentComponentId}));
+			dispatch(recalculatePositions({blockSize: blockSize, prevSize: prevBlockSize, currentComponentId: currentComponentId, ioRadius: ioRadius}));
 			if(currentComponentId === 'global'){
 				dispatch(changeGlobalBlockSize(blockSize));
 			}else{

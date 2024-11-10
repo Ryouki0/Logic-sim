@@ -4,6 +4,8 @@ import { RootState } from "../../state/store";
 import { DEFAULT_INPUT_DIM } from "../../Constants/defaultDimensions";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import { BinaryIO } from "../../Interfaces/BinaryIO";
+import getIOPathColor from "../../utils/getIOPathColor";
+import getIOBGColor from "../../utils/getIOBGColor";
 
 export const checkSingleIo = (prev: BinaryIO, next: BinaryIO) => {
 	if(prev.state !== next.state){
@@ -32,10 +34,10 @@ export default function InputPreview({inputId, style} : {inputId: string, style:
 				value={100}
 				background={true}
 				styles={buildStyles({
-					backgroundColor: thisInput?.state ? "rgb(255 60 60)" : 'black',
-					pathColor: "black",
+					backgroundColor: getIOBGColor(thisInput),
+					pathColor: getIOPathColor(thisInput),
 				})}
-				strokeWidth={14}
+				strokeWidth={16}
 			></CircularProgressbar>
 		</div>
 	</>;

@@ -75,11 +75,5 @@ export default function WireSelected({wire} : {wire:Wire}){
 					className="clickable-text">{target?.name}{idx === array.length-1 ? null : ', '}</span>; 
 			})}
 		</div>
-		
-		<span style={{
-			marginLeft: 10,
-			color: 'white', 
-			fontSize: 16,
-			marginTop: 10}}>Parent: {wire.parent}</span>
 	</div>;
 }

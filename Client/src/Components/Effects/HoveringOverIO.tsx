@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
-import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../../Constants/defaultDimensions';
 import { setHoveringOverIo, setSelectedEntity } from '../../state/slices/mouseEvents';
 import isOnIo from '../../utils/Spatial/isOnIo';
 import { BinaryIO } from '../../Interfaces/BinaryIO';
@@ -14,6 +13,7 @@ export default function HoveringOverIO(){
 	const currentlyHoveringOverIo = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverIo;});
 	const currentComponent = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const spanRef = useRef<HTMLSpanElement | null>(null);
+    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
 	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
 	useEffect(() => {
 		const ioEntries = Object.entries(io);
@@ -21,7 +21,7 @@ export default function HoveringOverIO(){
 		const handleMouseMove = (e:MouseEvent) => {
 			for(const [key, io] of ioEntries){
                 
-				if(isOnIo(e.x, e.y, io, cameraOffset)){
+				if(isOnIo(e.x, e.y, io, cameraOffset, ioRadius)){
 					if(currentlyHoveringOverIo?.id === key){
 						return;
 					}
@@ -36,7 +36,7 @@ export default function HoveringOverIO(){
 		const handleMouseDown = (e:MouseEvent) => {
 			for(const [key, io] of ioEntries){
                 
-				if(isOnIo(e.x, e.y, io, cameraOffset)){
+				if(isOnIo(e.x, e.y, io, cameraOffset, ioRadius)){
 					dispatch(setSelectedEntity({entity: io, type: 'BinaryIO'}));
 					return;
 				}

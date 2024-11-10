@@ -30,6 +30,7 @@ export default function Clock() {
 		return state.entities.currentComponent.binaryIO;
 	});
 	const user = useSelector((state: RootState) => {return state.misc.user;});
+	const misc = useSelector((state: RootState) => {return state.misc});
 	const actualEntities = useSelector((state: RootState) => {return state.entities;});
 	const dispatch = useDispatch();
 	// const entities = useSelector((state: RootState) => state.entities);
@@ -148,22 +149,23 @@ export default function Clock() {
 		}}>
 			<span style={textStlye}>Actual hz: {actualHertz.toLocaleString('de-DE')}</span>
 			<span style={textStlye}>Actual refresh rate: {actualRefreshRate}</span>
-			{user === 'Superuser' && <button onClick={e => {fetch(`http://localhost:3002/api/cpu`, {
-				method: 'PUT',
-				credentials: 'include',
-				headers: {
-					'Content-type': 'application/json',
-				},
-				body: JSON.stringify(actualEntities)
-			}).then(res => {
-				if(!res.ok){
-					console.error(`error saving cpu: ${res.status} ${res.statusText}`);
-				}
-
-				return res.json();
-			}).then(data => {
-				console.log(`got back data: ${data.message}`);
-			});
+			{user === 'Superuser' && <button onClick={e => {
+				const {user, ...miscBase} = misc;
+				fetch(`http://localhost:3002/api/cpu`, {
+					method: 'PUT',
+					credentials: 'include',
+					headers: {
+						'Content-type': 'application/json',
+					},
+					body: JSON.stringify({...actualEntities, misc: miscBase})
+				}).then(res => {
+					if(!res.ok){
+						console.error(`error saving cpu: ${res.status} ${res.statusText}`);
+					}
+					return res.json();
+				}).then(data => {
+					console.log(`got back data: ${data.message}`);
+				});
 			}}>save</button>}
 			{<div>
 				<button style={{width: 200, height: 50}} onClick={handleDownload}>Download</button>

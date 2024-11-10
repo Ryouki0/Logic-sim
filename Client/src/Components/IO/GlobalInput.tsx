@@ -4,7 +4,6 @@ import { RootState } from "../../state/store";
 import { checkIo } from "../Canvas/CanvasLeftSide";
 import { Input } from "./Input";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
-import { DEFAULT_INPUT_DIM } from "../../Constants/defaultDimensions";
 import { DEFAULT_GATE_COLOR } from "../../Constants/colors";
 import CustomInput from "./CustomIO";
 

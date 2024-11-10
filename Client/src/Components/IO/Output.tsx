@@ -1,9 +1,6 @@
 import React from "react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import {
-	DEFAULT_INPUT_DIM,
-} from "../../Constants/defaultDimensions";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { AMBER, DEFAULT_BACKGROUND_COLOR, DEFAULT_WIRE_COLOR, ORANGE } from "../../Constants/colors";
@@ -20,6 +17,7 @@ interface BinaryOutputProps {
 
 
 export function Output({style = null, output}:BinaryOutputProps) {
+    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
 
 	const thisOutput = useSelector((state:RootState) => {
 		return state.entities.binaryIO[output?.id] ?? state.entities.currentComponent.binaryIO[output?.id];}, ioEquality);
@@ -43,8 +41,8 @@ export function Output({style = null, output}:BinaryOutputProps) {
 	return (
 		<>
 			<div style={{...style,
-				width: DEFAULT_INPUT_DIM.width,
-				height: DEFAULT_INPUT_DIM.height,
+				width: ioRadius,
+				height: ioRadius,
 				cursor: 'arrow',
 			}}
 			onMouseDown={handleMouseDown}>

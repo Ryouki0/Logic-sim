@@ -5,7 +5,8 @@ export const drawLine = (
 	line: Line, 
 	context: CanvasRenderingContext2D, 
 	line_width: number = LINE_WIDTH, 
-	cameraOffset: {x: number, y: number}) => {
+	cameraOffset: {x: number, y: number}
+) => {
 	context.beginPath();
 	context.lineCap = 'round';
 	context.lineWidth = line_width;

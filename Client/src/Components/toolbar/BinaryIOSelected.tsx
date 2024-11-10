@@ -34,7 +34,10 @@ export default function BinaryIOSelected({io} : {io: BinaryIO}){
 			alignSelf: 'center',
 			marginTop: MINIMAL_BLOCKSIZE,
 		}}>
+			<div>
 			{io.type === 'input' ? <InputPreview inputId={io.id} style={{}}></InputPreview> : <OutputPreview outputId={io.id} style={{}}></OutputPreview>}
+
+			</div>
 		</div>
 		<div style={{
 			marginLeft: 10,

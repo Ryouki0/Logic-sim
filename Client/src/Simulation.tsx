@@ -21,6 +21,7 @@ import Zoom from "./Components/Effects/Zoom";
 import GlobalInput from "./Components/IO/GlobalInput";
 import SelectedIo from "./Components/IO/SelectedIo";
 import GlobalOutput from "./Components/IO/GlobalOutput";
+import '../node_modules/react-circular-progressbar/dist/styles.css';
 function Simulation() {
 	const dispatch = useDispatch();
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});

@@ -38,7 +38,7 @@ export default function DisplayAllGates(){
 			return topLevelComponents;
 		}
 	);
-
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
 	useEffect(() => {
 		const handleScroll = (e:WheelEvent) => {
 			scrollRef.current!.scrollLeft += e.deltaY;
@@ -71,7 +71,7 @@ export default function DisplayAllGates(){
 			e.stopPropagation();
 			dispatch(setSelectedGateId(key));
 			const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY, blockSize);
-			dispatch(changeBluePrintPosition({gateId: key, position: {x: roundedX, y: roundedY}, blockSize: blockSize}));
+			dispatch(changeBluePrintPosition({gateId: key, position: {x: roundedX, y: roundedY}, blockSize: blockSize, ioRadius: ioRadius}));
 		}else if(e.button === 2){
 			e.preventDefault();
 			if(gate.name === 'NO' || gate.name ==='AND' || gate.name === 'SWITCH' || gate.name ==='DELAY'){

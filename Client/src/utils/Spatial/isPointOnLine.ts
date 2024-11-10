@@ -18,12 +18,21 @@ export function calculateLinePoints(line:Line){
 }
 
 
-export function isPointOnLine(startX:number,startY:number,endX:number,endY:number, px:number,py:number, calculatePoints: boolean = false){
+export function isPointOnLine(
+	startX:number,
+	startY:number,
+	endX:number,
+	endY:number, 
+	px:number,
+	py:number, 
+	lineWidth: number,
+	calculatePoints: boolean = false,
+){
 	if(calculatePoints){
 		({startX, startY, endX, endY} = calculateLinePoints({startX, startY, endX, endY} as Line));
 	}
-	if(startX - (Math.trunc(LINE_WIDTH/2) + 1) <= px && endX + (Math.trunc(LINE_WIDTH / 2) + 1) > px){
-		if(startY - (Math.trunc(LINE_WIDTH/2) + 1) <= py && endY + (Math.trunc(LINE_WIDTH/2) + 1) > py){
+	if(startX - (Math.trunc(lineWidth/2) + 1) <= px && endX + (Math.trunc(lineWidth / 2) + 1) > px){
+		if(startY - (Math.trunc(lineWidth/2) + 1) <= py && endY + (Math.trunc(lineWidth/2) + 1) > py){
 			return true;
 		}
 	}
@@ -31,7 +40,7 @@ export function isPointOnLine(startX:number,startY:number,endX:number,endY:numbe
 }
 
 
-export function isPointOnDiagonalLine(startX: number, startY: number, endX: number, endY: number, x: number, y: number) {
+export function isPointOnDiagonalLine(startX: number, startY: number, endX: number, endY: number, x: number, y: number, lineWidth: number) {
 	const m = (endY - startY) / (endX - startX);
 	const startPointX = startX; //+ CANVAS_OFFSET_LEFT;
 	const endPointX = endX; //+CANVAS_OFFSET_LEFT;
@@ -39,21 +48,21 @@ export function isPointOnDiagonalLine(startX: number, startY: number, endX: numb
 	const b = startY - m * startPointX;
 
 	const distance = Math.abs(m * x - y + b) / Math.sqrt(m * m + 1);
-	if(!isPointOnLine( startX, startY, endX, endY, x, y, true)){
+	if(!isPointOnLine( startX, startY, endX, endY, x, y, lineWidth, true)){
 		return false;
 	}
 
-	return distance <= Math.trunc(LINE_WIDTH / 2) + 1;
+	return distance <= Math.trunc(lineWidth / 2) + 1;
 }
 
-export function isPointOnWire(x:number,y:number, wire:Wire){
+export function isPointOnWire(x:number,y:number, wire:Wire, lineWidth: number){
 	let {startX, startY, endX, endY} = calculateLinePoints(wire.linearLine);
-	if(isPointOnLine(startX,startY,endX,endY, x, y)){
+	if(isPointOnLine(startX,startY,endX,endY, x, y, lineWidth)){
 		return true;
 	}
 	({startX, startY, endX, endY} = wire.diagonalLine);
 
-	if(isPointOnDiagonalLine(startX, startY, endX, endY, x, y)){			
+	if(isPointOnDiagonalLine(startX, startY, endX, endY, x, y, lineWidth)){			
 		return true;
 	}
 	return false;

@@ -518,18 +518,19 @@ const entities = createSlice({
 			
 		},
 		
-		changeGatePosition: (state, action: PayloadAction<{gate:Gate,position: {x:number,y:number}, blockSize: number}>) => {
+		changeGatePosition: (state, action: PayloadAction<{gate:Gate,position: {x:number,y:number}, blockSize: number, ioRadius: number}>) => {
 			
 			const gate = state.currentComponent.gates[action.payload.gate.id];
 			const blockSize = action.payload.blockSize;
+			const ioRadius = action.payload.ioRadius;
 			gate.position = action.payload.position;
 			const newInputPositions: {[key: string]: {x: number, y: number}} = {};
 			gate.inputs.forEach((inputId, idx, array) => {
-				newInputPositions[inputId] = calculateAbsoluteIOPos(gate, state.currentComponent.binaryIO[inputId], blockSize);
+				newInputPositions[inputId] = calculateAbsoluteIOPos(gate, state.currentComponent.binaryIO[inputId], blockSize, ioRadius);
 			});
 
 			gate.outputs.forEach((outputId, idx, array) => {
-				newInputPositions[outputId] = calculateAbsoluteIOPos(gate, state.currentComponent.binaryIO[outputId], blockSize);
+				newInputPositions[outputId] = calculateAbsoluteIOPos(gate, state.currentComponent.binaryIO[outputId], blockSize, ioRadius);
 			});
 
 			Object.entries(newInputPositions).forEach(([key, position]) => {
@@ -804,8 +805,9 @@ const entities = createSlice({
 				state.currentComponent.wires[wireId].error = true;
 			});
 		},
-		changeBluePrintPosition: (state, action:PayloadAction<{gateId: string, position: {x: number, y: number}, blockSize: number}>) => {
+		changeBluePrintPosition: (state, action:PayloadAction<{gateId: string, position: {x: number, y: number}, blockSize: number, ioRadius: number}>) => {
 			const gateId = action.payload.gateId;
+			const ioRadius = action.payload.ioRadius;
 			const blockSize = action.payload.blockSize;
 			const topLevelGate = state.bluePrints.gates[gateId];
 			const newPosition = action.payload.position;
@@ -814,15 +816,17 @@ const entities = createSlice({
 			topLevelGate.inputs.forEach((inputId, idx, array) => {
 				state.bluePrints.io[inputId].position = {
 					x: newPosition.x,
-					y: newPosition.y + calculateInputTop(idx, array.length, blockSize) + DEFAULT_INPUT_DIM.height/2 + idx*DEFAULT_INPUT_DIM.height
+					y: newPosition.y + calculateInputTop(
+						idx, array.length, blockSize, ioRadius
+					) + ioRadius/2 + idx*ioRadius
 				};
 			});
 
 			topLevelGate.outputs.forEach((outputId, idx, array) => {
 				state.bluePrints.io[outputId].position = {
 					x: newPosition.x + 3*blockSize,
-					y: newPosition.y + calculateInputTop(idx, array.length, blockSize) + 
-					(idx*DEFAULT_INPUT_DIM.height) + DEFAULT_INPUT_DIM.height/2
+					y: newPosition.y + calculateInputTop(idx, array.length, blockSize, ioRadius) + 
+					(idx*ioRadius) + ioRadius/2
 				};
 			});
 		},
@@ -834,10 +838,11 @@ const entities = createSlice({
 
 			gate.description = action.payload.description;
 		},
-		switchCurrentComponent: (state, action: PayloadAction<{componentId: string, prevComponent: string | null, blockSize: number}>) => {
+		switchCurrentComponent: (state, action: PayloadAction<{componentId: string, prevComponent: string | null, blockSize: number, ioRadius: number}>) => {
 			const componentId = action.payload.componentId;
 			const component = state.currentComponent.gates[componentId] ?? state.gates[componentId];
 			const blockSize = action.payload.blockSize;
+			const ioRadius = action.payload.ioRadius;
 			const currentGateEntries = Object.entries(state.currentComponent.gates);
 			const currentIoEntries = Object.entries(state.currentComponent.binaryIO);
 			const currentWireEntries = Object.entries(state.currentComponent.wires);
@@ -885,7 +890,9 @@ const entities = createSlice({
 			
 
 			
-			//Change the position of IOs
+			/**
+			 * Change the positions of the custom IOs when going inside a component
+			 */
 			if(componentId === 'global'){
 				Object.entries(state.binaryIO).forEach(([key, io], idx) => {
 					if(!io.gateId && io.type === 'input'){
@@ -910,17 +917,28 @@ const entities = createSlice({
 				});
 			}
 			
+			/**
+			 * This is for the IOs of the component when going back
+			 */
 			newCurrentComponentIo.forEach(io => {
 				if(action.payload.prevComponent && io.gateId === action.payload.prevComponent){
 					const prevGate = state.currentComponent.gates[io.gateId] ?? state.gates[io.gateId];
 					if(!prevGate){
 						throw new Error(`There is no gate in the state at ID: ${io.gateId}`);
-					}	
-					const newPos = calculateAbsoluteIOPos(prevGate, io, blockSize);
+					}
+					/**
+					 * The outside blockSize is not yet updated, so take it from the actual component
+					 */
+					let actualBlockSize = 0
+					if(component){
+						 actualBlockSize = component.lastBlockSize!;
+					}else{
+						actualBlockSize = blockSize;
+					}
+					const newPos = calculateAbsoluteIOPos(prevGate, io, actualBlockSize, ioRadius);
 					io.position = newPos;
 				}
  				state.currentComponent.binaryIO[io.id] = io;
-				//console.log(`IO: ${io.id.slice(0,6)} -- ${io.gateId?.slice(0,6)}`);
 				delete state.binaryIO[io.id];
 			});
 				
@@ -1052,8 +1070,7 @@ const entities = createSlice({
 				}
 			});
 		},
-		recalculatePositions: (state, action: PayloadAction<{blockSize: number, prevSize: number, currentComponentId: string}>) => {
-			console.log(`asdmk`);
+		recalculatePositions: (state, action: PayloadAction<{blockSize: number, prevSize: number, currentComponentId: string, ioRadius: number}>) => {
 			state = recalculatePositionsPure(state, action);
 
 		},

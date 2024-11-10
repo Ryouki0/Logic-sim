@@ -39,6 +39,7 @@ export default function SelectedComponent(){
  		return state.mouseEventsSlice.entityClicked;
  	});
 	 const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
+	 const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
 
 	const currentEntity = useSelector((state: RootState) => {
 		if(selectedComponent?.type === 'Gate'){
@@ -53,7 +54,7 @@ export default function SelectedComponent(){
 	const dispatch = useDispatch();
 
 	const handleClick = (e: React.MouseEvent<any>) => {
-		dispatch(switchCurrentComponent({componentId: selectedComponent.entity!.id, prevComponent: null, blockSize}));
+		dispatch(switchCurrentComponent({componentId: selectedComponent.entity!.id, prevComponent: null, blockSize, ioRadius}));
 		dispatch(changeBlockSize((selectedComponent.entity! as Gate)!.lastBlockSize!));
 		dispatch(setCurrentComponentId(selectedComponent.entity!.id));
 	};

@@ -6,7 +6,7 @@ export default function calculateGateHeight(gate:Gate, blockSize: number){
 	const outputLength = gate.outputs.length;
 	const longest = inputLength > outputLength ? inputLength : outputLength;
 	if(inputLength <= 1 && outputLength <= 1){
-		return 2*blockSize + LINE_WIDTH/2;
+		return 2*blockSize + 0;
 	}
-	return longest % 2 === 0 ? (longest * blockSize) + LINE_WIDTH/2: ((longest-1) * blockSize) + LINE_WIDTH/2;
+	return longest % 2 === 0 ? (longest * blockSize) + 0: ((longest-1) * blockSize) + 0;
 }

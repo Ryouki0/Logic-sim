@@ -3,13 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { ioEquality } from "./Input";
 import { DEFAULT_GATE_COLOR } from "../../Constants/colors";
-import { CANVAS_OFFSET_LEFT, CANVASTOP_HEIGHT, DEFAULT_INPUT_DIM, getClosestBlock, LINE_WIDTH } from "../../Constants/defaultDimensions";
+import { CANVAS_OFFSET_LEFT, CANVASTOP_HEIGHT, getClosestBlock } from "../../Constants/defaultDimensions";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import { textStlye } from "../../Constants/commonStyles";
 import { changeInputState, changeIOStyle, deleteInput } from "../../state/slices/entities";
 import { ModuleSource } from "module";
 import { getIOLeftStyle, getLeftStyle } from "../../utils/Spatial/getIOStyles";
-import { EmitFlags } from "typescript";
+import { EmitFlags, transform } from "typescript";
 import { off } from "process";
 import getIOPathColor from "../../utils/getIOPathColor";
 import getIOBGColor from "../../utils/getIOBGColor";
@@ -26,6 +26,7 @@ export default function CustomIO({id, showButton}:{id:string, showButton: boolea
     const spanRef = useRef<HTMLSpanElement | null>(null);
     
     const [isMouseDown, setIsMouseDown] = useState(false);
+    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
 
     const relativeStartPos = useRef<{x: number, y: number}>({x: -1, y: -1});
     const prevSize = useRef(blockSize);
@@ -154,23 +155,27 @@ export default function CustomIO({id, showButton}:{id:string, showButton: boolea
       </span>
         <div onClick={e => {e.stopPropagation();}} 
         style={{
-            width: DEFAULT_INPUT_DIM.width,
-            height: DEFAULT_INPUT_DIM.height,
+            width: ioRadius,
+            height: ioRadius,
             position: 'relative',
             userSelect: 'none',
-            left: getIOLeftStyle(thisIO?.type, blockSize),
+            left: getIOLeftStyle(thisIO?.type, blockSize, ioRadius),
             alignSelf: 'center',
         }}
-        >
-            <CircularProgressbar
+        ><CircularProgressbar
                 value={100}
+                
                 background={true}
-                styles={buildStyles({
+                styles={
+                    
+                    buildStyles({
                     backgroundColor: getIOBGColor(thisIO),
                     pathColor: getIOPathColor(thisIO),
                 })}
+                
                 strokeWidth={16}
             ></CircularProgressbar>
+            
         
         </div>
     </div>;

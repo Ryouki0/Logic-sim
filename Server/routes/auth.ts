@@ -6,23 +6,32 @@ const db = new sqlite3.Database('./TestDb.db');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 // Register Route
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
 	const { username, password } = req.body;
 
+	// Check for username and password in the request body
 	if (!username || !password) {
 		return res.status(401).json({ error: 'No username or password' });
 	}
 
-	const stmt = db.prepare(`INSERT INTO users (username, password, role) VALUES (?, ?, ?)`);
+	try {
+		// Hash the password
+		const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds, a good balance for security
 
-	stmt.run(username, password, 'user', (err: any) => {
-		if (err) {
-			return res.status(500).json({ error: err.message });
-		}
-		res.status(200).json({ message: 'User registered successfully' });
-	});
+		// Prepare and run the insert statement with the hashed password
+		const stmt = db.prepare(`INSERT INTO users (username, password, role) VALUES (?, ?, ?)`);
+		stmt.run(username, hashedPassword, 'user', (err:any) => {
+			if (err) {
+				return res.status(500).json({ error: err.message });
+			}
+			res.status(200).json({ message: 'User registered successfully' });
+		});
 
-	stmt.finalize();
+		stmt.finalize();
+	} catch (error) {
+		console.error('Error hashing password:', error);
+		res.status(500).json({ error: 'Failed to register user' });
+	}
 });
 
 // Login Route
@@ -59,7 +68,7 @@ router.post('/login', (req, res) => {
 });
 
 router.get('/logout', (req, res) => {
-	res.clearCookie('user', {path: '/', sameSite: 'none', secure: true, domain: ''});
+	res.clearCookie('user', {path: '/', sameSite: 'none', secure: false, domain: ''});
 	res.status(200).json({ message: 'Logout successful' });
 });
 

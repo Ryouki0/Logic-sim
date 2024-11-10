@@ -4,7 +4,7 @@ import {BinaryIOBase, entities} from '@Shared/interfaces';
 import path from 'path';
 import authRoutes from './routes/auth';
 const cookieParser = require('cookie-parser');
-
+const bcrypt = require('bcrypt');
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('./TestDb.db');
 const fs = require('fs');
@@ -41,14 +41,8 @@ db.serialize(() => {
 			}
 		}
 	);
-
-	db.run(`INSERT INTO users (username, password, role) VALUES (?,?,?)`, ['Superuser', 'Testpassword123', 'admin'], (err: any) => {
-		if(err){
-			console.error(err.message);
-		}else{
-			console.log(`created admin account`);
-		}
-	});
+	
+	
 
 	db.run(`CREATE TABLE IF NOT EXISTS cpu (
 		id INTEGER PRIMARY KEY,
@@ -56,7 +50,8 @@ db.serialize(() => {
 		gates TEXT NOT NULL,
 		bluePrints TEXT NOT NULL,
 		binaryIO TEXT NOT NULL,
-		currentComponent TEXT NOT NULL)`
+		currentComponent TEXT NOT NULL,
+		misc TEXT NOT NULL)`
 	, (err: any) => {
 		if(err){
 			console.error(err.message);
@@ -96,31 +91,79 @@ const allowedOrigins = [
   app.use(express.json({ limit: '40mb' }));
 
 
+  const createOrUpdateSuperuser = async () => {
+    const username = 'Superuser';
+    const rawPassword = 'Testpassword123';
+    const role = 'admin';
 
-function checkRole(requiredRole: string){
-	return (req:any, res:any, next:any) => {
-		if(!req.cookies.user){
-			return res.status(401).json({error: 'Unauthorized access'});
-		}
+    try {
+        const hashedPassword = await bcrypt.hash(rawPassword, 10); // Hash password with a salt round of 10
 
-		const username = req.cookies.user;
+        db.get(`SELECT * FROM users WHERE username = ?`, [username], (err: any, row:any) => {
+            if (err) {
+                console.error('Error fetching user:', err.message);
+                return;
+            }
 
-		db.get(`SELECT role FROM users WHERE username = ?`, [username], (err:any, row:any) => {
-			if(err){
-				return res.status(500).json({error: 'Server error'});
-			}
+            if (row) {
+                // Update the existing user's password
+                db.run(`UPDATE users SET password = ? WHERE username = ?`, [hashedPassword, username], (err:any) => {
+                    if (err) {
+                        console.error('Error updating password:', err.message);
+                    } else {
+                        console.log('Updated Superuser password with hashed password');
+                    }
+                });
+            } else {
+                // Create a new user if none exists
+                db.run(`INSERT INTO users (username, password, role) VALUES (?,?,?)`, [username, hashedPassword, role], (err:any) => {
+                    if (err) {
+                        console.error('Error creating user:', err.message);
+                    } else {
+                        console.log('Created Superuser account with hashed password');
+                    }
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Error hashing password:', error);
+    }
+};
 
-			if(!row){
-				return res.status(404).json({error: 'User not found'});
-			}
+createOrUpdateSuperuser();
+const jwt = require('jsonwebtoken');
+function checkRole(requiredRole:any) {
+    return (req:any, res:any, next:any) => {
+        // Check for token in cookies
+        const token = req.cookies.token;
+        if (!token) {
+            return res.status(401).json({ error: 'Unauthorized access' });
+        }
 
-			if(row.role !== requiredRole){
-				return res.status(403).json({error: 'Forbidden access'});
-			}
+        // Verify the token
+        jwt.verify(token, 'your_secret_key', (err:any, decoded:any) => {
+            if (err) {
+                return res.status(401).json({ error: 'Invalid token' });
+            }
 
-			next();
-		})
-	}
+            // Check the role in the database
+            db.get(`SELECT role FROM users WHERE id = ?`, [decoded.user_id], (err:any, row:any) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Server error' });
+                }
+                if (!row) {
+                    return res.status(404).json({ error: 'User not found' });
+                }
+
+                if (row.role !== requiredRole) {
+                    return res.status(403).json({ error: 'Forbidden access' });
+                }
+
+                // Proceed if the role matches
+                next();
+            });
+        });
+    };
 }
 
 
@@ -138,7 +181,7 @@ app.get('/api/cpu', (req, res) => {
 })
 
 app.put('/api/cpu', checkRole('admin'), (req, res) => {
-    const { wires, gates, bluePrints, binaryIO, currentComponent } = req.body;
+    const { wires, gates, bluePrints, binaryIO, currentComponent, misc } = req.body;
     const id = 1;
 
     const wiresStr = JSON.stringify(wires);
@@ -146,21 +189,23 @@ app.put('/api/cpu', checkRole('admin'), (req, res) => {
     const bluePrintsStr = JSON.stringify(bluePrints);
     const binaryIOStr = JSON.stringify(binaryIO);
     const currentComponentStr = JSON.stringify(currentComponent);
+	const miscStr = JSON.stringify(misc);
 
 	const updateOrInsertSQL = `
-    INSERT INTO cpu (wires, gates, bluePrints, binaryIO, currentComponent, id)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO cpu (wires, gates, bluePrints, binaryIO, currentComponent, id, misc)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(id) DO UPDATE SET
         wires = excluded.wires,
         gates = excluded.gates,
         bluePrints = excluded.bluePrints,
         binaryIO = excluded.binaryIO,
-        currentComponent = excluded.currentComponent;
+        currentComponent = excluded.currentComponent,
+		misc = excluded.misc;
     `;
 
     db.run(
         updateOrInsertSQL,
-        [wiresStr, gatesStr, bluePrintsStr, binaryIOStr, currentComponentStr, id],
+        [wiresStr, gatesStr, bluePrintsStr, binaryIOStr, currentComponentStr, id, miscStr],
         function (err:any) {
             if (err) {
                 console.error(`SQL Error: ${err.message}`);
@@ -180,58 +225,6 @@ app.put('/api/cpu', checkRole('admin'), (req, res) => {
 
 app.use('/api', authRoutes)
 
-app.post(`/api/testPost`, (req, res) => {
-	const binaryIO:BinaryIOBase = req.body;
-
-	const stmt = db.prepare(`INSERT OR REPLACE INTO binary_io 
-		(
-			id,
-			state,
-			gateId,
-			name,
-			type,
-			isGlobalIo,
-			parent,
-			position,
-			"to",
-			"from"
-		) VALUES (?,?,?,?,?,?,?,?,?,?)`
-	);
-	stmt.run(
-		binaryIO.id,
-		binaryIO.state,
-		binaryIO.gateId || null,
-		binaryIO.name,
-		binaryIO.type,
-		binaryIO.isGlobalIo,
-		binaryIO.parent,
-		binaryIO.position || null,
-		binaryIO.to,
-		binaryIO.from || null
-	);
-	res.status(200).json('Succesfully inserted binaryIO');
-})
-
-app.get('/api/testGet',(req,res) => {
-	console.log('called');
-	const id = req.query.id;
-	if(!id){
-		res.status(401).json({error: 'ID required!'});
-	}
-	db.get('SELECT * FROM binary_io WHERE ID = ?', [id], (err:any, row:any) => {
-		if(err){
-			console.error(`${err.message}`);
-			res.status(500).json({error: 'Db error'});
-			return;
-		}
-		if(!row){
-			console.error(`there is no row`);
-			res.json({error: 'no row'});
-			return;
-		}
-		res.status(200).json(row);
-	})
-})
 
 function checkAuth(req:any, res:any, next:any) {
     const user = req.cookies.user;

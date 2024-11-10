@@ -62,6 +62,8 @@ export default function useConnecting(){
 	const drawingWire = useSelector((state: RootState) => {return state.mouseEventsSlice.drawingWire;});
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
+    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
+	const lineWidth = useSelector((state: RootState) => {return state.misc.lineWidth});
 	const dispatch = useDispatch();
 	useEffect(() => {
 		if(drawingWire) return;
@@ -132,9 +134,9 @@ export default function useConnecting(){
 				if(wireTree.includes(key)){
 					return;
 				}
-				if(isWireConnectedToWire(wire, currentWire)){
+				if(isWireConnectedToWire(wire, currentWire, lineWidth)){
 					nextWires.push(key);
-				}else if(isWireConnectedToWire(currentWire, wire)){
+				}else if(isWireConnectedToWire(currentWire, wire, lineWidth)){
 					nextWires.push(key);
 				}
 			});
@@ -158,8 +160,8 @@ export default function useConnecting(){
 				const wire = wires[wireId];
 				Object.entries(io).forEach(([key, ioEntry]) => {
 					const isOnWire = 
-					(isOnIo(wire.linearLine.startX + cameraOffset.x, wire.linearLine.startY + cameraOffset.y, ioEntry, cameraOffset)) ||
-					(isOnIo(wire.diagonalLine.endX + cameraOffset.x, wire.diagonalLine.endY + cameraOffset.y, ioEntry, cameraOffset));
+					(isOnIo(wire.linearLine.startX + cameraOffset.x, wire.linearLine.startY + cameraOffset.y, ioEntry, cameraOffset, ioRadius)) ||
+					(isOnIo(wire.diagonalLine.endX + cameraOffset.x, wire.diagonalLine.endY + cameraOffset.y, ioEntry, cameraOffset, ioRadius));
 					
 					if(isOnWire){
 						if(

@@ -1,4 +1,3 @@
-import { DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
 import { BinaryIO } from "../../Interfaces/BinaryIO";
 import { Gate } from "@Shared/interfaces";
 import { calculateInputTop } from "./calculateInputTop";
@@ -11,13 +10,13 @@ import { calculateInputTop } from "./calculateInputTop";
  * @returns An object with the `x` and `y` coordinates representing the absolute position of the I/O.
  * 
  */
-export default function calculateAbsoluteIOPos(gate:Gate, io: BinaryIO, blockSize: number){
+export default function calculateAbsoluteIOPos(gate:Gate, io: BinaryIO, blockSize: number, ioRadius: number){
 	if(gate.inputs.includes(io.id)){
 		const idxOfIo = gate.inputs.findIndex(inputId => inputId === io.id);
 		const newPos = {
 			x: gate.position!.x,
 			y: gate.position!.y + (
-				calculateInputTop(idxOfIo, gate.inputs.length, blockSize) + DEFAULT_INPUT_DIM.height/2 + idxOfIo*DEFAULT_INPUT_DIM.height
+				calculateInputTop(idxOfIo, gate.inputs.length, blockSize, ioRadius) + ioRadius/2 + idxOfIo*ioRadius
 			)
 		};
 		return newPos;
@@ -25,7 +24,8 @@ export default function calculateAbsoluteIOPos(gate:Gate, io: BinaryIO, blockSiz
 		const idxOfIo = gate.outputs.findIndex(outputId => outputId === io.id);
 		const newPos = {
 			x: gate.position!.x + 3*blockSize,
-			y: gate.position!.y + calculateInputTop(idxOfIo, gate.outputs.length, blockSize) + (idxOfIo*DEFAULT_INPUT_DIM.height) +DEFAULT_INPUT_DIM.height/2
+			y: gate.position!.y + calculateInputTop(
+				idxOfIo, gate.outputs.length, blockSize, ioRadius) + (idxOfIo*ioRadius) + ioRadius/2
 		};
 		return newPos;
 	}else{

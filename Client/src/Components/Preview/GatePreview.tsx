@@ -9,6 +9,7 @@ import OutputPreview from './OutputPreview';
 import { Gate } from '../../Interfaces/Gate';
 
 export default function GatePreview({thisGate, verticalScale}: {thisGate: Gate, verticalScale: number}){
+    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
     
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	return thisGate && <div style={{
@@ -16,7 +17,7 @@ export default function GatePreview({thisGate, verticalScale}: {thisGate: Gate, 
 	}}>
 
 		<div key={thisGate.id}
-			style={{width: 3*blockSize, 
+			style={{width: 3*MINIMAL_BLOCKSIZE, 
 				height: calculateGateHeight(thisGate, MINIMAL_BLOCKSIZE) * verticalScale,
 				borderTopRightRadius: 30,
 				borderBottomRightRadius: 30,
@@ -26,7 +27,7 @@ export default function GatePreview({thisGate, verticalScale}: {thisGate: Gate, 
 		>
 			{thisGate?.inputs?.map((inputId, idx, array) => {
 				return <InputPreview inputId={inputId} key={inputId} style={{
-					top: calculateInputTop(idx, array.length, MINIMAL_BLOCKSIZE)
+					top: calculateInputTop(idx, array.length, MINIMAL_BLOCKSIZE, DEFAULT_INPUT_DIM.width)
 				}}></InputPreview>;
 			})}
 			<div 
@@ -37,7 +38,7 @@ export default function GatePreview({thisGate, verticalScale}: {thisGate: Gate, 
 					transform: "translate(-50%, -50%)"
 				}}> 
 			    <span
-					style={{fontSize: blockSize/2 +4, 
+					style={{fontSize: MINIMAL_BLOCKSIZE/2 +4, 
         			userSelect: 'none', 
 				    color: 'white'
 					}}>
@@ -50,7 +51,7 @@ export default function GatePreview({thisGate, verticalScale}: {thisGate: Gate, 
 					outputId={outputId}
 					style={{
 						position:'absolute',
-						top: calculateInputTop(idx, array.length, MINIMAL_BLOCKSIZE) + (idx*DEFAULT_INPUT_DIM.height),
+						top: calculateInputTop(idx, array.length, MINIMAL_BLOCKSIZE, DEFAULT_INPUT_DIM.height) + (idx*DEFAULT_INPUT_DIM.height),
 						left:3*MINIMAL_BLOCKSIZE - DEFAULT_INPUT_DIM.height/2
 					}}
 				></OutputPreview>;

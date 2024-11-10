@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CANVASTOP_HEIGHT, DEFAULT_BORDER_WIDTH, DEFAULT_INPUT_DIM, MINIMAL_BLOCKSIZE } from '../../Constants/defaultDimensions';
+import { CANVASTOP_HEIGHT, DEFAULT_BORDER_WIDTH, MINIMAL_BLOCKSIZE } from '../../Constants/defaultDimensions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../../Constants/colors';

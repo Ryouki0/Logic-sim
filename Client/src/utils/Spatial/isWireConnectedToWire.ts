@@ -8,13 +8,13 @@ import { isPointOnWire } from "./isPointOnLine";
  * @param {Wire} wire2 - The wire against which the endpoints of wire1 are being checked.
  * @returns {boolean} - Returns true if any endpoint of wire1 is on wire2, otherwise false.
  */
-export default function isWireConnectedToWire(wire1: Wire, wire2: Wire):boolean {
+export default function isWireConnectedToWire(wire1: Wire, wire2: Wire, lineWidth: number):boolean {
 	let { startX, startY, endX, endY } = wire1.linearLine;
-	if (isPointOnWire(startX, startY, wire2)) {
+	if (isPointOnWire(startX, startY, wire2, lineWidth)) {
 		return true;
 	}
 	({ startX, startY, endX, endY } = wire1.diagonalLine);
-	if (isPointOnWire(endX, endY, wire2)) {
+	if (isPointOnWire(endX, endY, wire2, lineWidth)) {
 		return true;
 	}
 	return false;

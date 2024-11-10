@@ -3,7 +3,7 @@ import { BinaryIO } from "../../Interfaces/BinaryIO";
 import { Input } from "./Input";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { DEFAULT_INPUT_DIM, getClosestBlock, LINE_WIDTH } from "../../Constants/defaultDimensions";
+import { getClosestBlock, } from "../../Constants/defaultDimensions";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import { DEFAULT_GATE_COLOR } from "../../Constants/colors";
 import { addInput } from "../../state/slices/entities";
@@ -30,6 +30,7 @@ export default function SelectedIo(){
 		})
 			.filter((io): io is NonNullable<typeof io> => io !== null);
 	}, checkIo);
+    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
 
 	const outputs = useSelector((state: RootState) => {
 		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => {
@@ -125,11 +126,11 @@ export default function SelectedIo(){
 				Off
       </span>
 			<div style={{
-				width: DEFAULT_INPUT_DIM.width,
-				height: DEFAULT_INPUT_DIM.height,
+				width: ioRadius,
+				height: ioRadius,
 				position: 'relative',
 				userSelect: 'none',
-				left: getIOLeftStyle(selectedIo?.type, blockSize),
+				left: getIOLeftStyle(selectedIo?.type, blockSize, ioRadius),
 				alignSelf: 'center',
 			}}
 			>

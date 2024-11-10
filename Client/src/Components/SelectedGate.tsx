@@ -14,6 +14,7 @@ export default function SelectedGate(){
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
 	const dispatch = useDispatch();
+    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
 
 	const handleMouseMove = (e: MouseEvent) => {
 		if(!currentGate){
@@ -26,7 +27,7 @@ export default function SelectedGate(){
 		const {roundedX, roundedY} = getClosestBlock(middleX, middleY, blockSize);
 		//console.log(`x:${roundedX}`)
 		if(roundedX !== currentGate?.position?.x || roundedY !== currentGate.position?.y){
-			dispatch(changeBluePrintPosition({gateId: currentGate!.id, position: {x:roundedX, y:roundedY}, blockSize: blockSize}));
+			dispatch(changeBluePrintPosition({gateId: currentGate!.id, position: {x:roundedX, y:roundedY}, blockSize: blockSize, ioRadius}));
 		}
 	};
 

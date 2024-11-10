@@ -144,3 +144,11 @@ code {
   color: #0099cc;  /* Slightly darker cyan-blue for hover */
 }
 
+.CircularProgressbar {
+  width: 100% !important;
+  position: absolute !important; 
+}
+
+svg:not(:root){
+  overflow: visible !important;
+}

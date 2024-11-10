@@ -9,14 +9,14 @@ export default function DrawWireFromIo(){
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
 	const startDrawing = useDrawWire(cameraOffset);
-    
+    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
 
 	useEffect(() => {
 		if(currentComponentId !== 'global') return;
 		const handleMouseDown = (e: MouseEvent) => {
 			if(e.button !== 0) return;
 			for(const [key, io] of ioEntries){
-				if(isOnIo(e.x, e.y, io, cameraOffset)){
+				if(isOnIo(e.x, e.y, io, cameraOffset, ioRadius)){
 					startDrawing(e as unknown as React.MouseEvent<any>);
 					return;
 				}

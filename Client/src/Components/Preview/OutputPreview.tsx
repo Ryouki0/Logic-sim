@@ -6,6 +6,7 @@ import { RootState } from "../../state/store";
 import { checkSingleIo } from "./InputPreview";
 import getIOPathColor from "../../utils/getIOPathColor";
 import { DEFAULT_HIGH_IMPEDANCE_COLOR } from "../../Constants/colors";
+import getIOBGColor from "../../utils/getIOBGColor";
 
 export default function OutputPreview({outputId, style}: {outputId: string, style: React.CSSProperties}){
 	const thisOutput = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO[outputId];}, checkSingleIo);
@@ -15,6 +16,7 @@ export default function OutputPreview({outputId, style}: {outputId: string, styl
 			width: DEFAULT_INPUT_DIM.width,
 			height: DEFAULT_INPUT_DIM.height,
 			pointerEvents: 'none',
+			position: 'relative',
 			cursor: 'arrow',
 			...style
 		}}
@@ -23,11 +25,12 @@ export default function OutputPreview({outputId, style}: {outputId: string, styl
 				value={100}
 				background={true}
 				styles={buildStyles({
-					backgroundColor: thisOutput?.highImpedance ? DEFAULT_HIGH_IMPEDANCE_COLOR : 'black',
+					backgroundColor: getIOBGColor(thisOutput),
 					pathColor: getIOPathColor(thisOutput),
 				})}
 				strokeWidth={16}
 			></CircularProgressbar>
+			
 		</div>
 	</>;
 }

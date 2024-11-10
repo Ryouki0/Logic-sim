@@ -1,10 +1,9 @@
-import { DEFAULT_INPUT_DIM } from "../../Constants/defaultDimensions";
 
-export const getIOLeftStyle = (type: 'input' | 'output' | undefined, blockSize: number) => {
+export const getIOLeftStyle = (type: 'input' | 'output' | undefined, blockSize: number, ioRadius: number) => {
     if(type === 'input'){
-        return 2*blockSize - (DEFAULT_INPUT_DIM.width / 2);
+        return 2*blockSize - (ioRadius / 2);
     }else if(type === 'output'){
-        return -DEFAULT_INPUT_DIM.width/2;
+        return -ioRadius/2;
     }else{
         return;
     }

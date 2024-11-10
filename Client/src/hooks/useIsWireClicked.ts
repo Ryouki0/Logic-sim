@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { Wire } from '@Shared/interfaces';
 import { calculateLinePoints, isPointOnDiagonalLine, isPointOnLine } from '../utils/Spatial/isPointOnLine';
+import { listenerCount } from 'process';
 
 
 export default function useIsWireClicked(){
@@ -13,20 +14,20 @@ export default function useIsWireClicked(){
 	 * @param y Y coord of the point
 	 * @returns The wire that contains the point, else undefined | null
 	 */
-	const checkWire = (x:number, y:number): Wire | undefined | null => {
+	const checkWire = (x:number, y:number, lineWidth: number): Wire | undefined | null => {
 		if(!wires){
 			return;
 		}
 		let wire = null;
 		Object.entries(wires).forEach(([key, w]) => {
 			let {startX, startY, endX, endY} = calculateLinePoints(w.linearLine);
-			if(isPointOnLine(startX,startY,endX,endY, x, y)){
+			if(isPointOnLine(startX,startY,endX,endY, x, y, lineWidth)){
 				wire = w;
 				return;
 			}
 			({startX, startY, endX, endY} = w.diagonalLine);
 
-			if(isPointOnDiagonalLine(startX, startY, endX, endY, x, y)){
+			if(isPointOnDiagonalLine(startX, startY, endX, endY, x, y, lineWidth)){
 				wire = w;
 				return;
 			}
@@ -40,20 +41,20 @@ export default function useIsWireClicked(){
 	 * @param y Y coord of the point
 	 * @returns A list of wires, or undefined | null
 	 */
-	const getAllWire = (x:number, y:number): Wire[] | undefined | null => {
+	const getAllWire = (x:number, y:number, lineWidth: number): Wire[] | undefined | null => {
 		if(!wires){
 			return;
 		}
 		const allWire:Wire[] = [];
 		Object.entries(wires).forEach(([key, w]) => {
 			let {startX, startY, endX, endY} = calculateLinePoints(w.linearLine);
-			if(isPointOnLine(startX,startY,endX,endY, x, y)){
+			if(isPointOnLine(startX,startY,endX,endY, x, y, lineWidth)){
 				allWire.push(w);
 				return;
 			}
 			({startX, startY, endX, endY} = w.diagonalLine);
 
-			if(isPointOnDiagonalLine(startX, startY, endX, endY, x, y)){
+			if(isPointOnDiagonalLine(startX, startY, endX, endY, x, y, lineWidth)){
 				allWire.push(w);
 				return;
 			}

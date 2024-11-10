@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getClosestBlock, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
+import { DEFAULT_INPUT_DIM, getClosestBlock, LINE_WIDTH, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
+import getSizes from "../../utils/getSizes";
 export interface Misc{
     currentComponentId: string,
     history: string[],
@@ -8,9 +9,21 @@ export interface Misc{
 	blockSize: number,
 	prevBlockSize: number,
 	user: string | null,
-	globalBlockSize: number
+	globalBlockSize: number,
+	lineWidth: number,
+	ioRadius: number
 }
-
+export interface MiscBase{
+	currentComponentId: string,
+    history: string[],
+	canvasWidth: number,
+	canvasHeight: number,
+	blockSize: number,
+	prevBlockSize: number,
+	globalBlockSize: number,
+	lineWidth: number,
+	ioRadius: number
+}
 const initialState:Misc = {
 	currentComponentId: 'global',
 	history: ['global'],
@@ -19,7 +32,9 @@ const initialState:Misc = {
 	blockSize: MINIMAL_BLOCKSIZE,
 	prevBlockSize: MINIMAL_BLOCKSIZE,
 	user: null,
-	globalBlockSize: MINIMAL_BLOCKSIZE
+	globalBlockSize: MINIMAL_BLOCKSIZE,
+	lineWidth: LINE_WIDTH,
+	ioRadius: DEFAULT_INPUT_DIM.width,
 };
 
 const misc = createSlice({
@@ -52,6 +67,9 @@ const misc = createSlice({
 			}
 			state.prevBlockSize = state.blockSize;
 			state.blockSize = newSize;
+			const {lineWidth, ioRadius} = getSizes(newSize);
+			state.lineWidth = lineWidth;
+			state.ioRadius = ioRadius;
 			console.log(`NEW SIZE: ${state.blockSize}`);
 		},
 		changeBlockSize: (state, action: PayloadAction<number>) => {
@@ -61,10 +79,19 @@ const misc = createSlice({
 			}
 			state.prevBlockSize = state.blockSize;
 			state.blockSize = newSize;
-			
+			const {lineWidth, ioRadius} = getSizes(newSize);
+			state.lineWidth = lineWidth;
+			state.ioRadius = ioRadius;
 		},
 		changeGlobalBlockSize: (state, action: PayloadAction<number>) => {
+			if(action.payload < 10 || action.payload > 44) return;
 			state.globalBlockSize = action.payload;
+			const {lineWidth, ioRadius} = getSizes(action.payload);
+			state.ioRadius = ioRadius;
+			state.lineWidth = lineWidth;
+		},
+		changeMisc: (state, action: PayloadAction<{misc: MiscBase}>) => {
+			return state = {...state, ...action.payload.misc};
 		}
 	}
 });
@@ -77,5 +104,6 @@ export const {
 	setUser,
 	changeBlockSizeByTenPercent,
 	changeBlockSize,
-	changeGlobalBlockSize
+	changeGlobalBlockSize,
+	changeMisc
 } = misc.actions;
