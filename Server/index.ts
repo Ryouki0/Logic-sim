@@ -76,7 +76,7 @@ db.serialize(() => {
 	});
 })
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') ?? ['http://localhost:3000', 'https://logicsim-89yacgy6l-ryouki0s-projects.vercel.app/'];
+const allowedOrigins = ['http://localhost:3000', 'https://logicsim-89yacgy6l-ryouki0s-projects.vercel.app/'];
 app.use(cors({
     credentials: true,
 	origin: function (origin, callback) {
