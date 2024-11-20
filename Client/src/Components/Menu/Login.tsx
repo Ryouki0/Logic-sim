@@ -18,7 +18,7 @@ export default function Login(){
 
 	async function login(username: string, password:string) {
 		try {
-		  const response = await fetch(`https://reacttest-5vuh.onrender.com`, {
+		  const response = await fetch(`https://reacttest-5vuh.onrender.com/api/login`, {
 				method: 'POST',
 				headers: {
 			  'Content-Type': 'application/json',
