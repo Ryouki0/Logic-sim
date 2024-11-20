@@ -11,7 +11,9 @@ interface MouseEvents {
 	selectedGate: string | null,
 	selectedIo: {type: 'input' | 'output', startPos: {x: number, y: number}} | null,
 	hoveringOverIo: BinaryIO | null,
-	cameraOffset: {x: number, y: number}
+	cameraOffset: {x: number, y: number},
+	showColorPicker: {show: boolean, id: string | null},
+	colorPickerOption: 'Wire' | 'WireTree',
 }
 const initialState: MouseEvents = { 
 	entityClicked: {type: null, entity: null}, 
@@ -20,7 +22,9 @@ const initialState: MouseEvents = {
 	selectedGate: null,
 	selectedIo: null,
 	hoveringOverIo: null,
-	cameraOffset: {x: 0, y: 0}
+	cameraOffset: {x: 0, y: 0},
+	showColorPicker: {show: false, id: null},
+	colorPickerOption: 'Wire'
 };
 
 const mouseEventsSlice = createSlice({
@@ -65,6 +69,12 @@ const mouseEventsSlice = createSlice({
 			const dx = action.payload.dx;
 			const dy = action.payload.dy;
 			state.cameraOffset = {x: state.cameraOffset.x + dx, y: state.cameraOffset.y + dy};
+		},
+		setShowColorPicker: (state, action: PayloadAction<{show: boolean, id: string | null}>) => {
+			state.showColorPicker = action.payload;
+		},
+		setColorPickerOption: (state, action: PayloadAction<'Wire' | 'WireTree'>) => {
+			state.colorPickerOption = action.payload;
 		}
 	},
 });
@@ -76,7 +86,9 @@ export const {
 	setSelectedGateId,
 	setHoveringOverIo,
 	setSelectedIo,
-	setCameraOffset
+	setCameraOffset,
+	setShowColorPicker,
+	setColorPickerOption
 } = mouseEventsSlice.actions;
     
 export default mouseEventsSlice.reducer;

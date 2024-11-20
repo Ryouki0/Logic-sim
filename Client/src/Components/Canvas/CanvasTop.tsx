@@ -13,7 +13,7 @@ export default function CanvasTop(){
 	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight;});
 	return <div style={{
 		width: canvasWidth,
-		zIndex: 1,
+		zIndex: 2,
 		position: 'absolute',
 		left: 0,
 		borderStyle: 'solid',
@@ -48,7 +48,7 @@ export default function CanvasTop(){
 		</div>
 		{currentComponent && <div
 			style={{
-				zIndex: 2000,
+				zIndex: 10,
 				height: 2*blockSize,
 				position: 'absolute',
 				display: 'flex',

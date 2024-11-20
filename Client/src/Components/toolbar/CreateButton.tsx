@@ -70,13 +70,13 @@ export default function CreateButton(){
 		setDescription('');
 		dispatch(setIsRunning(false));
 		dispatch(createBluePrint({name: name, description: description, blockSize: blockSize}));
-		setHasBlockSizeUpdated(false);
 	};
 
 	return <div style={{
 		display: 'flex',
 		flexDirection: 'column',
 		width: '100%',
+		maxHeight: '30%',
 	}}>
 		<span style={{
 			fontSize: 22,
@@ -102,17 +102,7 @@ export default function CreateButton(){
 				Component name: 
 			</label>
 			<input 
-				style={{
-					width: '50%',
-					marginLeft: 10,
-					height: 24,
-					...textStlye,
-					background: 'transparent',
-					outline: 'none',
-					border: 'none',
-					marginTop: 0,
-
-				}}
+				className='simple-input'				
 				onChange={e => {setName(e.target.value); setLocalError(null);}} 
 				value={name}></input>
 		</div>
@@ -128,17 +118,15 @@ export default function CreateButton(){
 			</label>
 			<textarea
 				rows={1}
+				className='simple-input'
 				spellCheck={false}
 				ref={textAreaRef}
 				value={description}
 				onChange={handleDescriptionChange}
 				style={{
-					backgroundColor: 'transparent',
 					color: 'white',
-					fontSize: 17,
-					border: 'none',
+					overflow: 'hidden',
 					alignSelf: 'center',
-					outline: 'none',
 					resize: 'none',
 				}}
 			/>
@@ -146,7 +134,6 @@ export default function CreateButton(){
 		</div>
 		<span style={{...textStlye, marginLeft: 10, marginBottom: 20}}>Total complexity: {totalComplexity}</span>
 
-		<div style={{width: '100%', height: DEFAULT_BORDER_WIDTH, backgroundColor: DEFAULT_BORDER_COLOR}}></div>
 
 		<div style={{
 			minWidth: '30%',
@@ -159,9 +146,8 @@ export default function CreateButton(){
 			position: 'relative',
 			boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
 			borderRadius: 20,
-			top: '50%',
 			left: '50%',
-    		transform: 'translate(-50%, -50%)',
+    		transform: 'translate(-50%)',
 			cursor: currentComponentId !== 'global' ? 'not-allowed': 'pointer',
 			display: 'flex',
 			transition: 'all 0.3s ease'
@@ -188,6 +174,7 @@ export default function CreateButton(){
 				top: '50%',
 			}}>➕ Create component</span>
 		</div>
+		<div style={{width: '100%', height: DEFAULT_BORDER_WIDTH, backgroundColor: DEFAULT_BORDER_COLOR, marginTop: 10}}></div>
 		
 	</div>;
 }

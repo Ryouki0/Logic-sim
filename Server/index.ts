@@ -10,6 +10,8 @@ const db = new sqlite3.Database('./TestDb.db');
 const fs = require('fs');
 const app = express();
 const port = 3002;
+require('dotenv').config();
+
 app.use(cookieParser());
 db.serialize(() => {
 	db.run('CREATE TABLE IF NOT EXISTS ayaya_data (x INTEGER)');
@@ -73,22 +75,19 @@ db.serialize(() => {
 		}
 	});
 })
-const allowedOrigins = [
-	'https://logicsim-kmybep9pq-ryouki0s-projects.vercel.app', 
-	'http://localhost:3000'
-  ];
-  
-  app.use(cors({
-	credentials: true,
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',');
+app.use(cors({
+    credentials: true,
 	origin: function (origin, callback) {
-	  if (!origin || allowedOrigins.includes(origin)) {
+	  if(!origin || allowedOrigins?.includes(origin)) {
 		callback(null, true);
-	  } else {
+	  }else {
 		callback(new Error('Not allowed by CORS'));
 	  }
 	}
-  }));
-  app.use(express.json({ limit: '40mb' }));
+}));
+app.use(express.json({ limit: '40mb' }));
 
 
   const createOrUpdateSuperuser = async () => {

@@ -84,7 +84,6 @@ onmessage = async function (event: MessageEvent<{
 	while(true){
 		const delayId = order.find(id => gates[id].name === 'DELAY' && !propagatedDelays.has(id));
 		const delayGate = gates[delayId!];
-		console.log(`delayGate: ${delayGate}`);
 		if(!delayGate) break;
 		const nextIos = [delayGate.outputs[0]];
 		allNonAffectingInputs.push(delayGate.inputs[0]);
@@ -103,7 +102,6 @@ onmessage = async function (event: MessageEvent<{
 		propagatedDelays.add(delayId!);
 
 	}
-	//this.postMessage({nonAffectingInputs: allNonAffectingInputs});
 	allNonAffectingInputs.forEach(id => {
 		io[id].affectsOutput = true;
 	});

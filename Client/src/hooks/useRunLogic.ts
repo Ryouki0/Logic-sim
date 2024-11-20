@@ -4,13 +4,15 @@ import { RootState } from '../state/store';
 import { setActuals, setError, setIsRunning } from '../state/slices/clock';
 import { updateNonAffectingInputs, updateState, updateStateRaw } from '../state/slices/entities';
 import { WorkerEvent } from '../logic.worker';
+import userEvent from '@testing-library/user-event';
+import sizeof from 'object-sizeof';
 
 
 export default function useRunLogic(){
 	const hertz = useSelector((state: RootState) => {return state.clock.hertz;});
 	const refreshRate = useSelector((state: RootState) => {return state.clock.refreshRate;});
 	const isRunning = useSelector((state: RootState) => {return state.clock.isRunning;});
-	const currentComponent = useSelector((state: RootState) => {return state.entities.currentComponent;}, shallowEqual);
+	const currentComponent = useSelector((state: RootState) => {return state.entities.currentComponent;});
 	const io = useSelector((state: RootState) => {return state.entities.binaryIO;});
 	const gates = useSelector((state: RootState) => {return state.entities.gates;});
     
@@ -39,7 +41,6 @@ export default function useRunLogic(){
 		if (isRunning && !workerRef.current) {
 			//@ts-ignore
 			workerRef.current = new importedWorkerRef.current();
-
             workerRef.current!.onmessage = (event: MessageEvent<WorkerEvent>) => {
             	function update(){
             		newWorkerData.current = event.data;
@@ -59,16 +60,17 @@ export default function useRunLogic(){
             			actualRefreshRate.current = 0;
             		}
             	}
+
+				
             	if(event.data.error){
             		dispatch(setError({isError: true, extraInfo: event.data.error}));
             		dispatch(setIsRunning(false));
             	}else if(event.data.nonAffectingInputs){
-            		event.data.nonAffectingInputs.forEach(id => {
-            			console.log(`${io[id]?.name ?? currentComponent.binaryIO[id]?.name} -- ${id}`);
-            		});
+            		// event.data.nonAffectingInputs.forEach(id => {
+            		// 	console.log(`${io[id]?.name ?? currentComponent.binaryIO[id]?.name} -- ${id}`);
+            		// });
             		const nonAffectingInputsSet = new Set(event.data.nonAffectingInputs);
             		shouldUpdateWorker.current = false;
-            		console.log(`calling update`);
             		dispatch(updateNonAffectingInputs(nonAffectingInputsSet));
             	}
             	else{

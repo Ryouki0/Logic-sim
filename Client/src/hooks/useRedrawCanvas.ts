@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { drawLine } from '../drawingFunctions/drawLine';
 import { CANVAS_WIDTH, LINE_WIDTH } from '../Constants/defaultDimensions';
-import { DARK_RED, DEFAULT_WIRE_COLOR, ORANGE, RED_ORANGE } from '../Constants/colors';
+import { DARK_RED, DEFAULT_HIGH_IMPEDANCE_COLOR, DEFAULT_WIRE_COLOR, ORANGE, RED_ORANGE } from '../Constants/colors';
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import { SourceMap } from 'module';
 import { adjustBrightness } from '../utils/adjustBrightness';
@@ -82,7 +82,6 @@ export default function useRedrawCanvas(){
 			}else if(!wireSources[key]){
 				return null;
 			}
-
 		};
 		
 		if(!wires) return;
@@ -94,13 +93,14 @@ export default function useRedrawCanvas(){
 			line_width = lineWidth;
 			
 			const trueSource = findTrueSource(key);
-			context.strokeStyle = DEFAULT_WIRE_COLOR; //'rgb(255, 170, 51)';
+			const color = trueSource?.wireColor ?? (wire.color ?? DEFAULT_WIRE_COLOR);
+			context.strokeStyle = color;
 			if(hoveringOverWire?.id === wire.id){
 				line_width = lineWidth + (lineWidth * 0.25);
 			}if(trueSource?.state){
-				context.strokeStyle = adjustBrightness(DEFAULT_WIRE_COLOR, 20);//'rgb(255 200 0)';
+				context.strokeStyle = adjustBrightness(color, 20);//'rgb(255 200 0)';
 			}if(trueSource?.highImpedance){
-				context.strokeStyle = 'rgb(100 100 100)';
+				context.strokeStyle = DEFAULT_HIGH_IMPEDANCE_COLOR;
 			}
 			if(wire.error){
 				context.strokeStyle = DARK_RED;

@@ -31,7 +31,7 @@ export default function useDrawWire(cameraOffset: {x: number, y:number}) {
 			diagonalLine: {...line},
 			id: thisWireId,
 			parent: 'global',
-			connectedToId: [],
+			targets: [],
 		};
 		dispatch(setDrawingWire(thisWireId));
 		
@@ -114,7 +114,7 @@ export default function useDrawWire(cameraOffset: {x: number, y:number}) {
 					id: currentWire.id,
 					from: currentWire.from,
 					parent: currentWire.parent,
-					connectedToId: currentWire.connectedToId,
+					targets: currentWire.targets,
 				};
 				dispatch(changeWirePosition(newWire));
 			}

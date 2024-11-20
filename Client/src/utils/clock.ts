@@ -135,6 +135,8 @@ export function globalSort(gates: {[key: string]: Gate}, io: {[key: string]: Bin
 	const baseGateIds = getAllBaseGates(gates);
 	const mainDag = getGlobalDag(gates, io, baseGateIds);
 	const mainDagSet = new Set(mainDag);
+	console.log(`maindag has 4418... ${mainDagSet.has('441886fd-61ec-4f29-b159-385732cd3697')}`);
+	console.log(`baseGates has 4418... ${baseGateIds.includes('441886fd-61ec-4f29-b159-385732cd3697')}`)
 	const allRemainingGateIds = baseGateIds.filter(baseId => !mainDagSet.has(baseId));
 
 	const SCCOrder: string[] = [];
@@ -152,8 +154,18 @@ export function globalSort(gates: {[key: string]: Gate}, io: {[key: string]: Bin
 
 		SCC.forEach(id => {
 			SCCOrder.push(id);
+			if(id === '441886fd-61ec-4f29-b159-385732cd3697'){
+				console.log(`evaluating 4418 in SCC... for delay: ${delayGate!.id.slice(0,5)}`);
+			}
 			const thisIdx = allRemainingGateIds.findIndex(remainingId => remainingId === id);
-			if(thisIdx === -1) throw new Error(`${id} doesn't exist in the remaining IDs`);
+			if(thisIdx === -1) {
+				allRemainingGateIds.forEach(id => {
+					console.log(`name: ${gates[id]?.name} parent: ${gates[gates[id]?.parent]?.name} id: ${id}`)
+				})
+				throw new Error(
+				`${id} doesn't exist in the remaining IDs ${gates[id]?.name} parent: ${gates[gates[id]?.parent]?.name}`
+			);
+		}
 
 			allRemainingGateIds.splice(thisIdx, 1);
 		});
@@ -172,7 +184,7 @@ export function getGlobalDag(gates: {[key: string]: Gate}, io: {[key: string]: B
 		if(!currentGate) throw new Error(`No gate at ID: ${currentId}`);
 
 		const connectedGates = getConnectedGates(currentGate, io, baseGateIds);
-		connectedGates.forEach(connectedGateId => {
+		connectedGates!.forEach(connectedGateId => {
 			const currentConnectedGate = gates[connectedGateId];
 			if(!currentConnectedGate) throw new Error(`No gate at ID: ${connectedGateId}`);
 
@@ -226,14 +238,17 @@ export function globalTopologicalSort(
 		if(!currentGate) throw new Error(`No gate at ID: ${currentId}`);
 
 		const connectedGateIds = getConnectedGates(currentGate, io, baseGateIds);
-		connectedGateIds.forEach(connectedGateId => {
+		connectedGateIds!.forEach(connectedGateId => {
+			
 			let isNextLayer = true;
 			const connectedGate = gates[connectedGateId];
-			// console.log(`connected gate name: ${connectedGate.name}`);
 			if(!connectedGate) throw new Error(`No gate at ID: ${connectedGateId}`);
 
 			const backGateIds = getBackConnections(connectedGate, io, baseGateIds);
 			backGateIds.forEach(gateId => {
+				// if(connectedGateId === '441886fd-61ec-4f29-b159-385732cd3697'){
+				// 	console.log(`backGate: ${gateId} allRemaining: ${allRemainingGateIds.includes(gateId)} order: ${order.includes(gateId)}`)
+				// }
 				if(allRemainingGateIds.includes(gateId) && !order.includes(gateId)){
 					isNextLayer = false;
 				}else if(connectedGate.name === 'DELAY'){
@@ -242,6 +257,9 @@ export function globalTopologicalSort(
 			});
 
 			if(isNextLayer){
+				if(nextLayer.includes(connectedGateId)){
+					return;
+				}
 				nextLayer.push(connectedGateId);
 			}
 		});
@@ -290,7 +308,7 @@ export function propagateIoState(ioId: string, io: {[key: string]: BinaryIO}){
 		if(!currentIo){
 			throw new Error(`No IO with ID: ${currentIoId?.slice(0,5)}`);
 		}
-         
+        
 		currentIo.state = newState;
 		currentIo.highImpedance = false;
 		currentIo.to?.forEach(to => {
@@ -567,9 +585,6 @@ export function getEvaluationMap(delayIds: string[], switchIds: string[]){
 			});
 			const output = io[thisGate.outputs[0]];
 			output.state = isInputTrue ? 0 : 1;
-			// if(thisGate.parent === 'global' && output.name === 'asd'){
-			// 	console.log(`NO state: ${isInputTrue} output: ${output.state}`);
-			// }
 			propagateIoState(output.id, io);
 		},
 		'AND': (thisGate: Gate, io: {[key: string]: BinaryIO}) => {
@@ -615,6 +630,12 @@ export function getEvaluationMap(delayIds: string[], switchIds: string[]){
 		}
 	};
 	return evaluationMap;
+}
+
+export interface minimalIoData{
+	id: string,
+	state: 0 | 1,
+	highImpedance: true | false
 }
 
 export function evaluateGates(gates: {[key: string]:Gate}, io: {[key: string]: BinaryIO}, order: string[]){

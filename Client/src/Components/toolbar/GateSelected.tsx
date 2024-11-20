@@ -84,11 +84,6 @@ export default function GateSelected({gate}: {gate: Gate}){
 				}>
 				Name: {thisGate?.name}
 				</span>
-				{/* <span
-					style={textStlye}
-				>
-				Parent: {thisGate?.parent.slice(0,6)}
-				</span> */}
 				<span style={textStlye}>
 			Complexity: {thisGate?.complexity}
 				</span>
@@ -133,7 +128,7 @@ export default function GateSelected({gate}: {gate: Gate}){
 					/>
 	  {thisGate?.description !== currentText.current && (
 						<button
-							onClick={handleSave}
+							onClick={e => {}}
 							style={{
 								color: 'white',
 								backgroundColor: '#28A745',

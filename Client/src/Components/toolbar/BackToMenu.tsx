@@ -15,6 +15,7 @@ export default function BackToMenu(){
 	return <div style={{
 		position: 'absolute',
 		width: 'auto',
+		zIndex: 1,
 		left: 0,
 		bottom: 0,}}>
 		<div className='button-other' onClick={toMenu} style={{

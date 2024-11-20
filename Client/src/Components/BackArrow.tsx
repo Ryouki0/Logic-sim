@@ -14,6 +14,9 @@ export function BackArrow({style}:{style?: React.CSSProperties}){
 	const componentHistory = useSelector((state: RootState) => {return state.misc.history;});
 	const globalBlockSize = useSelector((state: RootState) => {return state.misc.globalBlockSize});
 	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
+	const prevComponent = useSelector((state: RootState) => {
+		return state.entities.gates[componentHistory[componentHistory.length-2]];
+	})
 	const dispatch = useDispatch();
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize});
 	useEffect(() => {
@@ -22,9 +25,8 @@ export function BackArrow({style}:{style?: React.CSSProperties}){
 				return;
 			}
 			const lastId = componentHistory[componentHistory.length-2];
-			
 			dispatch(goBack());
-			dispatch(changeBlockSize(globalBlockSize));
+			dispatch(changeBlockSize(prevComponent?.lastBlockSize ?? globalBlockSize));
 			dispatch(switchCurrentComponent({
 				componentId: lastId, 
 				prevComponent: componentHistory[componentHistory.length-1], 

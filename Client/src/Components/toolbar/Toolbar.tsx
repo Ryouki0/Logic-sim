@@ -7,6 +7,7 @@ import DisplayError from './DisplayError';
 import BackToMenu from './BackToMenu';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
+import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../../Constants/colors';
 
 export default function Toolbar() {
 
@@ -24,8 +25,8 @@ export default function Toolbar() {
 		borderWidth: DEFAULT_BORDER_WIDTH,
 		borderStyle: 'solid',
 		borderLeft: 0,
-		borderColor: 'rgb(60 60 60)',
-		backgroundColor: 'rgb(100 100 100)',
+		borderColor: DEFAULT_BORDER_COLOR,
+		backgroundColor: DEFAULT_BACKGROUND_COLOR,
 	}}>
 		<SelectedComponent></SelectedComponent>
 		<DisplayError></DisplayError>

@@ -70,7 +70,6 @@ const misc = createSlice({
 			const {lineWidth, ioRadius} = getSizes(newSize);
 			state.lineWidth = lineWidth;
 			state.ioRadius = ioRadius;
-			console.log(`NEW SIZE: ${state.blockSize}`);
 		},
 		changeBlockSize: (state, action: PayloadAction<number>) => {
 			const newSize = action.payload;

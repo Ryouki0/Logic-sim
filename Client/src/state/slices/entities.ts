@@ -11,6 +11,7 @@ import { addRawReducers } from "../../utils/addRawReducers";
 import calculateAbsoluteIOPos from "../../utils/Spatial/calculateAbsoluteIOPos";
 import changeGlobalIOPosition from "../../utils/Spatial/changeGlobalInputPos";
 import recalculatePositionsPure from "../../utils/Spatial/recalculatePositionsPure";
+import findTrueSourcePure from "../../utils/findTrueSourcePure";
 
 const ANDInputId1 = uuidv4();
 const ANDInputId2 = uuidv4();
@@ -608,9 +609,8 @@ const entities = createSlice({
 
 				connection.wireTree.forEach(wireId => {
 					state.currentComponent.wires[wireId].error = false;
-					state.currentComponent.wires[wireId].from =
-					sourceList?.map(source => {
-						return {id: source.id, gateId: source.gateId, type: source.type}; 
+					state.currentComponent.wires[wireId].from = sourceList?.map(source => {
+						return {id: source.id, gateId: source.gateId, type: source.type, wireColor: source.wireColor}; 
 					});
 				});
 
@@ -620,7 +620,7 @@ const entities = createSlice({
 						if(!source.highImpedance){
 							output.state = source.state;
 						}
-						return {id: source.id, gateId: source.gateId, type: source.type};
+						return {id: source.id, gateId: source.gateId, type: source.type, wireColor: source.wireColor};
 					}); 
 					
 
@@ -835,9 +835,16 @@ const entities = createSlice({
 			if(!gate){
 				throw new Error(`There is no gate in the current component at ID: ${action.payload.gateId}`);
 			}
-
 			gate.description = action.payload.description;
 		},
+		/**
+		 * 
+		 * @param state 
+		 * @param action.componentId The new component's ID
+		 * @param action.prevComponent The component's ID from where the switch occurs
+		 * @param action.blockSize The blockSize of the component where the switch occurs
+		 * @param action.ioRadius
+		 */
 		switchCurrentComponent: (state, action: PayloadAction<{componentId: string, prevComponent: string | null, blockSize: number, ioRadius: number}>) => {
 			const componentId = action.payload.componentId;
 			const component = state.currentComponent.gates[componentId] ?? state.gates[componentId];
@@ -1096,6 +1103,19 @@ const entities = createSlice({
 			}else{
 				throw new Error(`No gate at ID: ${id}`);
 			}
+		},
+		applyColor: (state, action: PayloadAction<{id: string, color: string, applyTo: 'Wire' | 'WireTree'}>) => {
+			const id = action.payload.id;
+			const color = action.payload.color;
+			const applyTo = action.payload.applyTo;
+			if(!applyTo) return;
+			if(applyTo === 'Wire'){
+				state.currentComponent.wires[id].color = color;
+			}else if(applyTo === 'WireTree'){
+				const trueSourceId = findTrueSourcePure(state.currentComponent.wires[id], state.currentComponent.binaryIO);
+				if(!trueSourceId) return;
+				state.currentComponent.binaryIO[trueSourceId].wireColor = color;
+			}
 		}
 	}
 });
@@ -1136,6 +1156,7 @@ export const {updateStateRaw} = addRawReducers(entities, {
 	}
 });
 
+
 export default entities.reducer;
 export const {addWire, 
 	changeWirePosition, 
@@ -1162,5 +1183,6 @@ export const {addWire,
 	recalculatePositions,
 	changeIOStyle,
 	deleteInput,
-	changeGateBlockSize
+	changeGateBlockSize,
+	applyColor
 } = entities.actions;

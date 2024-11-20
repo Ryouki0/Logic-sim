@@ -16,6 +16,7 @@ export default function DisplayError(){
 				width: window.innerWidth - CANVAS_WIDTH - 15,
 				marginLeft: 5,
 				marginTop: 10,
+				height: '10%',
 				display: 'flex',
 				flexDirection: 'column',
 				justifyContent: 'center',

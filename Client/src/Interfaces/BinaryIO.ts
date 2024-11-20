@@ -3,5 +3,6 @@ import {BinaryIOBase} from '@Shared/interfaces';
 
 export interface BinaryIO extends BinaryIOBase{
     style?: React.CSSProperties | null,
-    affectsOutput?: boolean
+    affectsOutput?: boolean,
+    wireColor?: string | null,
 }

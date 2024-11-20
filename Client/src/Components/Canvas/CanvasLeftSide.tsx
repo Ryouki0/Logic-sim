@@ -38,7 +38,7 @@ export default function GlobalInputs(){
 		borderColor: DEFAULT_BORDER_COLOR,
 		borderWidth: DEFAULT_BORDER_WIDTH,
 		borderBottom: 0,
- 			zIndex: 2,
+ 		zIndex: 2,
 	}}
 	ref={eleRef}
  		>
@@ -59,7 +59,7 @@ export default function GlobalInputs(){
 		<div style={{
 			position: 'absolute',
 			top: canvasHeight + DEFAULT_BORDER_WIDTH - 2*MINIMAL_BLOCKSIZE - CANVASTOP_HEIGHT,
-			background: `linear-gradient(${DEFAULT_BACKGROUND_COLOR}, rgb(140 140 140))`,
+			backgroundColor: DEFAULT_BACKGROUND_COLOR,
 			height: 2*MINIMAL_BLOCKSIZE,
 			width: 2*MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
 		}}>

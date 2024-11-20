@@ -10,6 +10,7 @@ import '../menu.css';
 import BlueprintSettings from "./BlueprintSettings";
 import SelectedIo from "./IO/SelectedIo";
 import { resolveObjectURL } from "buffer";
+import { DEFAULT_BACKGROUND_COLOR } from "../Constants/colors";
 const checkAllGatesEquality = (prev: {[key: string]: Gate}, next: {[key: string]: Gate}) => {
 	const prevEntries = Object.entries(prev);
 	const nextEntries = Object.entries(next);
@@ -41,6 +42,7 @@ export default function DisplayAllGates(){
 	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
 	useEffect(() => {
 		const handleScroll = (e:WheelEvent) => {
+			e.stopPropagation();
 			scrollRef.current!.scrollLeft += e.deltaY;
 		};
 		const resetSettings = (e:MouseEvent) => {
@@ -106,8 +108,8 @@ export default function DisplayAllGates(){
 				width: canvasWidth,
 				position: 'absolute',
 				height: 2*MINIMAL_BLOCKSIZE,
-				zIndex: 0,
-				backgroundColor: 'rgb(140 140 140)',
+				zIndex: 1,
+				backgroundColor: DEFAULT_BACKGROUND_COLOR,
 				borderColor: 'rgb(60 60 60)',
 				borderWidth: DEFAULT_BORDER_WIDTH,
 				borderStyle: 'solid',

@@ -17,6 +17,7 @@ export default function DrawWireFromIo(){
 			if(e.button !== 0) return;
 			for(const [key, io] of ioEntries){
 				if(isOnIo(e.x, e.y, io, cameraOffset, ioRadius)){
+					e.preventDefault();
 					startDrawing(e as unknown as React.MouseEvent<any>);
 					return;
 				}

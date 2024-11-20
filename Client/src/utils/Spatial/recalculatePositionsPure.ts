@@ -1,4 +1,4 @@
-import { PayloadAction } from "@reduxjs/toolkit";
+import { current, PayloadAction } from "@reduxjs/toolkit";
 import { Line } from "@Shared/interfaces";
 import { entities } from "../../state/slices/entities";
 import { CANVAS_OFFSET_LEFT, CANVASTOP_HEIGHT, getClosestBlock } from "../../Constants/defaultDimensions";

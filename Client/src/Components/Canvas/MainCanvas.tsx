@@ -126,7 +126,7 @@ export default function MainCanvas(){
 				ref={canvasRef}
 				style={{
 					willChange: 'transform',
-					backgroundColor: 'rgb(160 160 160 / 80%)',
+					backgroundColor: 'rgb(45 45 45 / 80%)',
 					position: 'absolute',
 					cursor: isWheelDown ? 'grabbing' : 'auto',
 					left: 0,

@@ -11,7 +11,7 @@ export interface BinaryIOBase{
     type: 'input' | 'output',
     position?: {x:number,y:number},
     to: {id: string, type: 'input' | 'output', gateId?: string | null}[] | null,
-    from?: {id: string, type: 'input' | 'output', gateId?: string | null}[] | null,
+    from?: {id: string, type: 'input' | 'output', gateId?: string | null, wireColor?: string | null}[] | null,
     /**Only in a switch gate's output, all the outputs that are connected to the same input (includes itself)*/
     otherSourceIds?: string[]
 }
@@ -41,12 +41,15 @@ export interface Line{
 export interface Wire{
     linearLine: Line,
     diagonalLine: Line,
-    connectedToId: {id:string, type: 'input' | 'output', gateId?: string | null}[],
-    from?: {id: string, type:'input' | 'output', gateId?: string | null}[] | null,
+    /**Contains information about the targets */
+    targets: {id:string, type: 'input' | 'output', gateId?: string | null}[],
+    /**Contains information about the sources */
+    from?: {id: string, type:'input' | 'output', gateId?: string | null, wireColor?: string | null}[] | null,
     id: string,
     parent: string,
     state?: 0 | 1,
     error?: boolean | null,
+    color?: string | null,
 }
 
 export interface entities{

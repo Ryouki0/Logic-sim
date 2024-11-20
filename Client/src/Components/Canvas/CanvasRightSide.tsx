@@ -10,7 +10,7 @@ export default function GlobalOutputs() {
  		style={{
  			width: 2*MINIMAL_BLOCKSIZE,
  			height: canvasHeight,
- 			zIndex: 0,
+ 			zIndex: 1,
 			display: 'inline-block',
 			marginBottom: 0,
  			backgroundColor: DEFAULT_BACKGROUND_COLOR,
@@ -20,7 +20,7 @@ export default function GlobalOutputs() {
 			borderBottom: 0,
  		}}>
 		<div style={{
-			background: `linear-gradient(${DEFAULT_BACKGROUND_COLOR}, rgb(140, 140, 140))`,
+			backgroundColor: DEFAULT_BACKGROUND_COLOR,
 			width: 2*MINIMAL_BLOCKSIZE - 2*DEFAULT_BORDER_WIDTH,
 			position: 'absolute',
 			height: 2*MINIMAL_BLOCKSIZE,

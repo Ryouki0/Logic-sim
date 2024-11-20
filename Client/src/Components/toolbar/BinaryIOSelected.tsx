@@ -20,7 +20,7 @@ export default function BinaryIOSelected({io} : {io: BinaryIO}){
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 
 	const dispatch = useDispatch();
-	const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		dispatch(changeIOName({ioId: io.id, newName: e.target.value}));
 	};
 
@@ -46,7 +46,7 @@ export default function BinaryIOSelected({io} : {io: BinaryIO}){
 			alignItems: 'center',
 		}}>
 			<label>Name: </label>
-			<TextArea value={io.name} onChange={handleChange}></TextArea>
+			<input className='simple-input' value={io.name} onChange={handleChange} spellCheck={false}></input>
 		</div>
 		<div style={{marginTop: 10}}>
 			<span style={{...textStlye, marginLeft: 10}}>Gate: </span>

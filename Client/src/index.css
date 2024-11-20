@@ -152,3 +152,87 @@ code {
 svg:not(:root){
   overflow: visible !important;
 }
+
+.clickable-div {
+  display: inline-flex;
+  width:fit-content;
+  padding: 10px;
+  padding-left: 0px;
+  margin-left: 10px;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.clickable-div:hover {
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+
+[data-color-mode*='dark'] .w-color-sketch {
+  --sketch-background: #323232 !important;
+}
+
+[data-color-mode*='dark'] .w-color-swatch {
+  --sketch-swatch-border-top: 1px solid #525252 !important;
+}
+
+[data-color-mode*='dark'] .w-color-block {
+  --block-background-color: #323232 !important;
+  --block-box-shadow: rgb(0 0 0 / 10%) 0 1px !important;
+}
+
+[data-color-mode*='dark'] .w-color-editable-input {
+  --editable-input-label-color: #757575 !important;
+  --editable-input-box-shadow: #616161 0px 0px 0px 1px inset !important;
+  --editable-input-color: #bbb !important;
+}
+
+[data-color-mode*='dark'] .w-color-github {
+  --github-border: 1px solid rgba(0, 0, 0, 0.2) !important;
+  --github-background-color: #323232 !important;
+  --github-box-shadow: rgb(0 0 0 / 15%) 0px 3px 12px !important;
+  --github-arrow-border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-color-mode*='dark'] .w-color-compact {
+  --compact-background-color: #323232 !important;
+}
+
+[data-color-mode*='dark'] .w-color-material {
+  --material-background-color: #323232 !important;
+  --material-border-bottom-color: #707070 !important;
+}
+
+[data-color-mode*='dark'] .w-color-alpha {
+  --alpha-pointer-background-color: #6a6a6a !important;
+  --alpha-pointer-box-shadow: rgb(0 0 0 / 37%) 0px 1px 4px 0px !important;
+}
+
+
+.ColorPickerButton {
+  margin-left: 0;
+  margin-top: 5px;
+  padding: 10px;
+  width: 50%;
+  border-radius: 50px;
+  display: flex;
+  justify-content: center;
+}
+
+.simple-input {
+  background-color: rgb(40, 40, 40);
+  color: white;
+  border: 1px solid rgb(80, 80, 80);
+  border-radius: 4px;
+  padding: 8px 12px;
+  width: 100%;
+  margin-right: 10px;
+  margin-left: 10px;
+  box-sizing: border-box;
+}
+
+.simple-input:focus {
+  outline: none;
+  border-color: rgb(100, 200, 100);
+}

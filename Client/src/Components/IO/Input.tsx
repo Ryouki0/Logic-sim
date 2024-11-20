@@ -8,6 +8,8 @@ import { DEFAULT_NON_AFFECTING_COLOR, DEFAULT_WIRE_COLOR, RED_ORANGE } from "../
 import { adjustBrightness } from "../../utils/adjustBrightness";
 import Square from "./Square";
 import getIOPathColor from "../../utils/getIOPathColor";
+import getIOBGColor from "../../utils/getIOBGColor";
+import compareStringLists from "../../utils/compareStringLists";
 
 interface InputProps{
 	binaryInput: BinaryIO,
@@ -15,12 +17,11 @@ interface InputProps{
 
 export const ioEquality = (prev: BinaryIO, next:BinaryIO) => {
 	
-	if(prev?.from !== next?.from){
+	if(prev?.from?.length !== next?.from?.length) return false;
+	if(prev?.otherSourceIds?.length !== next?.otherSourceIds?.length){
 		return false;
 	}
-	if(prev?.otherSourceIds !== next?.otherSourceIds){
-		return false;
-	}
+	if(prev?.to?.length !== next?.to?.length) return false;
 	if(prev?.highImpedance !== next?.highImpedance){
 		return false;
 	}
@@ -31,16 +32,16 @@ export const ioEquality = (prev: BinaryIO, next:BinaryIO) => {
 		return false;
 	}
 	if(prev?.position?.x !== next?.position?.x || prev?.position?.y !== next?.position?.y){
-		// console.log(`input pos changed: ${prev?.position?.x} -> ${next?.position?.x}    ${prev?.position?.y} -> ${next?.position?.y}`);
 		return false;
 	}
 	return true;
 };
 
-export function Input({binaryInput }: InputProps) {
+export const Input = React.memo(function Input({binaryInput} : InputProps){
 	const eleRef = useRef<HTMLDivElement>(null);
 	const thisInput = useSelector((state: RootState) => {
-		return state.entities.binaryIO[binaryInput.id] ?? state.entities.currentComponent.binaryIO[binaryInput.id];}, ioEquality);
+		return state.entities.binaryIO[binaryInput.id] ?? state.entities.currentComponent.binaryIO[binaryInput.id];
+	}, ioEquality);
 	const isGlobal = thisInput?.parent === 'global' && !thisInput?.gateId;
 	const handleMouseDown = (e:MouseEvent) => {
 		e.preventDefault();
@@ -67,7 +68,6 @@ export function Input({binaryInput }: InputProps) {
 
 	return (
 		<>
-			{/* {console.log(`RENDER INPUT -- ${thisInput?.gateId?.slice(0,5)}`)} */}
 			<div ref={eleRef}
 				style={{
 					width: ioRadius,
@@ -82,7 +82,7 @@ export function Input({binaryInput }: InputProps) {
 					value={100}
 					background={true}
 					styles={buildStyles({
-						backgroundColor: thisInput?.affectsOutput ? DEFAULT_NON_AFFECTING_COLOR : 'black',
+						backgroundColor: getIOBGColor(thisInput),
 						pathColor:  getIOPathColor(thisInput),
 					})}
 					strokeWidth={16}
@@ -91,4 +91,10 @@ export function Input({binaryInput }: InputProps) {
 			</div>
 		</>
 	);
-}
+
+}, (prevInput: InputProps, nextInput: InputProps) => {
+	if(prevInput?.binaryInput.id !== nextInput?.binaryInput.id) return false;
+	if(prevInput?.binaryInput.style?.top !== nextInput?.binaryInput?.style?.top) return false;
+	return true;
+})
+	

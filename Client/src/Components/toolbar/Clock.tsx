@@ -2,12 +2,12 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { CANVAS_WIDTH, DEFAULT_BORDER_WIDTH } from '../../Constants/defaultDimensions';
 import { RootState } from '../../state/store';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { buildPath, evaluateGates, } from '../../utils/clock';
+import { buildPath, evaluateGates, globalSort, } from '../../utils/clock';
 import { changeState, updateState } from '../../state/slices/entities';
 import { BinaryIO } from '../../Interfaces/BinaryIO';
 import { entities, Gate } from '@Shared/interfaces';
 import { setError, setHertz, setIsRunning } from '../../state/slices/clock';
-import { DEFAULT_BORDER_COLOR } from '../../Constants/colors';
+import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../../Constants/colors';
 import '../../index.css';
 import { textStlye } from '../../Constants/commonStyles';
 
@@ -71,7 +71,7 @@ export default function Clock() {
 	};
 
 	return <div style={{
-		backgroundColor: 'rgb(100 100 100)',
+		backgroundColor: DEFAULT_BACKGROUND_COLOR,
 		width:'100%',
 		maxHeight: '30%',
 		borderStyle: 'solid',
@@ -129,14 +129,18 @@ export default function Clock() {
 					Object.entries(currentIo).forEach(([key, io]) => {
 						copiedIo[key] = JSON.parse(JSON.stringify(io));
 					});
+					const {mainDag, SCCOrder} = globalSort(copiedGates, copiedIo);
 					
-					const order = buildPath(copiedGates, copiedIo);
+					const order = [...mainDag, ...SCCOrder];
+
 					evaluateGates(copiedGates, copiedIo, order);
 					dispatch(updateState({gates: copiedGates, binaryIO: copiedIo}));
 					console.timeEnd('tick');
 				}catch(err){
 					if(err instanceof CircularDependencyError){
 						dispatch(setError({isError: true, extraInfo: 'Circular dependency!'}));
+					}else{
+						console.error(err);
 					}
 				}
 				

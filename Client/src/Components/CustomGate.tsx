@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import handleMouseDown from '../handleGateEvents';
 import { Input } from './IO/Input';
@@ -38,6 +38,7 @@ function checkGateEquality(prev: Gate, next: Gate){
 function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:CustomGateProps){
 	const eleRef = useRef<HTMLDivElement>(null);
 	const spanRef = useRef<HTMLSpanElement>(null);
+	const spanDivRef = useRef<HTMLDivElement>(null);
 	const dispatch = useDispatch();
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const prevSize = useRef<number>(blockSize);
@@ -88,12 +89,11 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 	};
 
 	const handleMouseDownEvent = (e: MouseEvent) => {
-		if(e.target !== eleRef.current && e.target !== spanRef.current) return;
+		if(e.target !== eleRef.current && e.target !== spanRef.current && e.target !== spanDivRef.current) return;
 		if(e.button !== 0) return;
 		if(!isBluePrint){
 			e.preventDefault();
 			dispatch(setSelectedEntity({ type: 'Gate', entity: thisGate }));
-			console.log(`POSITION: x:${thisGate.position?.x} y:${thisGate.position?.y} OFFSET: dx:${offsetRef.current.dx} dy:${offsetRef.current.dy}`);
 			handleMouseDown(e as any, eleRef, offsetRef.current.dx, offsetRef.current.dy, blockSize, setOffset, setPositions);
 		}
 	};
@@ -123,7 +123,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 			eleRef.current?.removeEventListener('contextmenu', handleBluePrintContextMenu);
 			
 		};
-	}, [inputs, outputs, thisGate]);
+	}, [thisGate, blockSize, ioRadius]);
 
 	//When zooming, the old offset would make the gate teleport, so change the offset to the new position
 	useEffect(() => {
@@ -134,32 +134,40 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 		offsetRef.current.dy = newPosition.y;
 		prevSize.current = blockSize;
 	}, [blockSize]);
+	const memoizedInputs = useMemo(() => {
+		return inputs
+	}, [inputs]);
 
 	return	(
 		<>
-			<div ref={eleRef}
+		<div ref={eleRef}
 				className='Gate-container'
 				style={{width: 3*blockSize, 
 					height: calculateGateHeight(thisGate, blockSize),
 					position: position ? position : 'relative',
-					top: thisGate?.position ? thisGate.position.y + cameraOffset.y : 0,
-					left: thisGate?.position ? thisGate.position.x  + cameraOffset.x: 0,
+					top: thisGate?.position ? thisGate.position.y  : 0,
+					left: thisGate?.position ? thisGate.position.x: 0,
+					transform: `translate(${cameraOffset.x}px, ${cameraOffset.y}px)`,
 					borderTopRightRadius: 30,
 					borderBottomRightRadius: 30,
 					display: 'inline-block',
 					justifySelf: 'center',
+					borderStyle: 'solid',
+					borderWidth: 1,
+					borderColor: 'black',
 					cursor: 'pointer',
 					backgroundColor: "rgb(117 117 117)"}} 
 				id={gateProps.id}
 			>
-				{inputs?.map((input, idx, array) => {
+				{memoizedInputs?.map((input, idx, array) => {
 					return <Input binaryInput={{...input, 
 						style: {
 							top: calculateInputTop(idx, array.length, blockSize, ioRadius)
 						}}} 
 					key={input?.id}></Input>;
 				})}
-				<div 
+				<div
+					ref={spanDivRef} 
 					style={{
 						position: "absolute", 
 						left: "50%", 
@@ -181,6 +189,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 							left:3*blockSize - ioRadius/2}} key={output?.id}></Output>;
 				})}
 			</div>
+			
 		</>
 	);
 }

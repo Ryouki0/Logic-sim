@@ -108,7 +108,7 @@ export default function useConnecting(){
 		// })
 
 		dispatch(setConnections({connections: connections, componentId: currentComponentId}));
-	}, [wires,io, drawingWire, currentComponentId, cameraOffset]);
+	}, [wires,io, drawingWire, currentComponentId]);
 
 
 	/**
