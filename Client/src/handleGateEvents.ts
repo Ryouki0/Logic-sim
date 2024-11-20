@@ -9,7 +9,8 @@ const handleMouseDown = (
 	dy: number,
 	blockSize: number,
 	setOffset:(dx: number, dy: number) => void,
-	setPosition: (x: number, y: number) => void) => {
+	setPosition: (x: number, y: number) => void,
+	stopDraggingGate: () => void) => {
     
 	const ele = eleRef.current;
 	if(!ele){
@@ -43,7 +44,7 @@ const handleMouseDown = (
 	const handleMouseUp = () => {
 		document.removeEventListener('mousemove', handleMouseMove);
 		document.removeEventListener('mouseup', handleMouseUp);
-		
+		stopDraggingGate();
 	};
 
 	document.addEventListener('mousemove', handleMouseMove);

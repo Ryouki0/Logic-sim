@@ -76,7 +76,7 @@ db.serialize(() => {
 	});
 })
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',');
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') ?? ['http://localhost:3000', 'https://logicsim-89yacgy6l-ryouki0s-projects.vercel.app/'];
 app.use(cors({
     credentials: true,
 	origin: function (origin, callback) {
@@ -87,7 +87,7 @@ app.use(cors({
 	  }
 	}
 }));
-app.use(express.json({ limit: '40mb' }));
+app.use(express.json({ limit: '60mb' }));
 
 
   const createOrUpdateSuperuser = async () => {

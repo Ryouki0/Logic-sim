@@ -8,6 +8,7 @@ interface MouseEvents {
 	entityClicked: EntityClicked,
 	hoveringOverWire: Wire | null,
     drawingWire: string | null,
+	draggingGate: string | null,
 	selectedGate: string | null,
 	selectedIo: {type: 'input' | 'output', startPos: {x: number, y: number}} | null,
 	hoveringOverIo: BinaryIO | null,
@@ -19,6 +20,7 @@ const initialState: MouseEvents = {
 	entityClicked: {type: null, entity: null}, 
 	hoveringOverWire: null, 
 	drawingWire:null,
+	draggingGate: null,
 	selectedGate: null,
 	selectedIo: null,
 	hoveringOverIo: null,
@@ -75,6 +77,9 @@ const mouseEventsSlice = createSlice({
 		},
 		setColorPickerOption: (state, action: PayloadAction<'Wire' | 'WireTree'>) => {
 			state.colorPickerOption = action.payload;
+		},
+		setDraggingGate: (state, action: PayloadAction<string | null>) => {
+			state.draggingGate = action.payload;
 		}
 	},
 });
@@ -88,7 +93,8 @@ export const {
 	setSelectedIo,
 	setCameraOffset,
 	setShowColorPicker,
-	setColorPickerOption
+	setColorPickerOption,
+	setDraggingGate
 } = mouseEventsSlice.actions;
     
 export default mouseEventsSlice.reducer;

@@ -8,7 +8,7 @@ import { Gate } from '../Interfaces/Gate';
 import { RootState } from '../state/store';
 import './../gate.css';
 import { calculateInputTop } from '../utils/Spatial/calculateInputTop';
-import { setSelectedEntity } from '../state/slices/mouseEvents';
+import { setDraggingGate, setSelectedEntity } from '../state/slices/mouseEvents';
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import { createSelector } from '@reduxjs/toolkit';
 import { addGate, changeGatePosition, changeIOPosition, changeInputState, deleteComponent } from '../state/slices/entities';
@@ -87,14 +87,17 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 	function setPositions(x: number, y: number){
 		dispatch(changeGatePosition({gate: thisGate, position: {x: x,y: y}, blockSize: blockSize, ioRadius}));
 	};
-
+	function stopDraggingGate(){
+		dispatch(setDraggingGate(null));
+	}
 	const handleMouseDownEvent = (e: MouseEvent) => {
 		if(e.target !== eleRef.current && e.target !== spanRef.current && e.target !== spanDivRef.current) return;
 		if(e.button !== 0) return;
 		if(!isBluePrint){
 			e.preventDefault();
 			dispatch(setSelectedEntity({ type: 'Gate', entity: thisGate }));
-			handleMouseDown(e as any, eleRef, offsetRef.current.dx, offsetRef.current.dy, blockSize, setOffset, setPositions);
+			dispatch(setDraggingGate(thisGate?.id));
+			handleMouseDown(e as any, eleRef, offsetRef.current.dx, offsetRef.current.dy, blockSize, setOffset, setPositions, stopDraggingGate);
 		}
 	};
 

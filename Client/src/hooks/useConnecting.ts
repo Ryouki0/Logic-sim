@@ -60,13 +60,14 @@ export default function useConnecting(){
 		return state.entities.currentComponent.binaryIO;
 	}, checkIOEquality);
 	const drawingWire = useSelector((state: RootState) => {return state.mouseEventsSlice.drawingWire;});
+	const draggingGate = useSelector((state: RootState) => {return state.mouseEventsSlice.draggingGate});
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
     const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
 	const lineWidth = useSelector((state: RootState) => {return state.misc.lineWidth});
 	const dispatch = useDispatch();
 	useEffect(() => {
-		if(drawingWire) return;
+		if(drawingWire || draggingGate) return;
 		const wireEntries = Object.entries(wires);
 		const allWireTrees: string[][] = [];
 		dispatch(setError({isError: false, extraInfo: ''}));
@@ -108,7 +109,7 @@ export default function useConnecting(){
 		// })
 
 		dispatch(setConnections({connections: connections, componentId: currentComponentId}));
-	}, [wires,io, drawingWire, currentComponentId]);
+	}, [wires,io, drawingWire, currentComponentId, draggingGate]);
 
 
 	/**
