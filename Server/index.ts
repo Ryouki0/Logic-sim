@@ -76,7 +76,7 @@ db.serialize(() => {
 	});
 })
 
-const allowedOrigins = ['https://logicsim-89yacgy6l-ryouki0s-projects.vercel.app'];
+const allowedOrigins = ['https://logicsim-6ltv12o40-ryouki0s-projects.vercel.app'];
 app.use(cors({
     credentials: true,
 	origin: function (origin, callback) {
