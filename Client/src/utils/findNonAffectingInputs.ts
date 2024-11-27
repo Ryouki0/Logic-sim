@@ -39,7 +39,6 @@ export default function findNonAffectingInputs(gates: {[key: string]: Gate}, io:
 		}
 
 		if(parent === 'global' && !currentIo.gateId){
-			console.log(`ayaya`);
 			nonAffectingInputs.add(currentId);
 		}
 	}

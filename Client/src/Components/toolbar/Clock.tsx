@@ -30,12 +30,14 @@ export default function Clock() {
 		return state.entities.currentComponent.binaryIO;
 	});
 	const user = useSelector((state: RootState) => {return state.misc.user;});
-	const misc = useSelector((state: RootState) => {return state.misc});
+	const misc = useSelector((state: RootState) => {return state.misc;});
 	const actualEntities = useSelector((state: RootState) => {return state.entities;});
 	const dispatch = useDispatch();
 	// const entities = useSelector((state: RootState) => state.entities);
 	const [value, setValue] = useState('100');
 	const running = useSelector((state: RootState) => {return state.clock.isRunning;});
+	const clockPhase = useSelector((state: RootState) => {return state.clock.clockPhase});
+
 	const handleHertzChange = (e:React.ChangeEvent<HTMLInputElement>) => {
 		const number = parseInt(e.target.value);
 	  	dispatch(setHertz(number));
@@ -114,13 +116,12 @@ export default function Clock() {
 				height: 26
 	  }}
 	  onClick={handleRunChange}>
-	  {running ? 'Stop' : 'Run'}</button>
+	  {!clockPhase ? (running ? 'Stop' : 'Run') : `${clockPhase}...`}</button>
 	  <button style={{
 				fontSize: 18,
 				height: 26,
 			}} onClick={e => {
 				try{
-					console.time('tick');
 					const copiedGates = JSON.parse(JSON.stringify(gates));
 					Object.entries(currentGates).forEach(([key, gate]) => {
 						copiedGates[key] = JSON.parse(JSON.stringify(gate));
@@ -135,7 +136,6 @@ export default function Clock() {
 
 					evaluateGates(copiedGates, copiedIo, order);
 					dispatch(updateState({gates: copiedGates, binaryIO: copiedIo}));
-					console.timeEnd('tick');
 				}catch(err){
 					if(err instanceof CircularDependencyError){
 						dispatch(setError({isError: true, extraInfo: 'Circular dependency!'}));

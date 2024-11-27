@@ -1,3 +1,6 @@
+const dotenv = require('dotenv');
+const env = dotenv.config().parsed;
+console.log('env:', env);
 module.exports = function override(config, env) {
     config.resolve.fallback = {
       fs: false
@@ -7,7 +10,12 @@ module.exports = function override(config, env) {
     config.module.rules.push({
         test: /\.worker\.ts$/,
         use: [
-            { loader: 'worker-loader' },
+            { 
+              loader: 'worker-loader', 
+              options: {
+                filename: '[name].[contenthash].worker.js'
+              }
+            },
             { loader: 'ts-loader' }
         ]
     });

@@ -9,7 +9,7 @@ import OutputPreview from './OutputPreview';
 import { Gate } from '../../Interfaces/Gate';
 
 export default function GatePreview({thisGate, verticalScale}: {thisGate: Gate, verticalScale: number}){
-    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
     
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	return thisGate && <div style={{

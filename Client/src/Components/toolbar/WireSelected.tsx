@@ -23,7 +23,7 @@ const checkSource = (prev: BinaryIO[] | undefined, next: BinaryIO[] | undefined)
 			if(to?.id !== next?.[idx]?.to?.[toIdx]?.id){
 				isEqual = false;
 			}
-		})
+		});
 	});
 	return isEqual;
 };
@@ -43,7 +43,7 @@ export default function WireSelected({wire} : {wire:Wire}){
 	
 	const handleColorPick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		dispatch(setShowColorPicker({show: true, id: wire.id}));
-	}
+	};
 	//Remove duplicate IDs
 	list = [...new Set(list)];
 	const targetList = list;
@@ -56,42 +56,42 @@ export default function WireSelected({wire} : {wire:Wire}){
 	return (
 		<>
 		
-	<div style={{justifyContent: 'center', display: 'flex', flexDirection: 'column'}}>
-		<div style={{width: 150, height: 10, backgroundColor:ORANGE, alignSelf: 'center', marginTop: '30%'}}>
+			<div style={{justifyContent: 'center', display: 'flex', flexDirection: 'column'}}>
+				<div style={{width: 150, height: 10, backgroundColor:ORANGE, alignSelf: 'center', marginTop: '30%'}}>
 
-		</div>
-		<div style={{marginTop: 20, marginLeft: 10}}>
-			<span style={{
+				</div>
+				<div style={{marginTop: 20, marginLeft: 10}}>
+					<span style={{
     			color: 'white', 
     			fontSize: 16,
     			marginTop: 10
-			}}>
+					}}>
     			Sources:{' '}
-			</span>
-			{sourceList?.map((source, idx, array) => {
-				return <span
-					key={idx}
-					onClick={e => {handleLinkClick(source);}}
-					className="clickable-text">
-					{source?.name}{idx === array.length - 1 ? null : ', '}
-				</span>;
-			})}
+					</span>
+					{sourceList?.map((source, idx, array) => {
+						return <span
+							key={idx}
+							onClick={e => {handleLinkClick(source);}}
+							className="clickable-text">
+							{source?.name}{idx === array.length - 1 ? null : ', '}
+						</span>;
+					})}
 			
-		</div>
-		<div style={{marginTop: 10, marginLeft: 10}}>
-			<span style={{color: 'white', fontSize: 16, marginTop: 10}}>Targets:{' '}</span>
-			{targets?.map((target, idx, array) => {
-				return <span
-					key={idx}
-					onClick={e => {handleLinkClick(target);}}
-					className="clickable-text">{target?.name}{idx === array.length-1 ? null : ', '}</span>; 
-			})}
-		</div>
-		<div className="clickable-div" onClick={e => {handleColorPick(e)}}>
-			<span style={{color: 'white'}}>Color: </span>
-			<div style={{width: 20, height: 20, backgroundColor: wire.color ?? DEFAULT_WIRE_COLOR, borderWidth: 1, marginLeft:10, borderStyle: 'solid'}}></div>
-		</div>
-	</div>
-	</>
-	)
+				</div>
+				<div style={{marginTop: 10, marginLeft: 10}}>
+					<span style={{color: 'white', fontSize: 16, marginTop: 10}}>Targets:{' '}</span>
+					{targets?.map((target, idx, array) => {
+						return <span
+							key={idx}
+							onClick={e => {handleLinkClick(target);}}
+							className="clickable-text">{target?.name}{idx === array.length-1 ? null : ', '}</span>; 
+					})}
+				</div>
+				<div className="clickable-div" onClick={e => {handleColorPick(e);}}>
+					<span style={{color: 'white'}}>Color: </span>
+					<div style={{width: 20, height: 20, backgroundColor: wire.color ?? DEFAULT_WIRE_COLOR, borderWidth: 1, marginLeft:10, borderStyle: 'solid'}}></div>
+				</div>
+			</div>
+		</>
+	);
 }

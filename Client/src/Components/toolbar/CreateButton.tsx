@@ -19,7 +19,7 @@ export default function CreateButton(){
 	const [hasBlockSizeUpdated, setHasBlockSizeUpdated] = useState(false);
 	const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 	const currentGates = useSelector((state: RootState) => {return state.entities.currentComponent.gates;});
-	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize});
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const prevSize = useRef(blockSize);
 	const shouldSizeChange = useRef(false);
 	const selectGates = (state: RootState) => state.entities.bluePrints.gates;

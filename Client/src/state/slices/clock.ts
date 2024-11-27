@@ -7,6 +7,7 @@ export interface Clock{
 	refreshRate: number,
 	isRunning: boolean,
 	actualHertz: number,
+	clockPhase: 'starting' | 'stopping' | null,
 	actualRefreshRate: number,
 	error: {isError: boolean, extraInfo:string}
 }
@@ -16,6 +17,7 @@ const initialState: Clock = {
 	refreshRate: 30,
 	isRunning: false,
 	actualHertz: 0,
+	clockPhase: null,
 	actualRefreshRate: 0,
 	error: {isError: false, extraInfo: ''}
 };
@@ -47,6 +49,9 @@ const clockSlice = createSlice({
 		},
 		setError: (state, action: PayloadAction<{isError: boolean, extraInfo: string}>) => {
 			state.error = action.payload;
+		},
+		setPhase: (state, action: PayloadAction<'starting' | 'stopping' | null>) => {
+			state.clockPhase = action.payload;
 		}
 	}
 });
@@ -59,5 +64,6 @@ export const {
 	setActualHertz,
 	setActualRefreshRate,
 	setActuals,
-	setError
+	setError,
+	setPhase
 } = clockSlice.actions;

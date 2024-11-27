@@ -11,8 +11,12 @@ export interface Misc{
 	user: string | null,
 	globalBlockSize: number,
 	lineWidth: number,
-	ioRadius: number
+	ioRadius: number,
 }
+
+/**
+ * This is for the data that gets loaded from the server
+ */
 export interface MiscBase{
 	currentComponentId: string,
     history: string[],
@@ -22,7 +26,7 @@ export interface MiscBase{
 	prevBlockSize: number,
 	globalBlockSize: number,
 	lineWidth: number,
-	ioRadius: number
+	ioRadius: number,
 }
 const initialState:Misc = {
 	currentComponentId: 'global',
@@ -91,9 +95,10 @@ const misc = createSlice({
 		},
 		changeMisc: (state, action: PayloadAction<{misc: MiscBase}>) => {
 			return state = {...state, ...action.payload.misc};
-		}
+		},
+		
 	}
-});
+ });
 
 export default misc.reducer;
 export const {
@@ -104,5 +109,5 @@ export const {
 	changeBlockSizeByTenPercent,
 	changeBlockSize,
 	changeGlobalBlockSize,
-	changeMisc
+	changeMisc,
 } = misc.actions;

@@ -7,9 +7,9 @@ import isOnIo from '../../utils/Spatial/isOnIo';
 export default function DrawWireFromIo(){
 	const io = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO;});
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
-	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
 	const startDrawing = useDrawWire(cameraOffset);
-    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
 
 	useEffect(() => {
 		if(currentComponentId !== 'global') return;

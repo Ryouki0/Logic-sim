@@ -14,9 +14,9 @@ export default function MainCanvas(){
 
 	const [isRightMouseDown, setIsRightMouseDown] = useState(false);
 	const [isWheelDown, setIsWheelDown] = useState(false);
-	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
-	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize});
-	const lineWidth = useSelector((state: RootState) => {return state.misc.lineWidth});
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
+	const lineWidth = useSelector((state: RootState) => {return state.misc.lineWidth;});
 	const hoveringOverWire = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverWire;});
 	const {checkWire} = useIsWireClicked();
 	const startDrawing = useDrawWire(cameraOffset);
@@ -24,6 +24,7 @@ export default function MainCanvas(){
 	const lastDragCall = useRef<{lastCall: number, lastPos: {x: number, y: number}}>({lastCall: -1, lastPos: {x: 0, y:0}});
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const throttledCheckWire = throttle((e: MouseEvent) => {
+		if(e.buttons & 1 ||  e.buttons & 4) return;
 		const x = e.x - cameraOffset.x;
 		const y = e.y - cameraOffset.y;
 		const wire = checkWire(x,y, lineWidth);
@@ -102,7 +103,7 @@ export default function MainCanvas(){
     	dispatch(setCameraOffset({ dx: movementX, dy: movementY }));
 		
 		
-	}
+	};
 	useEffect(() => {
 		canvasRef.current?.addEventListener('mousedown', drawWire);
 		canvasRef.current?.addEventListener('contextmenu', handleContextMenu);

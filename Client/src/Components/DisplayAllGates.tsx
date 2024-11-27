@@ -39,7 +39,7 @@ export default function DisplayAllGates(){
 			return topLevelComponents;
 		}
 	);
-	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
 	useEffect(() => {
 		const handleScroll = (e:WheelEvent) => {
 			e.stopPropagation();
@@ -92,7 +92,7 @@ export default function DisplayAllGates(){
 		const {roundedX, roundedY} = getClosestBlock(e.pageX, e.pageY, blockSize);
 
 		dispatch(setSelectedIo({type: type, startPos: {x: roundedX, y: roundedY}}));
-	}
+	};
 
 	const bluePrints = useSelector(bluePrintsSelector);
 	const dispatch = useDispatch();
@@ -132,7 +132,7 @@ export default function DisplayAllGates(){
 					onMouseDown={e => e.preventDefault()}
 				>
 					<div
-						onMouseDown={e => {handleIOClick(e, 'input')}}
+						onMouseDown={e => {handleIOClick(e, 'input');}}
 						onContextMenu={e=> {e.preventDefault(); e.stopPropagation();}}
 						style={{
 							backgroundColor: isDisabled ? 'rgb(90 90 90)': 'rgb(70 70 70)',
@@ -155,7 +155,7 @@ export default function DisplayAllGates(){
 						}}>Input</span>
 					</div>
 					<div
-						onMouseDown={e => {handleIOClick(e, 'output')}}
+						onMouseDown={e => {handleIOClick(e, 'output');}}
 						onContextMenu={e=> {e.preventDefault(); e.stopPropagation();}}
 						style={{
 							backgroundColor: isDisabled ? 'rgb(90 90 90)': 'rgb(70 70 70)',

@@ -23,10 +23,10 @@ export default function Menu(){
 	const Simulation = () => {
 		navigate('/Simulation');
 	};
-
+	const backendUrl = process.env.REACT_APP_BACKEND_URL;
 	const handleLogout = () => {
 		setLoading(true);
-		fetch(`https://reacttest-5vuh.onrender.com/api/logout`, {
+		fetch(`${backendUrl}/api/logout`, {
 			method: 'GET',
 			credentials: 'include'
 		}).then(res => {
@@ -47,7 +47,7 @@ export default function Menu(){
 
 	const loadCPU = () => {
 		setLoading(true);
-		fetch(`https://reacttest-5vuh.onrender.com/api/cpu`, {
+		fetch(`${backendUrl}/api/cpu`, {
 			method: 'GET',
 			credentials: 'include'
 		})

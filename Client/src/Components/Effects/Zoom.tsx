@@ -6,9 +6,9 @@ import { changeGateBlockSize, recalculatePositions } from "../../state/slices/en
 
 export default function Zoom(){
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
-	const prevBlockSize = useSelector((state: RootState) => {return state.misc.prevBlockSize});
-	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId});
-	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
+	const prevBlockSize = useSelector((state: RootState) => {return state.misc.prevBlockSize;});
+	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
 	const isWheelEvent = useRef(false);
 	const dispatch = useDispatch();
 	useEffect(() => {

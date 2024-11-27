@@ -1,16 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CANVASTOP_HEIGHT, CANVAS_HEIGHT, CANVAS_OFFSET_LEFT, CANVAS_WIDTH, DEFAULT_BORDER_WIDTH, MINIMAL_BLOCKSIZE,getClosestBlock } from '../../Constants/defaultDimensions';
-import { Input } from '../IO/Input';
+import { CANVASTOP_HEIGHT, DEFAULT_BORDER_WIDTH, MINIMAL_BLOCKSIZE,getClosestBlock } from '../../Constants/defaultDimensions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
-import {v4 as uuidv4} from 'uuid';
-import GhostInput from '../IO/GhostInput';
-import { throttle } from '../../utils/throttle';
 import { BinaryIO } from '../../Interfaces/BinaryIO';
-import { addInput, changeInputState } from '../../state/slices/entities';
 import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../../Constants/colors';
-import { textStlye } from '../../Constants/commonStyles';
-import { createSelector } from '@reduxjs/toolkit';
 
 export function checkIo(prev:BinaryIO[],next:BinaryIO[]){
 	if(prev?.length !== next?.length){

@@ -12,13 +12,13 @@ export function BackArrow({style}:{style?: React.CSSProperties}){
 
 	const svgRef = useRef<SVGSVGElement | null>(null);
 	const componentHistory = useSelector((state: RootState) => {return state.misc.history;});
-	const globalBlockSize = useSelector((state: RootState) => {return state.misc.globalBlockSize});
-	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
+	const globalBlockSize = useSelector((state: RootState) => {return state.misc.globalBlockSize;});
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
 	const prevComponent = useSelector((state: RootState) => {
 		return state.entities.gates[componentHistory[componentHistory.length-2]];
-	})
+	});
 	const dispatch = useDispatch();
-	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize});
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	useEffect(() => {
 		const handleBack = (e:MouseEvent) => {
 			if(componentHistory.length === 0){

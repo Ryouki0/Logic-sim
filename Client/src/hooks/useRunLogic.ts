@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
-import { setActuals, setError, setIsRunning } from '../state/slices/clock';
-import { updateNonAffectingInputs, updateState, updateStateRaw } from '../state/slices/entities';
-import { WorkerEvent } from '../logic.worker';
-import userEvent from '@testing-library/user-event';
-import sizeof from 'object-sizeof';
+import { setActuals, setError, setIsRunning, setPhase } from '../state/slices/clock';
+import { fastUpdateRaw, updateNonAffectingInputs, updateState, updateStateRaw } from '../state/slices/entities';
+
+import { WorkerEvent } from '../workers/logic.worker';
 
 
 export default function useRunLogic(){
@@ -32,7 +31,7 @@ export default function useRunLogic(){
 	const dispatch = useDispatch();
 
 	useEffect(() => {
-		const logicWorker = require('../logic.worker.ts').default;
+		const logicWorker = require('../workers/logic.worker.ts').default;
 		importedWorkerRef.current = logicWorker;
 	}, []);
 
@@ -61,23 +60,45 @@ export default function useRunLogic(){
             		}
             	}
 
+            	function fastUpdate(){
+            		newWorkerData.current = event.data;
+            		shouldUpdateWorker.current = false;
+            		timeTook.current = Date.now() - timeTookStart.current;
+            		const newData = newWorkerData.current;
+            		dispatch(fastUpdateRaw(newData.currentComponentIo!));
+
+            		actualRefreshRate.current++;
+            		actualHertz.current += newData!.actualHertz;
+                    
+            		if(Date.now() - startTime.current >= 1000){
+            			dispatch(setActuals({actualHertz: actualHertz.current, actualRefreshRate: actualRefreshRate.current}));
+            			startTime.current = Date.now();
+            			actualHertz.current = 0;
+            			calls.current = 0;
+            			actualRefreshRate.current = 0;
+            		}
+            	}
 				
             	if(event.data.error){
             		dispatch(setError({isError: true, extraInfo: event.data.error}));
             		dispatch(setIsRunning(false));
             	}else if(event.data.nonAffectingInputs){
-            		// event.data.nonAffectingInputs.forEach(id => {
-            		// 	console.log(`${io[id]?.name ?? currentComponent.binaryIO[id]?.name} -- ${id}`);
-            		// });
             		const nonAffectingInputsSet = new Set(event.data.nonAffectingInputs);
             		shouldUpdateWorker.current = false;
             		dispatch(updateNonAffectingInputs(nonAffectingInputsSet));
-            	}
-            	else{
+            	}else if(event.data.currentComponentIo){
+            		fastUpdate();
+            	}else if(event.data.phase === 'started'){
+					dispatch(setPhase(null));
+				}
+            	else if(event.data.binaryIO){
             		update();
+					dispatch(setPhase(null));
+					workerRef.current = null;
             	}
             };
             timeTookStart.current = Date.now();
+			dispatch(setPhase('starting'));
             const message = JSON.stringify({
             	currentComponent: currentComponent,
             	gates: gates,
@@ -91,8 +112,8 @@ export default function useRunLogic(){
 		}
 		return () => {
 			if(workerRef.current && shouldUpdateWorker.current) {
-				workerRef.current.terminate();
-				workerRef.current = null;
+				workerRef.current.postMessage({action:'stop'});
+				dispatch(setPhase('stopping'))
 				if(intervalRef.current){
 					clearInterval(intervalRef.current);
 				}

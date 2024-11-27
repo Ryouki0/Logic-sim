@@ -13,8 +13,8 @@ export default function HoveringOverIO(){
 	const currentlyHoveringOverIo = useSelector((state: RootState) => {return state.mouseEventsSlice.hoveringOverIo;});
 	const currentComponent = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const spanRef = useRef<HTMLSpanElement | null>(null);
-    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
-	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
 	useEffect(() => {
 		const ioEntries = Object.entries(io);
 

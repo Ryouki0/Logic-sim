@@ -17,7 +17,7 @@ export default function SelectedIo(){
 
 	const selectedIo = useSelector((state: RootState) => {return state.mouseEventsSlice.selectedIo;});
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
-	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
 	const inputs = useSelector((state: RootState) => {
 		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => 
@@ -30,7 +30,7 @@ export default function SelectedIo(){
 		})
 			.filter((io): io is NonNullable<typeof io> => io !== null);
 	}, checkIo);
-    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
 
 	const outputs = useSelector((state: RootState) => {
 		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => {
@@ -40,7 +40,7 @@ export default function SelectedIo(){
 				return null;
 			}
 		}).filter((io): io is NonNullable<typeof io> => io !== null);
-    }, checkIo);
+	}, checkIo);
 
 	const [position, setPosition] = useState({x: selectedIo?.startPos.x ?? 0, y:selectedIo?.startPos.y ?? 0});
 	const [shouldShow, setShouldShow] = useState(false);
@@ -98,7 +98,7 @@ export default function SelectedIo(){
 		if(selectedIo){
 			setPosition({x: selectedIo!.startPos!.x, y: selectedIo.startPos!.y});
 		}
-	}, [selectedIo])
+	}, [selectedIo]);
 
 
 	return <>
@@ -116,15 +116,15 @@ export default function SelectedIo(){
 			backgroundColor: DEFAULT_GATE_COLOR,
 		}}>
 			<span onClick={e => {e.preventDefault();}} 
-        style={{
-            color: 'whitesmoke',
-            position: 'absolute',
-            userSelect: 'none',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)'}}>
+				style={{
+					color: 'whitesmoke',
+					position: 'absolute',
+					userSelect: 'none',
+					top: '50%',
+					left: '50%',
+					transform: 'translate(-50%, -50%)'}}>
 				Off
-      </span>
+			</span>
 			<div style={{
 				width: ioRadius,
 				height: ioRadius,

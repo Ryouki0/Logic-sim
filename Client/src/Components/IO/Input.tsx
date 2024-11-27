@@ -56,7 +56,7 @@ export const Input = React.memo(function Input({binaryInput} : InputProps){
 		});
 		console.log(`this input affects the output: ${thisInput?.affectsOutput}`);
 	};
-    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
 	
 	useEffect(() => {
 		eleRef.current?.addEventListener('mousedown', handleMouseDown);
@@ -96,5 +96,5 @@ export const Input = React.memo(function Input({binaryInput} : InputProps){
 	if(prevInput?.binaryInput.id !== nextInput?.binaryInput.id) return false;
 	if(prevInput?.binaryInput.style?.top !== nextInput?.binaryInput?.style?.top) return false;
 	return true;
-})
+});
 	

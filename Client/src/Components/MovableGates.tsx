@@ -20,10 +20,20 @@ const checkEquality = (prev:{[key:string]:Gate}, next: {[key:string]:Gate}) => {
 export default function MovableGates(){
 	const currentGates = useSelector((state: RootState) => {return state.entities.currentComponent.gates;}, checkEquality);
 	const currentComponentId = useSelector((state:RootState) => {return state.misc.currentComponentId;});
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
 	return <>
-	
-		{Object.entries(currentGates)?.map(([key, gate]) => {
-			return <CustomGate gateProps={gate} isBluePrint={false} key={gate.id} position='absolute'></CustomGate>;
-		})}
+		<div style={{
+			position: 'absolute', 
+			width: '100%', 
+			height: '100%', 
+			transform: `translate(${cameraOffset.x}px, ${cameraOffset.y}px)`, 
+			pointerEvents: 'none',
+			willChange: 'transform',
+			transition: 'transform 0.1 ease'}}>
+			{Object.entries(currentGates)?.map(([key, gate]) => {
+				return <CustomGate gateId={key} isBluePrint={false} key={gate.id} position='absolute'></CustomGate>;
+			})}
+		</div>
+		
 	</>;
 }

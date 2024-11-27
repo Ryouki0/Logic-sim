@@ -32,7 +32,7 @@ const checkCurrentEntity = (prev: Wire | Gate | BinaryIO | undefined, next: Wire
 		const nextEntity: Wire = next as Wire;
 		const prevEntity: Wire = prev as Wire;
 		if(nextEntity?.id !== prevEntity?.id) {
-			return false
+			return false;
 		};
 		if(nextEntity?.targets?.length !== prevEntity?.targets?.length) return false;
 		if(nextEntity?.from?.length !== prevEntity?.from?.length) return false;
@@ -47,7 +47,7 @@ export default function SelectedComponent(){
  		return state.mouseEventsSlice.entityClicked;
  	});
 	 const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
-	 const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
+	 const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
 
 	const currentEntity = useSelector((state: RootState) => {
 		if(selectedComponent?.type === 'Gate'){
@@ -68,20 +68,20 @@ export default function SelectedComponent(){
 	};
 
  	return <div
-	onWheel={e => {e.stopPropagation()}} 
-	style={{
+		onWheel={e => {e.stopPropagation();}} 
+		style={{
  		width: '100%',
  		height: '30%',
-		display: 'flex',
-		borderStyle: 'solid',
-		overflow: 'auto',
-		borderWidth: DEFAULT_BORDER_WIDTH,
-		borderColor: DEFAULT_BORDER_COLOR,
-		borderLeft: 'none',
-		borderTop: 'none',
-		borderRight: 'none',
+			display: 'flex',
+			borderStyle: 'solid',
+			overflow: 'auto',
+			borderWidth: DEFAULT_BORDER_WIDTH,
+			borderColor: DEFAULT_BORDER_COLOR,
+			borderLeft: 'none',
+			borderTop: 'none',
+			borderRight: 'none',
  		backgroundColor: DEFAULT_BACKGROUND_COLOR,
-		flexDirection: 'column',
+			flexDirection: 'column',
  	}}>
  		{currentEntity && selectedComponent?.type === 'Wire' && <WireSelected wire={selectedComponent.entity as Wire}></WireSelected>}
 		{currentEntity && selectedComponent?.type === 'Gate' && 

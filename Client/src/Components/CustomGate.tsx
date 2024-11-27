@@ -15,9 +15,8 @@ import { addGate, changeGatePosition, changeIOPosition, changeInputState, delete
 import calculateGateHeight from '../utils/Spatial/calculateGateHeight';
 import { Root } from 'react-dom/client';
 interface CustomGateProps{
-    gateProps: Gate,
+    gateId: string,
 	isBluePrint: boolean,
-	disableFunctionality?: boolean,
 	position?: 'absolute' | 'relative'
 }
 
@@ -35,7 +34,7 @@ function checkGateEquality(prev: Gate, next: Gate){
 	return prev.position?.x === next.position?.x && prev.position?.y === next.position?.y;
 }
 
-function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:CustomGateProps){
+export const CustomGate = React.memo(function CustomGate({gateId, isBluePrint, position}:CustomGateProps){
 	const eleRef = useRef<HTMLDivElement>(null);
 	const spanRef = useRef<HTMLSpanElement>(null);
 	const spanDivRef = useRef<HTMLDivElement>(null);
@@ -44,13 +43,12 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 	const prevSize = useRef<number>(blockSize);
 	const thisGate = useSelector((state: RootState) => {
 		if(isBluePrint){
-			return state.entities.bluePrints.gates[gateProps.id];
+			return state.entities.bluePrints.gates[gateId];
 		}
-		return state.entities.gates[gateProps.id] ?? 
-		state.entities.currentComponent.gates[gateProps.id];
+		return state.entities.gates[gateId] ?? 
+		state.entities.currentComponent.gates[gateId];
 	}, checkGateEquality);
-    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
-	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
 
 	const offsetRef = useRef({dx: 
 		thisGate?.position ? thisGate.position.x : 0, 
@@ -61,12 +59,12 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 	};
 	const inputs = useSelector((state: RootState) => {
 		if(isBluePrint){
-			return gateProps.inputs.map(inputId => {
+			return thisGate?.inputs.map(inputId => {
 				return state.entities.bluePrints.io[inputId];
 			});
 
 		}else{
-			return gateProps.inputs.map(input => {
+			return thisGate?.inputs.map(input => {
 				return state.entities.binaryIO[input] ?? state.entities.currentComponent.binaryIO[input];
 			});
 		}
@@ -74,11 +72,11 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 
 	const outputs = useSelector((state: RootState) => {
 		if(isBluePrint){
-			return gateProps.outputs.map(outputId => {
+			return thisGate?.outputs.map(outputId => {
 				return state.entities.bluePrints.io[outputId];
 			});
 		}else{
-			return gateProps.outputs.map(outputId => {
+			return thisGate?.outputs.map(outputId => {
 				return state.entities.binaryIO[outputId] ?? state.entities.currentComponent.binaryIO[outputId];
 			});
 		}
@@ -138,19 +136,18 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 		prevSize.current = blockSize;
 	}, [blockSize]);
 	const memoizedInputs = useMemo(() => {
-		return inputs
+		return inputs;
 	}, [inputs]);
 
 	return	(
 		<>
-		<div ref={eleRef}
+			<div ref={eleRef}
 				className='Gate-container'
 				style={{width: 3*blockSize, 
 					height: calculateGateHeight(thisGate, blockSize),
 					position: position ? position : 'relative',
 					top: thisGate?.position ? thisGate.position.y  : 0,
 					left: thisGate?.position ? thisGate.position.x: 0,
-					transform: `translate(${cameraOffset.x}px, ${cameraOffset.y}px)`,
 					borderTopRightRadius: 30,
 					borderBottomRightRadius: 30,
 					display: 'inline-block',
@@ -159,8 +156,9 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 					borderWidth: 1,
 					borderColor: 'black',
 					cursor: 'pointer',
+					pointerEvents: 'auto',
 					backgroundColor: "rgb(117 117 117)"}} 
-				id={gateProps.id}
+				id={gateId}
 			>
 				{memoizedInputs?.map((input, idx, array) => {
 					return <Input binaryInput={{...input, 
@@ -181,7 +179,7 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 						style={{fontSize: blockSize/2 +4, 
         				userSelect: 'none', 
 				        color: 'white'}}>
-						{gateProps.name}
+						{thisGate?.name}
 					</span>
 				</div>
 				{outputs.map((output,idx,array) => {
@@ -195,5 +193,8 @@ function CustomGate({gateProps, isBluePrint, position, disableFunctionality}:Cus
 			
 		</>
 	);
-}
-export {CustomGate};
+}, (prev: CustomGateProps, next: CustomGateProps) => {
+	if(prev.gateId !== next.gateId) return false;
+	if(prev.isBluePrint !== next.isBluePrint) return false;
+	return true;
+});

@@ -936,7 +936,7 @@ const entities = createSlice({
 					/**
 					 * The outside blockSize is not yet updated, so take it from the actual component
 					 */
-					let actualBlockSize = 0
+					let actualBlockSize = 0;
 					if(component){
 						 actualBlockSize = component.lastBlockSize!;
 					}else{
@@ -1120,6 +1120,20 @@ const entities = createSlice({
 	}
 });
 
+export const {fastUpdateRaw} = addRawReducers(entities, {
+	fastUpdateRaw: (state: entities, action: AnyAction): entities => {
+		const newCurrentComponentIo:BinaryIO[] = action.payload;
+		
+		return {
+			...state,
+			currentComponent: {
+				...state.currentComponent,
+				binaryIO: {
+					...state.currentComponent.binaryIO,
+					...Object.fromEntries(newCurrentComponentIo.map(io => [io.id, { ...io }]))
+				}}};
+	}
+});
 
 export const {updateStateRaw} = addRawReducers(entities, {
 	updateStateRaw: (state: entities, action: AnyAction): entities => {
@@ -1184,5 +1198,5 @@ export const {addWire,
 	changeIOStyle,
 	deleteInput,
 	changeGateBlockSize,
-	applyColor
+	applyColor,
 } = entities.actions;

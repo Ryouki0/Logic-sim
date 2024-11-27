@@ -135,8 +135,6 @@ export function globalSort(gates: {[key: string]: Gate}, io: {[key: string]: Bin
 	const baseGateIds = getAllBaseGates(gates);
 	const mainDag = getGlobalDag(gates, io, baseGateIds);
 	const mainDagSet = new Set(mainDag);
-	console.log(`maindag has 4418... ${mainDagSet.has('441886fd-61ec-4f29-b159-385732cd3697')}`);
-	console.log(`baseGates has 4418... ${baseGateIds.includes('441886fd-61ec-4f29-b159-385732cd3697')}`)
 	const allRemainingGateIds = baseGateIds.filter(baseId => !mainDagSet.has(baseId));
 
 	const SCCOrder: string[] = [];
@@ -154,18 +152,16 @@ export function globalSort(gates: {[key: string]: Gate}, io: {[key: string]: Bin
 
 		SCC.forEach(id => {
 			SCCOrder.push(id);
-			if(id === '441886fd-61ec-4f29-b159-385732cd3697'){
-				console.log(`evaluating 4418 in SCC... for delay: ${delayGate!.id.slice(0,5)}`);
-			}
+			
 			const thisIdx = allRemainingGateIds.findIndex(remainingId => remainingId === id);
 			if(thisIdx === -1) {
 				allRemainingGateIds.forEach(id => {
-					console.log(`name: ${gates[id]?.name} parent: ${gates[gates[id]?.parent]?.name} id: ${id}`)
-				})
+					console.log(`name: ${gates[id]?.name} parent: ${gates[gates[id]?.parent]?.name} id: ${id}`);
+				});
 				throw new Error(
-				`${id} doesn't exist in the remaining IDs ${gates[id]?.name} parent: ${gates[gates[id]?.parent]?.name}`
-			);
-		}
+					`${id} doesn't exist in the remaining IDs ${gates[id]?.name} parent: ${gates[gates[id]?.parent]?.name}`
+				);
+			}
 
 			allRemainingGateIds.splice(thisIdx, 1);
 		});

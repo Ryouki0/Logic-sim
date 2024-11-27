@@ -15,10 +15,10 @@ export default function Login(){
 	const handleSubmit = () => {
 		isLogin ? login(username, password) : register(username, password);
 	};
-
+	const backendUrl = process.env.REACT_APP_BACKEND_URL;
 	async function login(username: string, password:string) {
 		try {
-		  const response = await fetch(`https://reacttest-5vuh.onrender.com/api/login`, {
+		  const response = await fetch(`${backendUrl}/api/login`, {
 				method: 'POST',
 				headers: {
 			  'Content-Type': 'application/json',
@@ -42,7 +42,7 @@ export default function Login(){
 
 	async function register(username:string, password:string) {
 		try {
-		  const response = await fetch(`https://reacttest-5vuh.onrender.com/api/register`, {
+		  const response = await fetch(`${backendUrl}/api/register`, {
 				method: 'POST',
 				headers: {
 			  'Content-Type': 'application/json',

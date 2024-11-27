@@ -76,7 +76,7 @@ db.serialize(() => {
 	});
 })
 
-const allowedOrigins = ['https://logicsim-alpha.vercel.app'];
+const allowedOrigins = ['https://logicsim-alpha.vercel.app', 'http://localhost:3000'];
 app.use(cors({
     credentials: true,
 	origin: function (origin, callback) {

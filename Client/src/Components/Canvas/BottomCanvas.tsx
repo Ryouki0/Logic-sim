@@ -8,7 +8,7 @@ export default function BottomCanvas(){
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth;});
 	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight;});
-	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
 	useEffect(() => {
 		if(bottomCanvasRef && bottomCanvasRef.current){
 			const width =  canvasWidth;
@@ -46,7 +46,7 @@ export default function BottomCanvas(){
 				position: 'absolute',
 				left: 0,
 				top: 0,
-				zIndex: -1,
+				zIndex: -2,
 			}}></canvas>
 	);
 }

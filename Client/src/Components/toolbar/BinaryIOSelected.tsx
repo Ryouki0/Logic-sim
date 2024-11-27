@@ -35,7 +35,7 @@ export default function BinaryIOSelected({io} : {io: BinaryIO}){
 			marginTop: MINIMAL_BLOCKSIZE,
 		}}>
 			<div>
-			{io.type === 'input' ? <InputPreview inputId={io.id} style={{}}></InputPreview> : <OutputPreview outputId={io.id} style={{}}></OutputPreview>}
+				{io.type === 'input' ? <InputPreview inputId={io.id} style={{}}></InputPreview> : <OutputPreview outputId={io.id} style={{}}></OutputPreview>}
 
 			</div>
 		</div>

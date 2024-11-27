@@ -1,14 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { Wire } from '@Shared/interfaces';
-import { current } from '@reduxjs/toolkit';
+import { current, isAction } from '@reduxjs/toolkit';
 import isWireConnectedToWire from '../utils/Spatial/isWireConnectedToWire';
 import { raiseShortCircuitError, setConnections } from '../state/slices/entities';
 import { BinaryIO } from '../Interfaces/BinaryIO';
 import checkLineEquality from '../utils/checkLineEquality';
 import { setError } from '../state/slices/clock';
 import isOnIo from '../utils/Spatial/isOnIo';
+import { connectingWorkerEvent } from '../workers/connecting.worker';
 
 
 export class ShortCircuitError extends Error{
@@ -20,8 +21,14 @@ export class ShortCircuitError extends Error{
 		Object.setPrototypeOf(this, ShortCircuitError.prototype);
 	}
 }
-
-const checkWireEquality = (prev: {[key: string]: Wire}, next:{[key: string]:Wire}) => {
+/**
+ * Checks if the positions of the wires have changed
+ * @param prev The previous wire state
+ * @param next The next wire state
+ * @returns True if there is no change, false otherwise
+ */
+export const checkWireEquality = (prev: {[key: string]: Wire} | null, next:{[key: string]:Wire} | null) => {
+	if(!prev || !next) return false;
 	const prevEntries = Object.entries(prev);
 	if(Object.entries(next).length !== prevEntries?.length){
 		return false;
@@ -30,6 +37,9 @@ const checkWireEquality = (prev: {[key: string]: Wire}, next:{[key: string]:Wire
 		if(!(checkLineEquality(wire.linearLine, next[key]?.linearLine)) 
         || !(checkLineEquality(wire.diagonalLine, next[key]?.diagonalLine)) 
 		|| (wire && !next[key])){
+			return false;
+		}
+		if(wire.color !== next[key].color) {
 			return false;
 		}
 	}
@@ -55,61 +65,71 @@ const checkIOEquality = (prev: {[key: string]: BinaryIO}, next: {[key: string]: 
 
 
 export default function useConnecting(){
-	const wires = useSelector((state: RootState) => {return state.entities.currentComponent.wires;}, checkWireEquality);
+	const wires = useSelector((state: RootState) => {return state.entities.currentComponent.wires;}, shallowEqual);
 	const io = useSelector((state: RootState) => {
 		return state.entities.currentComponent.binaryIO;
 	}, checkIOEquality);
 	const drawingWire = useSelector((state: RootState) => {return state.mouseEventsSlice.drawingWire;});
-	const draggingGate = useSelector((state: RootState) => {return state.mouseEventsSlice.draggingGate});
+	const draggingGate = useSelector((state: RootState) => {return state.mouseEventsSlice.draggingGate;});
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
-	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
-    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
-	const lineWidth = useSelector((state: RootState) => {return state.misc.lineWidth});
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
+	const lineWidth = useSelector((state: RootState) => {return state.misc.lineWidth;});
+	const prevWires = useRef<{[key: string]: Wire} | null>(null);
+	const currentWires = useRef<{[key: string]: Wire} | null>(null);
+
+	const importedWorkerRef = useRef<any>();
+	const workerRef = useRef<any>();
+	const areWiresEqual = useMemo(() => {
+		return checkWireEquality(prevWires.current, wires);
+	}, [wires])
 	const dispatch = useDispatch();
+
+	useEffect(() => {
+		prevWires.current = currentWires.current;
+		currentWires.current = wires;
+	}, [io, drawingWire, currentComponentId, draggingGate, areWiresEqual, wires])
+
+	
+	useEffect(() => {
+		const connectingWorker = require('../workers/connecting.worker.ts').default;
+		importedWorkerRef.current = connectingWorker;
+	}, []);
+
 	useEffect(() => {
 		if(drawingWire || draggingGate) return;
-		const wireEntries = Object.entries(wires);
-		const allWireTrees: string[][] = [];
+		/**
+		 * If the wires changed, but their positions are the same, don't check
+		 */
+		if(prevWires.current !== wires && areWiresEqual) return;
+		
+		workerRef.current = new importedWorkerRef.current();
+
 		dispatch(setError({isError: false, extraInfo: ''}));
-		for(const [key, wire] of wireEntries){
-			let wireInTree = false;
-			allWireTrees.forEach(tree => {
-				if(tree.includes(key)){
-					wireInTree = true;
-				}
-			});
-			if(wireInTree){
-				continue;
+		
+		workerRef.current.postMessage({
+			wires: wires,
+			io: io,
+			lineWidth: lineWidth,
+			cameraOffset: cameraOffset,
+			ioRadius: ioRadius,
+			currentComponentId: currentComponentId,
+			action: 'check',
+		})
+		workerRef.current.onmessage = (event: MessageEvent<connectingWorkerEvent>) => {
+			const connections = event.data.connections;
+			if(event.data.error?.isError){
+				dispatch(raiseShortCircuitError({wireTree: event.data.error!.wireTree}));
 			}
-			allWireTrees.push(buildWireTree(key));
+			else {
+				dispatch(setConnections({connections: connections, componentId: currentComponentId}));
+			}
 		}
-
-		const connections: {wireTree: string[], outputs: string[], sourceIds: string[]|null}[] = [];
-		allWireTrees.forEach(tree => {
-			const {outputs, sourceIds, error} = getConnections(tree);
-			if(error){
-				return;
-			}
-			connections.push({wireTree: tree, outputs: outputs, sourceIds: sourceIds});
-		});
-
-		// connections.forEach((connection, idx) => {
-		// 	console.log(`\n${idx}-Connection:\n`);
-		// 	console.log(`OUTPUTS:`);
-		// 	connection.outputs.forEach((outputId,idx) => {
-		// 		console.log(`${idx}--${outputId.slice(0,6)}`);
-		// 	})
-
-		// 	console.log(`source ID: ${connection.sourceId?.slice(0,6)}`);
-
-		// 	console.log(`wires: `);
-		// 	connection.wireTree.forEach((wire,idx) => {
-		// 		console.log(`${idx}--${wire.slice(0,6)}`);
-		// 	})
-		// })
-
-		dispatch(setConnections({connections: connections, componentId: currentComponentId}));
-	}, [wires,io, drawingWire, currentComponentId, draggingGate]);
+		
+		return () => {
+			workerRef.current?.terminate();
+		}
+	}, [io, drawingWire, currentComponentId, draggingGate, wires]);
 
 
 	/**
@@ -175,7 +195,7 @@ export default function useConnecting(){
 								if(!io[sourceId].highImpedance && !ioEntry.highImpedance){
 									console.warn(`Short circuit! ${sourceId.slice(0,5)} -> ${key.slice(0,5)}`);
 									throw new ShortCircuitError(wireTree);
-								}
+								}	
 							}); 
 								
 							

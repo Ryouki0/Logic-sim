@@ -24,6 +24,7 @@ import GlobalOutput from "./Components/IO/GlobalOutput";
 import '../node_modules/react-circular-progressbar/dist/styles.css';
 import DisplayCameraOffset from "./Components/Canvas/DisplayCameraOffset";
 import ColorPicker from "./Components/toolbar/ColorPicker/ColorPicker";
+import PixiCanvas from "./Components/Canvas/PixiCanvas";
 function Simulation() {
 	const dispatch = useDispatch();
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});

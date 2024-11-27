@@ -23,7 +23,7 @@ export default function GlobalInput(){
 	}, checkIo);
 	return <>
 		{inputs.map((input, idx) => {
-			return <CustomInput id={input.id} key={input.id} showButton={currentComponentId === 'global' ? true : false}></CustomInput>
+			return <CustomInput id={input.id} key={input.id} showButton={currentComponentId === 'global' ? true : false}></CustomInput>;
 		})}
 	</>;
 }

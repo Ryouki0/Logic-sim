@@ -17,7 +17,7 @@ interface BinaryOutputProps {
 
 
 export const Output = React.memo(function Output({output, style=null}: BinaryOutputProps){
-	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
 
 	const thisOutput = useSelector((state:RootState) => {
 		return state.entities.binaryIO[output?.id] ?? state.entities.currentComponent.binaryIO[output?.id];}, ioEquality);
@@ -62,6 +62,6 @@ export const Output = React.memo(function Output({output, style=null}: BinaryOut
 	if(prevOutput?.output.id !== nextOutput?.output.id) return false;
 	if(prevOutput?.style?.top !== nextOutput?.style?.top) return false;
 	return true;
-})
+});
     
 

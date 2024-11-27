@@ -16,14 +16,14 @@ const root = ReactDOM.createRoot(
 
 root.render(
 	<StrictMode>
-<Provider store={store}>
-		<Router>
-			<Routes>
-				<Route path='/' element={<Menu></Menu>}/>
-				<Route path='/Simulation' element={<Simulation></Simulation>}></Route>
-			</Routes>
-		</Router>
-	</Provider>
+		<Provider store={store}>
+			<Router>
+				<Routes>
+					<Route path='/' element={<Menu></Menu>}/>
+					<Route path='/Simulation' element={<Simulation></Simulation>}></Route>
+				</Routes>
+			</Router>
+		</Provider>
 	</StrictMode>
 	
   

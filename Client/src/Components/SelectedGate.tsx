@@ -12,9 +12,9 @@ export default function SelectedGate(){
 	const selectedGateId = useSelector((state: RootState) => {return state.mouseEventsSlice.selectedGate;});
 	const currentGate = useSelector((state: RootState) => {return state.entities.bluePrints.gates[selectedGateId!];});
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
-	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset});
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
 	const dispatch = useDispatch();
-    const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius});
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
 
 	const handleMouseMove = (e: MouseEvent) => {
 		if(!currentGate){
@@ -57,6 +57,9 @@ export default function SelectedGate(){
 	}, [currentGate]);
 
 	return <>
-		{currentGate && <CustomGate gateProps={currentGate} isBluePrint={true} position={'absolute'}></CustomGate>}
+		<div style={{position: 'absolute', width: '100%', height: '100%', transform: `translate(${cameraOffset.x}px, ${cameraOffset.y}px)`, pointerEvents: 'none'}}>
+			{currentGate && <CustomGate gateId={currentGate?.id} isBluePrint={true} position={'absolute'}></CustomGate>}
+
+		</div>
 	</>;
 }
