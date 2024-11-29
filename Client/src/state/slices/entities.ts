@@ -12,6 +12,11 @@ import calculateAbsoluteIOPos from "../../utils/Spatial/calculateAbsoluteIOPos";
 import changeGlobalIOPosition from "../../utils/Spatial/changeGlobalInputPos";
 import recalculatePositionsPure from "../../utils/Spatial/recalculatePositionsPure";
 import findTrueSourcePure from "../../utils/findTrueSourcePure";
+import { checkIo } from "../../Components/Canvas/CanvasLeftSide";
+import { checkSingleIo } from "../../Components/Preview/InputPreview";
+import { ioEquality } from "../../Components/IO/Input";
+import getAllConnectedIO from "../../utils/getAllConnectedIO";
+import { isErrored } from "stream";
 
 const ANDInputId1 = uuidv4();
 const ANDInputId2 = uuidv4();
@@ -536,6 +541,9 @@ const entities = createSlice({
 
 			Object.entries(newInputPositions).forEach(([key, position]) => {
 				const currentIo = state.currentComponent.binaryIO[key];
+				if(currentIo.name === 'test'){
+					console.log(`newPosition for test: x: ${position.x} y: ${position.y}`);
+				}
 				currentIo.position =  position;
 			});
 		},
@@ -588,6 +596,9 @@ const entities = createSlice({
 					|| (io.type === 'output' && io.isGlobalIo && !io.gateId) 
 					|| (io.type === 'input' && io.isGlobalIo && io.gateId && io.gateId !== currentComponentId)){
 					io.from = null;
+					if(io.name === 'test'){
+						console.log(`setting test state to 0`);
+					}
 					io.state = 0;
 					if(io.to!.length > 0){
 						propagateIo(io.id, state.binaryIO, state.currentComponent.binaryIO);
@@ -643,6 +654,12 @@ const entities = createSlice({
 				});
 				
 			});
+
+			Object.entries(state.currentComponent.binaryIO).forEach(([key, io]) => {
+				if(io.name === 'test'){
+					console.log(`after connecting test state: ${io.state}  from: ${io.from}`);
+				}
+			})
 		},
 		deleteWire: (state, action:PayloadAction<string>) => {
 			delete state.currentComponent.wires[action.payload];
@@ -998,7 +1015,6 @@ const entities = createSlice({
 				});
 				
 				thisGate.wires?.forEach(wireId => {
-					console.log(`putting wires: ${wireId.slice(0,6)}`);
 					state.wires[wireId] = state.bluePrints.wires[wireId];
 				});
 				
@@ -1008,7 +1024,6 @@ const entities = createSlice({
 			mainGate.gates?.forEach(gateId => {
 				const currentGate = state.bluePrints.gates[gateId];
 				currentGate.gates?.forEach(gateId => {
-					console.log(`nextGates: ${state.bluePrints.gates[gateId].name}`);
 					nextGateIds.push(gateId);
 				});
 				
@@ -1120,52 +1135,194 @@ const entities = createSlice({
 	}
 });
 
+
 export const {fastUpdateRaw} = addRawReducers(entities, {
+	/**
+	 * Updates the I/Os in the current component
+	 * @param {AnyAction<{newCurrentComponentIo: BinaryIO[]}>} action A list of BinaryIO to update
+	 * @returns The new state
+	 */
 	fastUpdateRaw: (state: entities, action: AnyAction): entities => {
 		const newCurrentComponentIo:BinaryIO[] = action.payload;
-		
+		newCurrentComponentIo.forEach(io => {
+			if(io.name === 'test'){
+				console.log(`FAST UPDATE: setting test to: ${io.state}`);
+			}
+		})
 		return {
 			...state,
 			currentComponent: {
 				...state.currentComponent,
 				binaryIO: {
 					...state.currentComponent.binaryIO,
-					...Object.fromEntries(newCurrentComponentIo.map(io => [io.id, { ...io }]))
+					...Object.fromEntries(newCurrentComponentIo.map(io => [io.id, { 
+						...state.currentComponent.binaryIO[io.id],
+						state: state.currentComponent.binaryIO[io.id]?.gateId ? io.state : state.currentComponent.binaryIO[io.id]?.state,
+						highImpedance: state.currentComponent.binaryIO[io.id]?.gateId ? io.highImpedance : state.currentComponent.binaryIO[io.id]?.highImpedance  
+					}]))
 				}}};
 	}
 });
 
 export const {updateStateRaw} = addRawReducers(entities, {
 	updateStateRaw: (state: entities, action: AnyAction): entities => {
-	  const {gates, binaryIO} = action.payload;
-  
-	  const newGates = {...state.currentComponent.gates};
-	  Object.entries(state.currentComponent.gates).forEach(([key, gate]) => {
-			if(!gates[key]) {
-				throw new Error(`In the combined new state there is no gate at ID: ${key}\nLength of 'gates' from the worker: ${Object.entries(gates).length}`);
+
+		//All the data from the worker, not up to date
+	  	const {gates, binaryIO} = action.payload;
+		
+		//A copy of the up to date state
+	  	const newGates = {...state.currentComponent.gates};
+
+		const diffGateIds = new Set<string>();
+		const workerGateKeys = new Set(Object.keys(gates));
+		const currentComponentGatesKeys = Object.keys(state.currentComponent.gates);
+		const subGateKeys = Object.keys(state.gates);
+
+		//Check for gate IDs that are not in the worker
+		currentComponentGatesKeys.forEach(id => {
+			if(!workerGateKeys.has(id)){
+				diffGateIds.add(id);
+			}else{
+				workerGateKeys.delete(id);
 			}
-			newGates[key] = gates[key];
+		})
+
+		subGateKeys.forEach(id => {
+			if(!workerGateKeys.has(id)){
+				diffGateIds.add(id);
+			}else{
+				workerGateKeys.delete(id);
+			}
+		})
+
+		//If there are remaining IDs in the worker, then don't update those too
+		workerGateKeys.forEach(id => {
+			diffGateIds.add(id);
+		})
+
+
+	  	Object.entries(state.currentComponent.gates).forEach(([key, gate]) => {
+			
+			if(diffGateIds.has(key)) return;
+
+			newGates[key] = {...newGates[key], nextTick: gates[key].nextTick};
 			delete gates[key];
-	  });
+	  	});
   
-	  const newBinaryIO = { ...state.currentComponent.binaryIO };
-	  Object.entries(state.currentComponent.binaryIO).forEach(([key, io]) => {
-			if(!binaryIO[key]) {
-				throw new Error(`In the combined new state there is no IO at ID: ${key}`);
+		const newSubGates = {...state.gates};
+
+		Object.entries(state.gates).forEach(([key, gate]) => {
+
+			if(diffGateIds.has(key)) return;
+
+			newSubGates[key] = {...newSubGates[key], nextTick: gates[key].nextTick};
+			delete gates[key];
+		})
+
+		/**
+		 * Checks if `io1` and `io2` is different because of a user action (deletion, addition, moving)
+		 * Only for non controllable IO
+		 * @returns true if they are equal, false otherwise
+		 */
+		function checkIoEquality(io1: BinaryIO | null, io2: BinaryIO | null){
+			if(!io1 || !io2){
+				return false;
 			}
-			newBinaryIO[key] = binaryIO[key];
+
+			if(io1.from?.length !== io2?.from?.length) return false;
+			// if(io1.to?.length !== io2?.to?.length) return false;
+			let isEqual = true;
+			io1.from?.forEach((from, idx) => {
+				if(from.id !== io2.from![idx].id){
+					isEqual = false;
+				}
+				
+			})
+			return isEqual;
+		}
+
+		const noConnectionIo = new Set<string>();
+		const diffIOIds = new Set<string>();
+		const ioEntires = Object.entries(state.currentComponent.binaryIO);
+		const subIOEntires = Object.entries(state.binaryIO);
+
+		ioEntires.forEach(([key, io]) => {
+			//For controllable IOs don't update any IO that is connected to it (they are up to date from the main thread)
+			if(!io.gateId){
+				const connectedIos = getAllConnectedIO(io, state.currentComponent.binaryIO, state.binaryIO);
+				connectedIos.forEach(id => {
+					diffIOIds.add(id);
+				})
+			}else{
+				if(!checkIoEquality(io, binaryIO[key])){
+					if(!io.from || io.from?.length === 0){
+						noConnectionIo.add(key);
+					}
+					diffIOIds.add(key);
+				}
+			}
+		})
+
+		subIOEntires.forEach(([key, io]) => {
+			if(!io.gateId){
+				const connectedIos = getAllConnectedIO(io, state.currentComponent.binaryIO, state.binaryIO);
+				connectedIos.forEach(id => {
+					diffIOIds.add(id);
+				})
+			}else{
+				if(!checkIoEquality(io, binaryIO[key])){
+					diffIOIds.add(key);
+				}
+				if(!io.from || io.from?.length === 0){
+					noConnectionIo.add(key);
+				}
+			}
+		})
+
+
+		const newBinaryIO = { ...state.currentComponent.binaryIO };
+		Object.entries(state.currentComponent.binaryIO).forEach(([key, io]) => {
+			if(io.name === 'test'){
+				console.log(`Diff IOs has 'test'?: ${diffIOIds.has(key)} test state: ${io.state}   test from: ${io.from}`);
+			}
+			if(noConnectionIo.has(key)){
+				newBinaryIO[key] = {...newBinaryIO[key], state: 0};
+			}
+			if(diffIOIds.has(key)){
+				return;
+			}
+			
+			newBinaryIO[key] = {
+				...newBinaryIO[key], 
+				state: newBinaryIO[key].gateId ? binaryIO[key].state : newBinaryIO[key].state, 
+				highImpedance: newBinaryIO[key].gateId ? binaryIO[key].highImpedance : newBinaryIO[key].highImpedance
+			};
 			delete binaryIO[key];
 	  });
-  
-	  return {
+
+		const newSubIo = {...state.binaryIO};
+
+		Object.entries(state.binaryIO).forEach(([key, io]) => {
+
+		if(diffIOIds.has(key)){
+			return;
+		}
+
+		newSubIo[key] = {
+			...newSubIo[key], 
+			state: newSubIo[key].gateId ? binaryIO[key].state : newSubIo[key].state, 
+			highImpedance: newSubIo[key].gateId ? binaryIO[key].highImpedance : newSubIo[key].highImpedance
+		};
+		})
+	  	return {
 			...state,
 			currentComponent: {
 				gates: newGates,
 				wires: state.currentComponent.wires,
 				binaryIO: newBinaryIO,
 			},
-			gates,
-			binaryIO,
+			gates: newSubGates,
+			binaryIO: newSubIo,
 	  };
 	}
 });

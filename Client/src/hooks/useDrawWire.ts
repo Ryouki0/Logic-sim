@@ -12,9 +12,12 @@ import { RootState } from "../state/store";
 export default function useDrawWire(cameraOffset: {x: number, y:number}) {
 	const dispatch = useDispatch();
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
+	const selectedGate = useSelector((state: RootState) => {return state.mouseEventsSlice.selectedGate});
+	const draggingIo = useSelector((state: RootState) => {return state.mouseEventsSlice.selectedIo});
 	function startDrawing(
 		e: React.MouseEvent<any>,
 	){
+		if(selectedGate || draggingIo) return;
 		const canvasEle = document.getElementById("main-canvas") as HTMLCanvasElement;
 		if (!canvasEle) {
 			return;

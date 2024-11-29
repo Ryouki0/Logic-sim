@@ -123,6 +123,7 @@ export default function useConnecting(){
 			}
 			else {
 				dispatch(setConnections({connections: connections, componentId: currentComponentId}));
+				console.log(`connecting logic updated`);
 			}
 		}
 		

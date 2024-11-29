@@ -9,7 +9,13 @@ interface MouseEvents {
 	hoveringOverWire: Wire | null,
     drawingWire: string | null,
 	draggingGate: string | null,
+	/**
+	 * The blueprint's ID that is being dragged, to be created
+	 */
 	selectedGate: string | null,
+	/**
+	 * The IO that is being dragged, to be created
+	 */
 	selectedIo: {type: 'input' | 'output', startPos: {x: number, y: number}} | null,
 	hoveringOverIo: BinaryIO | null,
 	cameraOffset: {x: number, y: number},
@@ -67,6 +73,9 @@ const mouseEventsSlice = createSlice({
 		setHoveringOverIo: (state, action: PayloadAction<BinaryIO | null>) => {
 			state.hoveringOverIo = action.payload;
 		},
+		/**
+		 * @param {PayloadAction<{dx: number, dy: number}>} action Takes in {dx, dy} and adds it to the current offset 
+		 */
 		setCameraOffset: (state, action:PayloadAction<{dx: number, dy: number}>) => {
 			const dx = action.payload.dx;
 			const dy = action.payload.dy;
@@ -80,7 +89,7 @@ const mouseEventsSlice = createSlice({
 		},
 		setDraggingGate: (state, action: PayloadAction<string | null>) => {
 			state.draggingGate = action.payload;
-		}
+		},
 	},
 });
 
@@ -94,7 +103,7 @@ export const {
 	setCameraOffset,
 	setShowColorPicker,
 	setColorPickerOption,
-	setDraggingGate
+	setDraggingGate,
 } = mouseEventsSlice.actions;
     
 export default mouseEventsSlice.reducer;

@@ -5,6 +5,7 @@ import { setActuals, setError, setIsRunning, setPhase } from '../state/slices/cl
 import { fastUpdateRaw, updateNonAffectingInputs, updateState, updateStateRaw } from '../state/slices/entities';
 
 import { WorkerEvent } from '../workers/logic.worker';
+import { parseHue } from '@uiw/react-color';
 
 
 export default function useRunLogic(){
@@ -25,101 +26,148 @@ export default function useRunLogic(){
 	const timeTookStart = useRef(0);
 	const timeTook = useRef(0);
     
+	/**
+	 * Marks if the worker should be recreated, only `fastUpdate` should make it false
+	 */
 	const shouldUpdateWorker = useRef(true);
 	const calls = useRef(0);
 	const newWorkerData = useRef<WorkerEvent | null>(null);
 	const dispatch = useDispatch();
-
+	const currentPhaseRef = useRef<string>('');
+	const currentPhase = useSelector((state: RootState) => {return state.clock.clockPhase});
 	useEffect(() => {
 		const logicWorker = require('../workers/logic.worker.ts').default;
 		importedWorkerRef.current = logicWorker;
 	}, []);
 
+	/**
+	 * Bug: WHY does the fastUpdate doesn't have the latest data???????????? - The worker can't
+	 * process the onmessage call while it calculates the new state, so it doesn't stop immediately, only after it did it's last `fastUpdate`.
+	 * The `pause` function is async thus allowing other tasks to be executed
+	 */
 	useEffect(() => {
 		calls.current++;
+	
 		if (isRunning && !workerRef.current) {
-			//@ts-ignore
-			workerRef.current = new importedWorkerRef.current();
-            workerRef.current!.onmessage = (event: MessageEvent<WorkerEvent>) => {
-            	function update(){
-            		newWorkerData.current = event.data;
-            		shouldUpdateWorker.current = false;
-            		timeTook.current = Date.now() - timeTookStart.current;
-                    
-            		const newData = newWorkerData.current;
-            		dispatch(updateStateRaw({gates: newData!.gates, binaryIO: newData!.binaryIO}));
-            		actualRefreshRate.current++;
-            		actualHertz.current += newData!.actualHertz;
-                    
-            		if(Date.now() - startTime.current >= 1000){
-            			dispatch(setActuals({actualHertz: actualHertz.current, actualRefreshRate: actualRefreshRate.current}));
-            			startTime.current = Date.now();
-            			actualHertz.current = 0;
-            			calls.current = 0;
-            			actualRefreshRate.current = 0;
-            		}
-            	}
-
-            	function fastUpdate(){
-            		newWorkerData.current = event.data;
-            		shouldUpdateWorker.current = false;
-            		timeTook.current = Date.now() - timeTookStart.current;
-            		const newData = newWorkerData.current;
-            		dispatch(fastUpdateRaw(newData.currentComponentIo!));
-
-            		actualRefreshRate.current++;
-            		actualHertz.current += newData!.actualHertz;
-                    
-            		if(Date.now() - startTime.current >= 1000){
-            			dispatch(setActuals({actualHertz: actualHertz.current, actualRefreshRate: actualRefreshRate.current}));
-            			startTime.current = Date.now();
-            			actualHertz.current = 0;
-            			calls.current = 0;
-            			actualRefreshRate.current = 0;
-            		}
-            	}
-				
-            	if(event.data.error){
-            		dispatch(setError({isError: true, extraInfo: event.data.error}));
-            		dispatch(setIsRunning(false));
-            	}else if(event.data.nonAffectingInputs){
-            		const nonAffectingInputsSet = new Set(event.data.nonAffectingInputs);
-            		shouldUpdateWorker.current = false;
-            		dispatch(updateNonAffectingInputs(nonAffectingInputsSet));
-            	}else if(event.data.currentComponentIo){
-            		fastUpdate();
-            	}else if(event.data.phase === 'started'){
-					dispatch(setPhase(null));
-				}
-            	else if(event.data.binaryIO){
-            		update();
-					dispatch(setPhase(null));
-					workerRef.current = null;
-            	}
-            };
-            timeTookStart.current = Date.now();
-			dispatch(setPhase('starting'));
-            const message = JSON.stringify({
-            	currentComponent: currentComponent,
-            	gates: gates,
-            	io: io,
-            	refreshRate: refreshRate,
-            	hertz: hertz,
-            	startTime: timeTookStart.current
-            });
-            workerRef.current?.postMessage(message);
-           
+			initializeWorker();
+			startWorker();
 		}
-		return () => {
-			if(workerRef.current && shouldUpdateWorker.current) {
-				workerRef.current.postMessage({action:'stop'});
-				dispatch(setPhase('stopping'))
-				if(intervalRef.current){
-					clearInterval(intervalRef.current);
-				}
-			}else if(!shouldUpdateWorker.current){
-				shouldUpdateWorker.current = true;
-			}
-		};
+	
+		return () => cleanupWorker();
 	}, [isRunning, refreshRate, hertz, currentComponent]);
+
+	function initializeWorker() {
+		//@ts-ignore
+		workerRef.current = new importedWorkerRef.current();
+		workerRef.current!.onmessage = handleWorkerMessage;
+		timeTookStart.current = Date.now();
+		dispatch(setPhase('starting'));
+	}
+
+	function startWorker() {
+		const message = JSON.stringify({
+			currentComponent,
+			gates,
+			io,
+			refreshRate,
+			hertz,
+			startTime: timeTookStart.current,
+		});
+		console.log('passing in the new data');
+		workerRef.current?.postMessage(message);
+	}
+
+	function cleanupWorker() {
+		if (workerRef.current && shouldUpdateWorker.current) {
+			
+			workerRef.current.postMessage({ action: 'stop' });
+			dispatch(setPhase('stopping'));
+			currentPhaseRef.current = 'stopping';
+			// console.log('about to be stopped in cleanup');
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+			}
+			
+		} else if (!shouldUpdateWorker.current) {
+			shouldUpdateWorker.current = true;
+		}
+	}
+
+
+	function handleWorkerMessage(event: MessageEvent<WorkerEvent>) {
+		if (event.data.error) {
+			handleWorkerError(event.data.error);
+		} else if (event.data.nonAffectingInputs) {
+			handleNonAffectingInputs(event.data.nonAffectingInputs);
+		} else if (event.data.currentComponentIo) {
+			if(currentPhaseRef.current === 'stopping'){
+				console.log('skipping');
+				return;
+			} 
+			fastUpdate(event);
+		} else if (event.data.phase === 'started') {
+			dispatch(setPhase(null));
+			currentPhaseRef.current = 'started';
+		} else if (event.data.binaryIO) {
+			handleUpdate(event);
+		}
+	}
+
+	function handleWorkerError(error: string) {
+		dispatch(setError({ isError: true, extraInfo: error }));
+		dispatch(setIsRunning(false));
+	}
+
+	function handleNonAffectingInputs(nonAffectingInputs: string[]) {
+		const nonAffectingInputsSet = new Set(nonAffectingInputs);
+		shouldUpdateWorker.current = false;
+		dispatch(updateNonAffectingInputs(nonAffectingInputsSet));
+	}
+
+	function handleUpdate(event: MessageEvent<WorkerEvent>) {
+		fullUpdate(event);
+		dispatch(setPhase(null));
+		workerRef.current = null;
+		// console.log('update should be done');
+	}
+
+	function fastUpdate(event: MessageEvent<WorkerEvent>) {
+		newWorkerData.current = event.data;
+		shouldUpdateWorker.current = false;
+		timeTook.current = Date.now() - timeTookStart.current;
+	
+		const newData = newWorkerData.current;
+		dispatch(fastUpdateRaw(newData.currentComponentIo!));
+		trackPerformance(newData!.actualHertz);
+	}
+
+	function fullUpdate(event: MessageEvent<WorkerEvent>) {
+		newWorkerData.current = event.data;
+		shouldUpdateWorker.current = true;
+		timeTook.current = Date.now() - timeTookStart.current;
+	
+		const newData = newWorkerData.current;
+		dispatch(updateStateRaw({ gates: newData!.gates, binaryIO: newData!.binaryIO }));
+		trackPerformance(newData!.actualHertz);
+	}
+
+	function trackPerformance(hertz: number) {
+		actualRefreshRate.current++;
+		actualHertz.current += hertz;
+	
+		if (Date.now() - startTime.current >= 1000) {
+			dispatch(setActuals({ actualHertz: actualHertz.current, actualRefreshRate: actualRefreshRate.current }));
+			startTime.current = Date.now();
+			actualHertz.current = 0;
+			calls.current = 0;
+			actualRefreshRate.current = 0;
+		}
+	}
+
+	
+
+
+	
+	
+	
 }
