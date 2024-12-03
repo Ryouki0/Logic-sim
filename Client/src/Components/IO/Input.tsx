@@ -1,15 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { BinaryIO } from "../../Interfaces/BinaryIO";
-import { DEFAULT_NON_AFFECTING_COLOR, DEFAULT_WIRE_COLOR, RED_ORANGE } from "../../Constants/colors";
-import { adjustBrightness } from "../../utils/adjustBrightness";
-import Square from "./Square";
 import getIOPathColor from "../../utils/getIOPathColor";
 import getIOBGColor from "../../utils/getIOBGColor";
-import compareStringLists from "../../utils/compareStringLists";
+import { RootOptions } from "react-dom/client";
+import { createSelector } from "@reduxjs/toolkit";
+import { State } from "pixi.js";
 
 interface InputProps{
 	binaryInput: BinaryIO,
@@ -34,14 +33,50 @@ export const ioEquality = (prev: BinaryIO, next:BinaryIO) => {
 	if(prev?.position?.x !== next?.position?.x || prev?.position?.y !== next?.position?.y){
 		return false;
 	}
+	if(prev?.wireColor !== next?.wireColor) return false;
 	return true;
 };
+
+export const checkSourceEquality = (prev: BinaryIO[] | undefined, next: BinaryIO[] | undefined) => {
+	if(prev?.length !== next?.length) return false;
+	let areTrueSourcesEqual = false;
+	prev?.forEach((io, idx) => {
+		if(io && !io.highImpedance){
+			if(next?.[idx] && !next?.[idx].highImpedance){
+				areTrueSourcesEqual = true;
+			}
+		}
+	})
+	return areTrueSourcesEqual;
+}
 
 export const Input = React.memo(function Input({binaryInput} : InputProps){
 	const eleRef = useRef<HTMLDivElement>(null);
 	const thisInput = useSelector((state: RootState) => {
 		return state.entities.binaryIO[binaryInput.id] ?? state.entities.currentComponent.binaryIO[binaryInput.id];
 	}, ioEquality);
+	/**
+	 * Only gives back the I/Os that are in the current component
+	 */
+	const createThisInputSourceSelector = (binaryInputId: string) =>
+		createSelector(
+		  [
+			(state: RootState) =>
+			  state.entities.currentComponent.binaryIO[binaryInputId] ??
+			  state.entities.binaryIO[binaryInputId],
+			(state: RootState) => state.entities.currentComponent.binaryIO,
+		  ],
+		  (thisInput, io) => {
+			return thisInput?.from?.map((from) => io[from.id]) ?? undefined;
+		  }
+		);
+
+	const thisInputSourceSelector = useMemo(() => createThisInputSourceSelector(binaryInput.id), [binaryInput.id]);
+	const thisInputSource = useSelector(thisInputSourceSelector, checkSourceEquality);
+
+	// const thisInputFrom = useSelector((state: RootState) => {
+	// 	return thisInput?.from?.map(from => {return state.entities.currentComponent.binaryIO[from.id]});
+	// }, checkSourceEquality)
 	const isGlobal = thisInput?.parent === 'global' && !thisInput?.gateId;
 	const handleMouseDown = (e:MouseEvent) => {
 		e.preventDefault();
@@ -83,7 +118,7 @@ export const Input = React.memo(function Input({binaryInput} : InputProps){
 					background={true}
 					styles={buildStyles({
 						backgroundColor: getIOBGColor(thisInput),
-						pathColor:  getIOPathColor(thisInput),
+						pathColor:  getIOPathColor(thisInput, thisInputSource),
 					})}
 					strokeWidth={16}
 				></CircularProgressbar>

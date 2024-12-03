@@ -6,6 +6,24 @@ import { fastUpdateRaw, updateNonAffectingInputs, updateState, updateStateRaw } 
 
 import { WorkerEvent } from '../workers/logic.worker';
 import { parseHue } from '@uiw/react-color';
+import { Gate, Wire } from '@Shared/interfaces';
+import { BinaryIO } from '../Interfaces/BinaryIO';
+
+export function checkCurrentComponent(
+	prev: {wires: {[key: string]: Wire}, binaryIO: {[key: string]: BinaryIO}, gates: {[key: string]: Gate}},
+	next: {wires: {[key: string]: Wire}, binaryIO: {[key: string]: BinaryIO}, gates: {[key: string]: Gate}}
+) {
+	const prevIOEntries = Object.entries(prev.binaryIO);
+	const nextIOKeys = Object.keys(next.binaryIO);
+	if(prevIOEntries?.length !== nextIOKeys?.length) return false;
+	for(const [key, io] of prevIOEntries){
+		if(io.state !== next.binaryIO[key].state) return false;
+		if(io.position?.x !== next.binaryIO[key].position?.x || io.position?.y !== next.binaryIO[key].position?.y) return false;
+		if(io.from?.length !== next.binaryIO[key].from?.length) return false;
+		if(io.to?.length !== next.binaryIO[key].to?.length) return false;
+	}
+	return true;
+}
 
 
 export default function useRunLogic(){
@@ -62,6 +80,7 @@ export default function useRunLogic(){
 		workerRef.current!.onmessage = handleWorkerMessage;
 		timeTookStart.current = Date.now();
 		dispatch(setPhase('starting'));
+		currentPhaseRef.current = 'starting';
 	}
 
 	function startWorker() {
@@ -79,10 +98,19 @@ export default function useRunLogic(){
 
 	function cleanupWorker() {
 		if (workerRef.current && shouldUpdateWorker.current) {
+			/**
+			 * If there are fast consecutive changes, then don't wait for the worker to update
+			 */
+			if(currentPhaseRef.current === 'starting'){
+				workerRef.current.terminate();
+				workerRef.current = null;
+				currentPhaseRef.current = '';
+			}else{
+				workerRef.current.postMessage({ action: 'stop' });
+				dispatch(setPhase('stopping'));
+				currentPhaseRef.current = 'stopping';
+			}
 			
-			workerRef.current.postMessage({ action: 'stop' });
-			dispatch(setPhase('stopping'));
-			currentPhaseRef.current = 'stopping';
 			// console.log('about to be stopped in cleanup');
 			if (intervalRef.current) {
 				clearInterval(intervalRef.current);

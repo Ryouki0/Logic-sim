@@ -236,3 +236,20 @@ svg:not(:root){
   outline: none;
   border-color: rgb(100, 200, 100);
 }
+
+
+.createButton {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: white;
+  background-color: 'rgb(40, 40, 40)';
+  border: 2px solid rgb(80, 80, 80);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: none;
+}
+
+.createButton:hover {
+  box-shadow: 0 0 10px 2px white;
+}

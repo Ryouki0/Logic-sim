@@ -13,7 +13,7 @@ export interface Clock{
 }
 
 const initialState: Clock = {
-	hertz: 100, 
+	hertz: 30, 
 	refreshRate: 30,
 	isRunning: false,
 	actualHertz: 0,

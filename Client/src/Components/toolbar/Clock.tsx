@@ -34,7 +34,7 @@ export default function Clock() {
 	const actualEntities = useSelector((state: RootState) => {return state.entities;});
 	const dispatch = useDispatch();
 	// const entities = useSelector((state: RootState) => state.entities);
-	const [value, setValue] = useState('100');
+	const [value, setValue] = useState(`${hertz}`);
 	const running = useSelector((state: RootState) => {return state.clock.isRunning;});
 	const clockPhase = useSelector((state: RootState) => {return state.clock.clockPhase});
 
@@ -44,7 +44,7 @@ export default function Clock() {
 		setValue(e.target.value);
 	};
 
-	const handleRunChange = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+	const handleRunChange = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		dispatch(setIsRunning(!running));
 	};
 
@@ -95,31 +95,62 @@ export default function Clock() {
 			marginBottom: 15,
 			fontWeight: 'bold',
 		}}>Clock</span>
-		<div style={{ display: 'flex', alignItems: 'center' }}>
-    	<span style={textStlye}>
-			Hz:
-			</span>
+		<div style={{ 
+			display: 'flex', 
+			alignItems: 'center',
+			height: 30,
+		 }}>
+    	<label style={{color: 'white', marginLeft: 5, fontWeight: 600}}>
+		Hz:
+			</label>
 			<input 
 				type="number" 
 				value={value}
-				className='input-box'
+				className='simple-input'
 				onChange={handleHertzChange} 
 				style={{ 
 					marginLeft: '8px',
-					height: 26,
+					height: '100%',
 					fontSize: 18,
-					width: 100
+					width: '30%'
 				}}
 			/>
-	  <button style={{
-				fontSize: 18,
-				height: 26
+	  <div className='clickable-div' 
+	  style={{
+		fontSize: 18,
+		backgroundColor: 'rgb(40 40 40)',
+		borderColor: 'rgb(80 80 80)',
+		display: 'flex',
+		alignItems: 'center',
+		padding: 5,
+		paddingLeft: 10,
+		height: '100%',
+		paddingRight: 10,
+		justifyContent: 'center',
+		borderStyle: 'solid',
+		borderRadius: 5,
+		borderWidth: 1,
 	  }}
 	  onClick={handleRunChange}>
-	  {!clockPhase ? (running ? 'Stop' : 'Run') : `${clockPhase}...`}</button>
-	  <button style={{
+	  	<span style={{color: 'white', width: '100%', display: 'inline-block'}}>
+		  {!clockPhase ? (running ? 'Stop' : 'Run') : `${clockPhase}...`}
+			</span>
+	  </div>
+	  <div className='clickable-div'
+	   style={{
 				fontSize: 18,
-				height: 26,
+				backgroundColor: 'rgb(40 40 40)',
+				borderColor: 'rgb(80 80 80)',
+				display: 'flex',
+				alignItems: 'center',
+				padding: 5,
+				paddingLeft: 10,
+				height: '100%',
+				paddingRight: 10,
+				justifyContent: 'center',
+				borderStyle: 'solid',
+				borderRadius: 5,
+				borderWidth: 1,
 			}} onClick={e => {
 				try{
 					const copiedGates = JSON.parse(JSON.stringify(gates));
@@ -145,7 +176,7 @@ export default function Clock() {
 				}
 				
 			}
-			}>Tick</button>
+			}><span style={{color: 'white', width: '100%', display: 'inline-block'}}>Tick</span></div>
 		</div>
 		<div style={{
 			display: 'flex',
@@ -153,7 +184,7 @@ export default function Clock() {
 		}}>
 			<span style={textStlye}>Actual hz: {actualHertz.toLocaleString('de-DE')}</span>
 			<span style={textStlye}>Actual refresh rate: {actualRefreshRate}</span>
-			{user === 'Superuser' && <button onClick={e => {
+			{/* {user === 'Superuser' && <button onClick={e => {
 				const {user, ...miscBase} = misc;
 				fetch(`http://localhost:3002/api/cpu`, {
 					method: 'PUT',
@@ -174,7 +205,7 @@ export default function Clock() {
 			{<div>
 				<button style={{width: 200, height: 50}} onClick={handleDownload}>Download</button>
 			</div>}
-			<button onClick={handleLoad}>fetch json</button>
+			<button onClick={handleLoad}>fetch json</button> */}
 		</div>
 		 <div style={{ display: 'flex', alignItems: 'center' }}>
       

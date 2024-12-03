@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
-import { ioEquality } from "./Input";
+import { checkSourceEquality, ioEquality } from "./Input";
 import { DEFAULT_GATE_COLOR } from "../../Constants/colors";
 import { CANVAS_OFFSET_LEFT, CANVASTOP_HEIGHT, getClosestBlock } from "../../Constants/defaultDimensions";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
@@ -20,6 +20,9 @@ export default function CustomIO({id, showButton}:{id:string, showButton: boolea
 	const thisIO = useSelector((state: RootState) => {
 		return state.entities.binaryIO[id] ?? state.entities.currentComponent.binaryIO[id];
 	}, ioEquality);
+	const thisIOFrom = useSelector((state: RootState) => {
+		return thisIO?.from?.map(from => state.entities.currentComponent.binaryIO[from.id]);
+	}, checkSourceEquality)
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
     
@@ -171,7 +174,7 @@ export default function CustomIO({id, showButton}:{id:string, showButton: boolea
                     
 					buildStyles({
 						backgroundColor: getIOBGColor(thisIO),
-						pathColor: getIOPathColor(thisIO),
+						pathColor: getIOPathColor(thisIO, thisIOFrom),
 					})}
                 
 				strokeWidth={16}

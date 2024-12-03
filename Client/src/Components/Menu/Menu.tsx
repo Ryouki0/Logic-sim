@@ -24,6 +24,7 @@ export default function Menu(){
 		navigate('/Simulation');
 	};
 	const backendUrl = process.env.REACT_APP_BACKEND_URL;
+	console.log(`backend url: ${backendUrl}`);
 	const handleLogout = () => {
 		setLoading(true);
 		fetch(`${backendUrl}/api/logout`, {

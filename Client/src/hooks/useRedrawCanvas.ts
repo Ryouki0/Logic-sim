@@ -154,7 +154,7 @@ export default function useRedrawCanvas(){
 		animationFrame.current = requestAnimationFrame(draw);
 
 		return () => {
-			//cancelAnimationFrame(animationFrame.current);
+			cancelAnimationFrame(animationFrame.current);
 		}
 	}, [hoveringOverWire, areWireSourcesEqual, areWirePositionsEqual, cameraOffset, wires, binaryIO, canvasHeight, canvasWidth]);
 

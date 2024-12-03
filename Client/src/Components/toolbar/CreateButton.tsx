@@ -98,8 +98,8 @@ export default function CreateButton(){
 			display:'flex',
 			alignItems: 'center'
 		}}>
-			<label style={{...textStlye, marginLeft: 10, marginTop: 0}}>
-				Component name: 
+			<label style={{...textStlye, marginLeft: 10, marginTop: 0, fontWeight: 600}}>
+				Name: 
 			</label>
 			<input 
 				className='simple-input'				
@@ -112,7 +112,7 @@ export default function CreateButton(){
 		}}>
 			<label 
 				htmlFor="description" 
-				style={{...textStlye, marginLeft: 10, marginTop: 0}}
+				style={{...textStlye, marginLeft: 10, marginTop: 0, fontWeight: 600}}
 			>
         			Description:
 			</label>
@@ -134,46 +134,29 @@ export default function CreateButton(){
 		</div>
 		<span style={{...textStlye, marginLeft: 10, marginBottom: 20}}>Total complexity: {totalComplexity}</span>
 
-
-		<div style={{
-			minWidth: '30%',
-			maxWidth: '70%',
-			justifyContent: 'center',
-			marginLeft: 10,
-			backgroundColor: '#28A745',
-			opacity: currentComponentId !== 'global' ? 0.5 : 1,
-			height: 60,
-			position: 'relative',
-			boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-			borderRadius: 20,
-			left: '50%',
-    		transform: 'translate(-50%)',
-			cursor: currentComponentId !== 'global' ? 'not-allowed': 'pointer',
+		<div  style={{
+			width: '100%',
 			display: 'flex',
-			transition: 'all 0.3s ease'
-		}}
-		onClick={handleCreateComponent}
-		onMouseEnter={e=>{
-			if(currentComponentId !== 'global') return;
-			e.currentTarget.style.backgroundColor = '#218838';
-			e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.3)';
-		}}
-		onMouseLeave={e => {
-			if(currentComponentId !== 'global') return;
-			e.currentTarget.style.backgroundColor = '#28A745';
-       		e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+    		justifyContent: 'center',
+    		alignItems: 'center', 
 		}}>
-			<span style={{
-				fontSize: 20,
-				marginTop: -8,
-				color: 'white',
-				fontWeight: 500,
-				justifySelf: 'center',
-				alignSelf: 'center',
-				userSelect: 'none',
-				top: '50%',
-			}}>➕ Create component</span>
+			<div className='createButton'
+			style={{
+			backgroundColor: 'rgb(40 40 40)',
+				borderRadius: 30,
+			}}
+				onClick={handleCreateComponent}>
+				<span style={{
+					fontSize: 20,
+					marginTop: -8,
+					color: 'white',
+					fontWeight: 500,
+					userSelect: 'none',
+					top: '50%',
+				}}>➕ Create component</span>
+			</div>
 		</div>
+		
 		<div style={{width: '100%', height: DEFAULT_BORDER_WIDTH, backgroundColor: DEFAULT_BORDER_COLOR, marginTop: 10}}></div>
 		
 	</div>;

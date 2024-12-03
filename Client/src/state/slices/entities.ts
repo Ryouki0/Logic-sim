@@ -1144,11 +1144,12 @@ export const {fastUpdateRaw} = addRawReducers(entities, {
 	 */
 	fastUpdateRaw: (state: entities, action: AnyAction): entities => {
 		const newCurrentComponentIo:BinaryIO[] = action.payload;
-		newCurrentComponentIo.forEach(io => {
-			if(io.name === 'test'){
-				console.log(`FAST UPDATE: setting test to: ${io.state}`);
-			}
-		})
+		// newCurrentComponentIo.forEach(io => {
+		// 	if(io.name === 'test'){
+		// 		console.log(`FAST UPDATE: setting test to: ${io.state}`);
+		// 	}
+		// })
+		
 		return {
 			...state,
 			currentComponent: {
