@@ -16,11 +16,10 @@ interface BinaryOutputProps {
 }
 
 
-export const Output = React.memo(function Output({output, style=null}: BinaryOutputProps){
-	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
+export const Output = React.memo(function Output({id}:{id: string}){
 
 	const thisOutput = useSelector((state:RootState) => {
-		return state.entities.binaryIO[output?.id] ?? state.entities.currentComponent.binaryIO[output?.id];}, ioEquality);
+		return state.entities.binaryIO[id] ?? state.entities.currentComponent.binaryIO[id] ?? state.entities.bluePrints.io[id];}, ioEquality);
 	const handleMouseDown = (e: React.MouseEvent<any>) => {
 		e.preventDefault();
 		console.log(`\n\nthisOutput state: ${thisOutput?.state}`);
@@ -38,29 +37,29 @@ export const Output = React.memo(function Output({output, style=null}: BinaryOut
 	};
 	
 
-	return (
-		<>
-			<div style={{...style,
-				width: ioRadius,
-				height: ioRadius,
-				cursor: 'arrow',
-			}}
-			onMouseDown={handleMouseDown}>
-				<CircularProgressbar
-					value={100}
-					background={true}
-					styles={buildStyles({
-						backgroundColor: getIOBGColor(thisOutput),
-						pathColor: getIOPathColor(thisOutput),
-					})}
-					strokeWidth={16}
-				></CircularProgressbar>
-			</div>
-		</>
-	);
-}, (prevOutput: BinaryOutputProps, nextOutput: BinaryOutputProps) => {
-	if(prevOutput?.output.id !== nextOutput?.output.id) return false;
-	if(prevOutput?.style?.top !== nextOutput?.style?.top) return false;
+	return <div style={{
+		width: `var(--io-radius)`,
+		height: `var(--io-radius)`,
+		cursor: 'arrow',
+		position: 'absolute',
+		transform: `translate(calc(${thisOutput?.position?.x ?? 0}px - var(--io-radius) / 2), calc(${thisOutput?.position?.y ?? 0}px - var(--io-radius) / 2))`,
+	}}
+	onMouseDown={handleMouseDown}>
+		<CircularProgressbar
+			value={100}
+			background={true}
+			styles={buildStyles({
+				backgroundColor: getIOBGColor(thisOutput),
+				pathColor: getIOPathColor(thisOutput),
+			})}
+			strokeWidth={16}
+		></CircularProgressbar>
+	</div>;
+}, (prev: {id: string}, next: {id: string}) => {
+	// if(prevOutput?.output.id !== nextOutput?.output.id) return false;
+	// if(prevOutput?.style?.top !== nextOutput?.style?.top) return false;
+	// return true;
+	if(prev.id !== next.id) return false;
 	return true;
 });
     

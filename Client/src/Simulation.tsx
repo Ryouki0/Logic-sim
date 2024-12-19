@@ -25,6 +25,12 @@ import '../node_modules/react-circular-progressbar/dist/styles.css';
 import DisplayCameraOffset from "./Components/Canvas/DisplayCameraOffset";
 import ColorPicker from "./Components/toolbar/ColorPicker/ColorPicker";
 import PixiCanvas from "./Components/Canvas/PixiCanvas";
+import SpinningCircle from "./Components/SpinningCircle";
+import Tabs from "./Components/toolbar/Tabs";
+import ControlPanel from "./Components/ControlPanel";
+import CurrentInputs from "./Components/IO/CurrentInputs";
+import AddCSSVariables from "./Components/AddCSSVariables";
+import AllIOParent from "./Components/IO/AllIOParent";
 function Simulation() {
 	const dispatch = useDispatch();
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
@@ -47,8 +53,6 @@ function Simulation() {
 				width: '100vw',
 				height: '100vh',
 			}}>
-			<GlobalInput></GlobalInput>
-			<GlobalOutput></GlobalOutput>
 			<Zoom></Zoom>
 			<GlobalInputs></GlobalInputs>
 			<DisplayAllGates></DisplayAllGates>
@@ -62,11 +66,16 @@ function Simulation() {
 			<HoveringOverIO></HoveringOverIO>
 			<DrawWireFromIo></DrawWireFromIo>
 			<GlobalOutputs></GlobalOutputs>
-			<Toolbar></Toolbar>
 			<BackToMenu></BackToMenu>
 			<SelectedIo></SelectedIo>
 			<DisplayCameraOffset></DisplayCameraOffset>
 			<ColorPicker></ColorPicker>
+			<SpinningCircle></SpinningCircle>
+			<ControlPanel></ControlPanel>
+			<CurrentInputs></CurrentInputs>
+			<GlobalInput></GlobalInput>
+			<GlobalOutput></GlobalOutput>
+
 		</div>
 	);
 }

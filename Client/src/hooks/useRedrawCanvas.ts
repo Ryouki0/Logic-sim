@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { drawLine } from '../drawingFunctions/drawLine';
@@ -41,16 +41,31 @@ export const checkWireSourceEquality = (prev:{[key: string]: BinaryIO[]|undefine
 	return true;
 };
 
+const checkWireEqualityExtended = (prev: {[key: string]: Wire} | null, next: {[key: string]: Wire} | null) => {
+	const hasPositionsChanged = checkWireEquality(prev, next);
+	// console.log(`hasPositions changed: ${hasPositionsChanged} prev === next: ${prev === next}`);
+	if(!prev || !next){
+		return true;
+	}
+	if(!hasPositionsChanged){
+		return false;
+	}else{
+		for(const [key, wire] of Object.entries(prev)){
+			if(wire.from?.length !== next[key].from?.length) return false;
+			if(wire.targets?.length !== next[key]?.targets?.length) return false;
+		}
+		return true;
+	}
+};
+
 export default function useRedrawCanvas(){
 
 	const wires = useSelector((state: RootState) => state.entities.currentComponent.wires);
-	const prevWires = useRef<{[key: string]: Wire} | null>(null);
+	const prevWires = useRef<{wires: {[key: string]: Wire} | null, count: number}>({wires: null, count: 0});
 	const currentWires = useRef<{[key: string]: Wire} | null>(null);
-	const areWirePositionsEqual = useMemo(() => {
-		return checkWireEquality(prevWires.current, wires);
-	}, [wires])
+	
 
-	const binaryIO = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO});
+	const binaryIO = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO;});
 	const currentBinaryIO = useRef<{[key: string]: BinaryIO} | null>(null);
 	const prevBinaryIO = useRef<{[key: string]: BinaryIO} | null>(null);
 
@@ -62,24 +77,24 @@ export default function useRedrawCanvas(){
 	const wireSources = useMemo(() => {
 		const sourceMap: { [key: string]: BinaryIO[] | undefined } = {};
 		  	for(const [key, wire] of Object.entries(wires)) {
-				const source = wire.from?.map(from => binaryIO[from.id!]);
-				sourceMap[key] = source;
+			const source = wire.from?.map(from => binaryIO[from.id!]);
+			sourceMap[key] = source;
 		}
 		return sourceMap;
-	}, [wires, binaryIO])
+	}, [wires, binaryIO]);
 	
 	const prevWireSources = useRef<{[key: string]: BinaryIO[] | undefined} | null>(null);
 	const currentWireSources = useRef<{[key: string]: BinaryIO[] | undefined} | null>(null);
 	const areWireSourcesEqual = useMemo(() => {
 		const isEqual = checkWireSourceEquality(prevWireSources.current, wireSources);
 		return isEqual;
-	}, [wireSources])
+	}, [wireSources]);
 
 	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth;});
 	const canvasHeight = useSelector((state: RootState) => {return state.misc.canvasHeight;});
 	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
 	const animationFrame = useRef<number>(0);
-
+	const [areWirePositionsEqual, setAreWirePositionsEqual] = useState<boolean>(false);
 	useEffect(() => {
 		prevWireSources.current = currentWireSources.current;
 		currentWireSources.current = wireSources;
@@ -87,14 +102,21 @@ export default function useRedrawCanvas(){
 		prevBinaryIO.current = currentBinaryIO.current;
 		currentBinaryIO.current = binaryIO;
 
-		prevWires.current = currentWires.current;
+		prevWires.current!.wires = currentWires.current;
+		prevWires.current.count++;
 		currentWires.current = wires;
-	}, [hoveringOverWire, areWireSourcesEqual, areWirePositionsEqual, cameraOffset, wires, binaryIO,canvasHeight, canvasWidth])
+		// console.log(`\n\nchanged prevWires equal? ${areWiresEqual} count: ${prevWires.current.count}`);
+	}, [hoveringOverWire, cameraOffset, wires, binaryIO,canvasHeight, canvasWidth]);
+
+	useEffect(() => {
+		const areWiresEqual = checkWireEqualityExtended(prevWires.current.wires, wires);
+		// console.log(`MEMO wires changed, areWiresEqual: ${areWiresEqual} count: ${prevWires.current.count}`);
+		setAreWirePositionsEqual(areWiresEqual);
+	}, [wires]);
 
 	function draw(){
 		const canvasEle = canvasRef.current;
 		if (!canvasRef.current || !canvasEle) return;
-		
 		const context = canvasEle.getContext('2d');
 		if (!context) return;
 		context.clearRect(0, 0, canvasEle.width, canvasEle.height);
@@ -138,25 +160,31 @@ export default function useRedrawCanvas(){
 		});
 	}
 
+
 	useEffect(() => {
+		//Multiple state changes can be triggered by the same cause, so reverse the logic
+		let shouldRedraw = false;
 		/**
-		 * If the wires have changed, but the positions of the wires haven't, then don't redraw
+		 * If the wires have changed, and the positions of the wires are different then redraw
 		 */
-		if(wires !== prevWires.current && areWirePositionsEqual){
-			return;
+		if(!(wires !== prevWires.current.wires && areWirePositionsEqual)){
+			shouldRedraw = true;			
 		} 
 		/**
-		 * If the binaryIO have changed, but the sources haven't, then don't redraw
+		 * If the binaryIO have changed, and the wires' sources changed then redraw
 		 */
-		if(prevBinaryIO.current !== binaryIO && areWireSourcesEqual){
-			return;
+		if(!(prevBinaryIO.current !== binaryIO && areWireSourcesEqual)){
+			shouldRedraw = true;
 		}
-		animationFrame.current = requestAnimationFrame(draw);
+
+		if(shouldRedraw){
+			animationFrame.current = requestAnimationFrame(draw);
+		}
 
 		return () => {
 			cancelAnimationFrame(animationFrame.current);
-		}
-	}, [hoveringOverWire, areWireSourcesEqual, areWirePositionsEqual, cameraOffset, wires, binaryIO, canvasHeight, canvasWidth]);
+		};
+	}, [hoveringOverWire, cameraOffset, wires, binaryIO, canvasHeight, canvasWidth, areWirePositionsEqual]);
 
 	useEffect(() => {
 		if(!canvasRef.current) return;

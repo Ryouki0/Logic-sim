@@ -18,16 +18,17 @@ export default function DrawWireFromIo(){
 			for(const [key, io] of ioEntries){
 				if(isOnIo(e.x, e.y, io, cameraOffset, ioRadius)){
 					e.preventDefault();
+					e.stopPropagation();
 					startDrawing(e as unknown as React.MouseEvent<any>);
 					return;
 				}
 			}
 		};
 		const ioEntries = Object.entries(io);
-		document.addEventListener('mousedown', handleMouseDown);
+		document.addEventListener('mousedown', handleMouseDown, {capture: true});
 
 		return () => {
-			document.removeEventListener('mousedown', handleMouseDown);
+			document.removeEventListener('mousedown', handleMouseDown, {capture: true});
 		};
 	}, [startDrawing, io, currentComponentId, cameraOffset]);
 

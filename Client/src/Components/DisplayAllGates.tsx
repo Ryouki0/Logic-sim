@@ -102,20 +102,21 @@ export default function DisplayAllGates(){
 	const isDisabled = currentComponentId !== 'global';
 	return (
 		<>
-			<div style={{
-				display:'flex', 
-				top: canvasHeight,
-				width: canvasWidth,
-				position: 'absolute',
-				height: 2*MINIMAL_BLOCKSIZE,
-				zIndex: 1,
-				backgroundColor: DEFAULT_BACKGROUND_COLOR,
-				borderColor: 'rgb(60 60 60)',
-				borderWidth: DEFAULT_BORDER_WIDTH,
-				borderStyle: 'solid',
-				alignContent: 'center',
-				left: 0,
-			}}>
+			<div className="displayAllGates" 
+				style={{
+					display:'flex', 
+					top: canvasHeight,
+					width: canvasWidth,
+					position: 'absolute',
+					height: 2*MINIMAL_BLOCKSIZE,
+					zIndex: 1,
+					backgroundColor: DEFAULT_BACKGROUND_COLOR,
+					borderColor: 'rgb(60 60 60)',
+					borderWidth: DEFAULT_BORDER_WIDTH,
+					borderStyle: 'solid',
+					alignContent: 'center',
+					left: 0,
+				} as React.CSSProperties}>
 				<div ref = {scrollRef}
 					style={{
 						display: 'flex',
@@ -194,7 +195,7 @@ export default function DisplayAllGates(){
 								alignItems: 'center',
 								cursor: isDisabled ? 'not-allowed' : 'pointer',
 								width: 3*MINIMAL_BLOCKSIZE,
-							}} key={key}>
+							} as React.CSSProperties} key={key}>
 							<span style={{
 								color: 'white',
 								fontSize: 18,

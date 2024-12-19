@@ -23,7 +23,9 @@ export default function Zoom(){
 
 		if(isWheelEvent.current){
 			isWheelEvent.current = false;
+			console.time('re');
 			dispatch(recalculatePositions({blockSize: blockSize, prevSize: prevBlockSize, currentComponentId: currentComponentId, ioRadius: ioRadius}));
+			console.timeEnd('re');
 			if(currentComponentId === 'global'){
 				dispatch(changeGlobalBlockSize(blockSize));
 			}else{

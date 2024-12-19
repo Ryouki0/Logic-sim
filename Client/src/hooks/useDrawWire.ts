@@ -12,8 +12,8 @@ import { RootState } from "../state/store";
 export default function useDrawWire(cameraOffset: {x: number, y:number}) {
 	const dispatch = useDispatch();
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
-	const selectedGate = useSelector((state: RootState) => {return state.mouseEventsSlice.selectedGate});
-	const draggingIo = useSelector((state: RootState) => {return state.mouseEventsSlice.selectedIo});
+	const selectedGate = useSelector((state: RootState) => {return state.mouseEventsSlice.selectedGate;});
+	const draggingIo = useSelector((state: RootState) => {return state.mouseEventsSlice.selectedIo;});
 	function startDrawing(
 		e: React.MouseEvent<any>,
 	){
@@ -101,7 +101,6 @@ export default function useDrawWire(cameraOffset: {x: number, y:number}) {
 			x = x - cameraOffset.x;
 			y = y - cameraOffset.y;
 			const {roundedX, roundedY} = getClosestBlock(x,y, blockSize);
-      
 			if(lastPosition.x !== roundedX || lastPosition.y !== roundedY){
 				line.endX = roundedX;
 				line.endY = roundedY;

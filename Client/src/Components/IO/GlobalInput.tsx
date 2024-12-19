@@ -5,11 +5,13 @@ import { checkIo } from "../Canvas/CanvasLeftSide";
 import { Input } from "./Input";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import { DEFAULT_GATE_COLOR } from "../../Constants/colors";
-import CustomInput from "./CustomIO";
+import {CustomIO} from "./CustomIO";
+import { stat } from "fs";
 
 export default function GlobalInput(){
-	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
+	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
+	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
 	const inputs = useSelector((state: RootState) => {
 		return Object.entries(state.entities.currentComponent.binaryIO).map(([key, io]) => 
 		{
@@ -21,9 +23,17 @@ export default function GlobalInput(){
 		})
 			.filter((io): io is NonNullable<typeof io> => io !== null);
 	}, checkIo);
-	return <>
+	return <div style={{
+		'--io-radius': `${ioRadius}px`,
+		width: '100%',
+		height: '100%',
+		pointerEvents: 'none',
+		position: 'absolute',
+		willChange: 'transform',
+		transform: `translate(${cameraOffset.x}px, ${cameraOffset.y}px)`,
+	} as React.CSSProperties}>
 		{inputs.map((input, idx) => {
-			return <CustomInput id={input.id} key={input.id} showButton={currentComponentId === 'global' ? true : false}></CustomInput>;
+			return <CustomIO id={input.id} key={input.id} showButton={currentComponentId === 'global' ? true : false}></CustomIO>;
 		})}
-	</>;
+	</div>;
 }

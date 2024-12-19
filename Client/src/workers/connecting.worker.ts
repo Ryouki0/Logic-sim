@@ -16,52 +16,52 @@ onmessage = function(event: MessageEvent<{
 }>
 
 ){
-    const wires = event.data.wires as {[key: string]: Wire};
-    const lineWidth = event.data.lineWidth;
-    const io = event.data.io;
-    const cameraOffset = event.data.cameraOffset;
-    const ioRadius = event.data.ioRadius;
-    const currentComponentId = event.data.currentComponentId;
-    const wireEntries = Object.entries(wires);
-    const allWireTrees: string[][] = [];
+	const wires = event.data.wires as {[key: string]: Wire};
+	const lineWidth = event.data.lineWidth;
+	const io = event.data.io;
+	const cameraOffset = event.data.cameraOffset;
+	const ioRadius = event.data.ioRadius;
+	const currentComponentId = event.data.currentComponentId;
+	const wireEntries = Object.entries(wires);
+	const allWireTrees: string[][] = [];
 
-    if(event.data.action === 'check'){
-        for(const [key, wire] of wireEntries){
-            let wireInTree = false;
-            allWireTrees.forEach(tree => {
-                if(tree.includes(key)){
-                    wireInTree = true;
-                }
-            });
-            if(wireInTree){
-                continue;
-            }
-            allWireTrees.push(buildWireTree(key, wires, lineWidth!));
-        }
+	if(event.data.action === 'check'){
+		for(const [key, wire] of wireEntries){
+			let wireInTree = false;
+			allWireTrees.forEach(tree => {
+				if(tree.includes(key)){
+					wireInTree = true;
+				}
+			});
+			if(wireInTree){
+				continue;
+			}
+			allWireTrees.push(buildWireTree(key, wires, lineWidth!));
+		}
     
-        const connections: {wireTree: string[], outputs: string[], sourceIds: string[]|null}[] = [];
-        try{
-            allWireTrees.forEach(tree => {
-                const {outputs, sourceIds, error} = getConnections(tree, wires, io!, cameraOffset!, ioRadius!, currentComponentId!);
-                if(error){
-                    return;
-                }
-                connections.push({wireTree: tree, outputs: outputs, sourceIds: sourceIds});
-            });
+		const connections: {wireTree: string[], outputs: string[], sourceIds: string[]|null}[] = [];
+		try{
+			allWireTrees.forEach(tree => {
+				const {outputs, sourceIds, error} = getConnections(tree, wires, io!, cameraOffset!, ioRadius!, currentComponentId!);
+				if(error){
+					return;
+				}
+				connections.push({wireTree: tree, outputs: outputs, sourceIds: sourceIds});
+			});
 
-            this.postMessage(
+			this.postMessage(
                 {
-                    connections: connections
+                	connections: connections
                 } as connectingWorkerEvent
-            );
-        }catch(error){
-            if(error instanceof ShortCircuitError){
-                console.error(`Short circuit error in the connection worker`);
-                this.postMessage({connections: connections, error: {isError: true, wireTree: error.wireTree}});
-            }
-        }
-    }
-}
+			);
+		}catch(error){
+			if(error instanceof ShortCircuitError){
+				console.error(`Short circuit error in the connection worker`);
+				this.postMessage({connections: connections, error: {isError: true, wireTree: error.wireTree}});
+			}
+		}
+	}
+};
 
 export interface connectingWorkerEvent {
     connections: {

@@ -54,9 +54,7 @@ export default function SelectedIo(){
 	};
 
 	const handleMouseDown = (e: MouseEvent) => {
-		console.log(`selectedIo: ${selectedIo}`);
 		if(e.button !== 0 || !selectedIo) return;
-		console.log(`putting in at x: ${position.x} y: ${position.y}`);
 		dispatch(addInput({
 			name: `${selectedIo.type} ${(selectedIo?.type === 'input' ? inputs : outputs).length + 1}`,
 			id: uuidv4(),
@@ -69,6 +67,7 @@ export default function SelectedIo(){
 				top: position.y,
 				left: position.x 
 			},
+			originalPosition: {x: position.x, y: position.y},
 			position: {x: position.x , y:position.y}
 		}));
 	};
@@ -104,7 +103,7 @@ export default function SelectedIo(){
 	return <>
 		{shouldShow && <div style={{
 			position: 'absolute',
-			left: getLeftStyle(selectedIo?.type, blockSize, cameraOffset, position),
+			left: (getLeftStyle(selectedIo?.type, blockSize, position) ?? 0) + cameraOffset.x,
 			top: position.y - blockSize/2 + cameraOffset.y,
 			width: 2*blockSize,
 			height: blockSize,

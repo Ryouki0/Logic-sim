@@ -60,7 +60,8 @@ export default function HoveringOverIO(){
         		color: 'white', 
         		position: 'absolute',
         		userSelect: 'none',
-        		zIndex: 2, 
+        		zIndex: 2,
+        		pointerEvents: 'none',
         		top: currentlyHoveringOverIo.position!.y - 1.5*blockSize + cameraOffset.y,
         		left: currentlyHoveringOverIo.position!.x + cameraOffset.x,
         		transform: 'translateX(-40%)'

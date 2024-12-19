@@ -5,4 +5,5 @@ export interface BinaryIO extends BinaryIOBase{
     style?: React.CSSProperties | null,
     affectsOutput?: boolean,
     wireColor?: string | null,
+    originalPosition?: {x: number, y:number};
 }

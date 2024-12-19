@@ -78,5 +78,5 @@ export default function recalculatePositionsPure(
             io.style!.left = newRoundedPosition.roundedX;
 		}
 	});
-	return state;
+	return state.currentComponent;
 }

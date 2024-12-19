@@ -7,6 +7,7 @@ import { addGate, changeBluePrintPosition } from '../state/slices/entities';
 import { setSelectedGateId } from '../state/slices/mouseEvents';
 import { create } from 'domain';
 import calculateGateHeight from '../utils/Spatial/calculateGateHeight';
+import { ReadSyncOptions } from 'fs';
 
 export default function SelectedGate(){
 	const selectedGateId = useSelector((state: RootState) => {return state.mouseEventsSlice.selectedGate;});
@@ -33,6 +34,7 @@ export default function SelectedGate(){
 
 	const createGate = (e: MouseEvent) => {
 		if(e.button === 0 && currentGate){
+			e.stopPropagation();
 			dispatch(addGate(currentGate));
 		}
 	};
@@ -57,7 +59,14 @@ export default function SelectedGate(){
 	}, [currentGate]);
 
 	return <>
-		<div style={{position: 'absolute', width: '100%', height: '100%', transform: `translate(${cameraOffset.x}px, ${cameraOffset.y}px)`, pointerEvents: 'none'}}>
+		<div style={{
+			position: 'absolute', 
+			width: '100%', 
+			height: '100%', 
+			transform: `translate(${cameraOffset.x}px, ${cameraOffset.y}px)`, 
+			pointerEvents: 'none',
+			'--block-size': `${blockSize}px`,
+			'--io-radius': `${ioRadius}px`} as React.CSSProperties}>
 			{currentGate && <CustomGate gateId={currentGate?.id} isBluePrint={true} position={'absolute'}></CustomGate>}
 
 		</div>

@@ -15,16 +15,21 @@ import getIOPathColor from "../../utils/getIOPathColor";
 import getIOBGColor from "../../utils/getIOBGColor";
 import { setSelectedEntity } from "../../state/slices/mouseEvents";
 import { checkSingleIo } from "../Preview/InputPreview";
+import { BinaryIO } from "../../Interfaces/BinaryIO";
 
-export default function CustomIO({id, showButton}:{id:string, showButton: boolean}){
+export const CustomIO = React.memo(function CustomIO({id, showButton}:{id:string, showButton: boolean}){
 	const thisIO = useSelector((state: RootState) => {
 		return state.entities.binaryIO[id] ?? state.entities.currentComponent.binaryIO[id];
 	}, ioEquality);
-	const thisIOFrom = useSelector((state: RootState) => {
-		return thisIO?.from?.map(from => state.entities.currentComponent.binaryIO[from.id]);
-	}, checkSourceEquality)
+
+	const pathColor:string | undefined = useSelector((state: RootState) => {
+		const sourceList: (BinaryIO | undefined)[] | undefined = thisIO?.from?.map(from => {
+			return state.entities.currentComponent.binaryIO[from.id] ?? undefined;
+		});
+		return getIOPathColor(thisIO, sourceList);
+	});
+
 	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
-	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
     
 	const eleRef = useRef<HTMLDivElement | null>(null);
 	const spanRef = useRef<HTMLSpanElement | null>(null);
@@ -41,6 +46,7 @@ export default function CustomIO({id, showButton}:{id:string, showButton: boolea
 
 
 	const handleMouseDown = (e:MouseEvent | React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+		console.log('mousedonw');
 		if(e.target !== eleRef.current && e.target !== spanRef.current) return;
 		if(e.button !== 0) return;
 		dispatch(setSelectedEntity({entity: thisIO, type: 'BinaryIO'}));
@@ -82,6 +88,7 @@ export default function CustomIO({id, showButton}:{id:string, showButton: boolea
 		if(e.target !== eleRef.current && e.target !== spanRef.current) return;
 	};
 	const handleInputMouseUp = (e:MouseEvent) => {
+		console.log('asd');
 		if(e.button !== 0) return;
 		if(!isMouseDown) return;
 		if(thisIO?.type === 'output') return;
@@ -128,21 +135,21 @@ export default function CustomIO({id, showButton}:{id:string, showButton: boolea
 		prevSize.current = blockSize;
 	}, [blockSize]);
 
-	return  <div 
+	return <div 
 		ref = {eleRef}
 		className="shadow" 
 		style={{
 			position: 'absolute',
-			left: getLeftStyle(thisIO?.type, blockSize, cameraOffset, {x:thisIO!.style!.left as number, y: thisIO!.style!.top as number}),
-			top: ((thisIO?.style!.top as number ?? 0) - blockSize/2) + cameraOffset.y,
+			left: getLeftStyle(thisIO?.type, blockSize, {x:thisIO!.style!.left as number, y: thisIO!.style!.top as number}),
+			top: ((thisIO?.style!.top as number ?? 0) - blockSize/2),
 			width: 2*blockSize,
 			height: blockSize,
-			zIndex: 1,
 			borderTopLeftRadius: thisIO?.type === 'input' ? 10 : 0,
 			borderBottomLeftRadius: thisIO?.type === 'input' ? 10 : 0,
 			borderTopRightRadius: thisIO?.type === 'output' ? 10 : 0,
 			borderBottomRightRadius: thisIO?.type === 'output' ? 10 : 0,
 			display: 'flex',
+			pointerEvents: 'auto',
 			backgroundColor: DEFAULT_GATE_COLOR,
 		}}>
 		<span
@@ -174,7 +181,7 @@ export default function CustomIO({id, showButton}:{id:string, showButton: boolea
                     
 					buildStyles({
 						backgroundColor: getIOBGColor(thisIO),
-						pathColor: getIOPathColor(thisIO, thisIOFrom),
+						pathColor: pathColor,
 					})}
                 
 				strokeWidth={16}
@@ -183,4 +190,4 @@ export default function CustomIO({id, showButton}:{id:string, showButton: boolea
         
 		</div>
 	</div>;
-}
+});

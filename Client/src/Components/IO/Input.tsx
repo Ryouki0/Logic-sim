@@ -9,13 +9,16 @@ import getIOBGColor from "../../utils/getIOBGColor";
 import { RootOptions } from "react-dom/client";
 import { createSelector } from "@reduxjs/toolkit";
 import { State } from "pixi.js";
+import path from "path";
 
 interface InputProps{
 	binaryInput: BinaryIO,
 }
 
 export const ioEquality = (prev: BinaryIO, next:BinaryIO) => {
-	
+	if(prev?.state !== next?.state){
+		return false;
+	}
 	if(prev?.from?.length !== next?.from?.length) return false;
 	if(prev?.otherSourceIds?.length !== next?.otherSourceIds?.length){
 		return false;
@@ -24,9 +27,7 @@ export const ioEquality = (prev: BinaryIO, next:BinaryIO) => {
 	if(prev?.highImpedance !== next?.highImpedance){
 		return false;
 	}
-	if(prev?.state !== next?.state){
-		return false;
-	}
+	
 	if(prev?.affectsOutput !== next?.affectsOutput){
 		return false;
 	}
@@ -46,38 +47,27 @@ export const checkSourceEquality = (prev: BinaryIO[] | undefined, next: BinaryIO
 				areTrueSourcesEqual = true;
 			}
 		}
-	})
+	});
 	return areTrueSourcesEqual;
-}
+};
 
+export const checkTrueSourceEquality = (prev: BinaryIO | undefined, next: BinaryIO | undefined) => {
+	if(prev?.wireColor !== next?.wireColor) return false;
+	return true;
+};
 export const Input = React.memo(function Input({binaryInput} : InputProps){
 	const eleRef = useRef<HTMLDivElement>(null);
 	const thisInput = useSelector((state: RootState) => {
-		return state.entities.binaryIO[binaryInput.id] ?? state.entities.currentComponent.binaryIO[binaryInput.id];
+		return state.entities.binaryIO[binaryInput.id] ?? state.entities.currentComponent.binaryIO[binaryInput.id] ?? state.entities.bluePrints.io[binaryInput.id];
 	}, ioEquality);
-	/**
-	 * Only gives back the I/Os that are in the current component
-	 */
-	const createThisInputSourceSelector = (binaryInputId: string) =>
-		createSelector(
-		  [
-			(state: RootState) =>
-			  state.entities.currentComponent.binaryIO[binaryInputId] ??
-			  state.entities.binaryIO[binaryInputId],
-			(state: RootState) => state.entities.currentComponent.binaryIO,
-		  ],
-		  (thisInput, io) => {
-			return thisInput?.from?.map((from) => io[from.id]) ?? undefined;
-		  }
-		);
+	
+	const pathColor:string | undefined = useSelector((state: RootState) => {
+		const sourceList: (BinaryIO | undefined)[] | undefined = thisInput?.from?.map(from => {
+			return state.entities.currentComponent.binaryIO[from.id] ?? undefined;
+		});
+		return getIOPathColor(thisInput, sourceList);
+	});
 
-	const thisInputSourceSelector = useMemo(() => createThisInputSourceSelector(binaryInput.id), [binaryInput.id]);
-	const thisInputSource = useSelector(thisInputSourceSelector, checkSourceEquality);
-
-	// const thisInputFrom = useSelector((state: RootState) => {
-	// 	return thisInput?.from?.map(from => {return state.entities.currentComponent.binaryIO[from.id]});
-	// }, checkSourceEquality)
-	const isGlobal = thisInput?.parent === 'global' && !thisInput?.gateId;
 	const handleMouseDown = (e:MouseEvent) => {
 		e.preventDefault();
 		console.log(`\n\n`);
@@ -91,7 +81,6 @@ export const Input = React.memo(function Input({binaryInput} : InputProps){
 		});
 		console.log(`this input affects the output: ${thisInput?.affectsOutput}`);
 	};
-	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
 	
 	useEffect(() => {
 		eleRef.current?.addEventListener('mousedown', handleMouseDown);
@@ -99,37 +88,39 @@ export const Input = React.memo(function Input({binaryInput} : InputProps){
 		return () => {
 			eleRef.current?.removeEventListener('mousedown', handleMouseDown);
 		};
-	}, [thisInput]);
+	}, [thisInput, pathColor]);
 
 	return (
-		<>
-			<div ref={eleRef}
-				style={{
-					width: ioRadius,
-					height: ioRadius,
-					position: 'relative',
-					userSelect: 'none',
-					left: -(ioRadius / 2),
-					...(isGlobal ? {} : binaryInput.style),
-				}}
-			>
-				<CircularProgressbar
-					value={100}
-					background={true}
-					styles={buildStyles({
-						backgroundColor: getIOBGColor(thisInput),
-						pathColor:  getIOPathColor(thisInput, thisInputSource),
-					})}
-					strokeWidth={16}
-				></CircularProgressbar>
+		<div ref={eleRef}
+			style={{
+				width: `var(--io-radius)`,
+				height: `var(--io-radius)`,
+				position: 'absolute',
+				userSelect: 'none',
+				willChange: 'transform',
+				transform: `translate(calc(${thisInput?.position?.x ?? 0}px - var(--io-radius) / 2), calc(${thisInput?.position?.y ?? 0}px - var(--io-radius) / 2))`,
+			}}
+		>
+			<CircularProgressbar
+				value={100}
+				background={true}
+				styles={buildStyles({
+					backgroundColor: getIOBGColor(thisInput),
+					pathColor:  pathColor,
+				})}
+				strokeWidth={16}
+			></CircularProgressbar>
 				
-			</div>
-		</>
+		</div>
 	);
 
 }, (prevInput: InputProps, nextInput: InputProps) => {
-	if(prevInput?.binaryInput.id !== nextInput?.binaryInput.id) return false;
-	if(prevInput?.binaryInput.style?.top !== nextInput?.binaryInput?.style?.top) return false;
+	if(prevInput?.binaryInput.id !== nextInput?.binaryInput.id){
+		return false;
+	} 
+	if(prevInput?.binaryInput.style?.top !== nextInput?.binaryInput?.style?.top) {
+		return false;
+	}
 	return true;
 });
 	

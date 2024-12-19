@@ -52,7 +52,7 @@ export default function useRunLogic(){
 	const newWorkerData = useRef<WorkerEvent | null>(null);
 	const dispatch = useDispatch();
 	const currentPhaseRef = useRef<string>('');
-	const currentPhase = useSelector((state: RootState) => {return state.clock.clockPhase});
+	const currentPhase = useSelector((state: RootState) => {return state.clock.clockPhase;});
 	useEffect(() => {
 		const logicWorker = require('../workers/logic.worker.ts').default;
 		importedWorkerRef.current = logicWorker;
@@ -129,7 +129,7 @@ export default function useRunLogic(){
 			handleNonAffectingInputs(event.data.nonAffectingInputs);
 		} else if (event.data.currentComponentIo) {
 			if(currentPhaseRef.current === 'stopping'){
-				console.log('skipping');
+				// console.log('skipping');
 				return;
 			} 
 			fastUpdate(event);
@@ -144,6 +144,8 @@ export default function useRunLogic(){
 	function handleWorkerError(error: string) {
 		dispatch(setError({ isError: true, extraInfo: error }));
 		dispatch(setIsRunning(false));
+		dispatch(setPhase(null));
+		workerRef.current = null;
 	}
 
 	function handleNonAffectingInputs(nonAffectingInputs: string[]) {

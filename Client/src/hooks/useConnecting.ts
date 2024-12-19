@@ -10,6 +10,7 @@ import checkLineEquality from '../utils/checkLineEquality';
 import { setError } from '../state/slices/clock';
 import isOnIo from '../utils/Spatial/isOnIo';
 import { connectingWorkerEvent } from '../workers/connecting.worker';
+import { transpileModule } from 'typescript';
 
 
 export class ShortCircuitError extends Error{
@@ -63,6 +64,23 @@ const checkIOEquality = (prev: {[key: string]: BinaryIO}, next: {[key: string]: 
 	return true;
 };
 
+const checkIOPositions = (prev: {[key: string]: BinaryIO} | null, next: {[key: string]: BinaryIO} | null) => {
+	if(!prev || !next){
+		return true;
+	}
+	const prevEntries = Object.entries(prev);
+	const nextEntries = Object.entries(next);
+	if(prevEntries.length !== nextEntries.length){
+		return false;
+	}
+
+	for(const [key, io] of prevEntries){
+		if(io.position?.x !== next[key].position?.x || io.position?.y !== next[key].position?.y){
+			return false;
+		}
+	}
+	return true;
+}
 
 export default function useConnecting(){
 	const wires = useSelector((state: RootState) => {return state.entities.currentComponent.wires;}, shallowEqual);
@@ -75,21 +93,38 @@ export default function useConnecting(){
 	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
 	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
 	const lineWidth = useSelector((state: RootState) => {return state.misc.lineWidth;});
+	
 	const prevWires = useRef<{[key: string]: Wire} | null>(null);
 	const currentWires = useRef<{[key: string]: Wire} | null>(null);
-
+	
+	const prevDrawingWire = useRef<string | null>();
+	const currentDrawingWire = useRef<string | null>();
+	
+	const prevIo = useRef<{[key: string]: BinaryIO} | null>(null);
+	const currentIo = useRef<{[key: string]: BinaryIO} | null>(null);
+	
 	const importedWorkerRef = useRef<any>();
 	const workerRef = useRef<any>();
-	const areWiresEqual = useMemo(() => {
-		return checkWireEquality(prevWires.current, wires);
-	}, [wires])
+
+	const [areWiresEqual, setAreWiresEqual] = useState<boolean>(false);
+	const [areIOsEqual, setAreIOsEqual] = useState(false); 
 	const dispatch = useDispatch();
 
+	/**
+	 * `draggingGate` shouldn't be a dependency because 
+	 */
 	useEffect(() => {
 		prevWires.current = currentWires.current;
 		currentWires.current = wires;
-	}, [io, drawingWire, currentComponentId, draggingGate, areWiresEqual, wires])
 
+		prevDrawingWire.current = currentDrawingWire.current;
+		currentDrawingWire.current = drawingWire;
+
+		prevIo.current = currentIo.current;
+		currentIo.current = io;
+	}, [io, drawingWire, currentComponentId, wires]);
+
+	
 	
 	useEffect(() => {
 		const connectingWorker = require('../workers/connecting.worker.ts').default;
@@ -97,41 +132,76 @@ export default function useConnecting(){
 	}, []);
 
 	useEffect(() => {
-		if(drawingWire || draggingGate) return;
+		const areWiresEqual = checkWireEquality(prevWires.current, wires);
+		setAreWiresEqual(areWiresEqual)
+	}, [wires]);
+
+	useEffect(() => {
+		const areIOsEqual = checkIOPositions(prevIo.current, io);
+		setAreIOsEqual(areIOsEqual);
+	}, [io])
+
+	useEffect(() => {
+		let shouldRebuild = false;
+		if((draggingGate || drawingWire)) {
+			return;
+		};
+
+		/**
+		 * If drawingWire changed, but the wires haven't, don't check
+		 */
+		if((prevDrawingWire.current !== currentDrawingWire.current && !areWiresEqual)) {
+			shouldRebuild = true;
+		};
+
 		/**
 		 * If the wires changed, but their positions are the same, don't check
 		 */
-		if(prevWires.current !== wires && areWiresEqual) return;
-		
-		workerRef.current = new importedWorkerRef.current();
+		if((prevWires.current !== wires && !areWiresEqual)) {
+			shouldRebuild = true;
+		};
 
-		dispatch(setError({isError: false, extraInfo: ''}));
-		
-		workerRef.current.postMessage({
-			wires: wires,
-			io: io,
-			lineWidth: lineWidth,
-			cameraOffset: cameraOffset,
-			ioRadius: ioRadius,
-			currentComponentId: currentComponentId,
-			action: 'check',
-		})
-		workerRef.current.onmessage = (event: MessageEvent<connectingWorkerEvent>) => {
-			const connections = event.data.connections;
-			if(event.data.error?.isError){
-				dispatch(raiseShortCircuitError({wireTree: event.data.error!.wireTree}));
-			}
-			else {
-				dispatch(setConnections({connections: connections, componentId: currentComponentId}));
-				console.log(`connecting logic updated`);
-			}
+		if((prevIo.current !== io && !areIOsEqual)){
+			shouldRebuild = true;
 		}
+		if(shouldRebuild){
+			workerRef.current = new importedWorkerRef.current();
+			workerRef.current.postMessage({
+				wires: wires,
+				io: io,
+				lineWidth: lineWidth,
+				cameraOffset: cameraOffset,
+				ioRadius: ioRadius,
+				currentComponentId: currentComponentId,
+				action: 'check',
+			});
+			workerRef.current.onmessage = (event: MessageEvent<connectingWorkerEvent>) => {
+				const connections = event.data.connections;
+				if(event.data.error?.isError){
+					dispatch(raiseShortCircuitError({wireTree: event.data.error!.wireTree}));
+					dispatch(setError({isError: true, extraInfo: 'Short circuit!'}));
+				}
+				else {
+					dispatch(setError({isError: false, extraInfo: ''}));
+					dispatch(setConnections({connections: connections, componentId: currentComponentId}));
+				}
+			};
+		}
+		
 		
 		return () => {
 			workerRef.current?.terminate();
-		}
-	}, [io, drawingWire, currentComponentId, draggingGate, wires]);
+		};
+	}, [io, drawingWire, currentComponentId, draggingGate, wires, areIOsEqual, areWiresEqual]);
 
+
+	useEffect(() => {
+		// console.log('\ndraggingGate changed', draggingGate);
+	}, [draggingGate]);
+
+	useEffect(() => {
+		// console.log(`drawing wire changed ${drawingWire ? 'true' : 'false'}`);
+	}, [drawingWire]);
 
 	/**
      * Gives back a list of wire IDs that are connected to the given wire

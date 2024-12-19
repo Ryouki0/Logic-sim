@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { DEFAULT_INPUT_DIM, getClosestBlock, LINE_WIDTH, MINIMAL_BLOCKSIZE } from "../../Constants/defaultDimensions";
 import getSizes from "../../utils/getSizes";
+import { setSelectedEntity } from "./mouseEvents";
 export interface Misc{
     currentComponentId: string,
     history: string[],
@@ -12,6 +13,7 @@ export interface Misc{
 	globalBlockSize: number,
 	lineWidth: number,
 	ioRadius: number,
+	selectedElement: string | null,
 }
 
 /**
@@ -39,6 +41,7 @@ const initialState:Misc = {
 	globalBlockSize: MINIMAL_BLOCKSIZE,
 	lineWidth: LINE_WIDTH,
 	ioRadius: DEFAULT_INPUT_DIM.width,
+	selectedElement: null,
 };
 
 const misc = createSlice({
@@ -96,9 +99,11 @@ const misc = createSlice({
 		changeMisc: (state, action: PayloadAction<{misc: MiscBase}>) => {
 			return state = {...state, ...action.payload.misc};
 		},
-		
+		setSelectedElement: (state, action: PayloadAction<string | null>) => {
+			state.selectedElement = action.payload;
+		}
 	}
- });
+});
 
 export default misc.reducer;
 export const {
@@ -110,4 +115,5 @@ export const {
 	changeBlockSize,
 	changeGlobalBlockSize,
 	changeMisc,
+	setSelectedElement
 } = misc.actions;

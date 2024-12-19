@@ -1,11 +1,13 @@
 import React, { useMemo, useState } from "react";
 import { Wire } from "@Shared/interfaces";
-import { AMBER, DEFAULT_WIRE_COLOR, ORANGE, RED_ORANGE } from "../../Constants/colors";
+import { AMBER, DEFAULT_HIGH_IMPEDANCE_COLOR, DEFAULT_WIRE_COLOR, ORANGE, RED_ORANGE } from "../../Constants/colors";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../state/store";
 import { BinaryIO } from "../../Interfaces/BinaryIO";
 import { textStlye } from "../../Constants/commonStyles";
 import { setSelectedEntity, setShowColorPicker } from "../../state/slices/mouseEvents";
+import { adjustBrightness } from "../../utils/adjustBrightness";
+import { blendColors } from "../../utils/blendColors";
 
 const checkSource = (prev: BinaryIO[] | undefined, next: BinaryIO[] | undefined) => {
 	if(prev?.length !== next?.length){
@@ -30,17 +32,18 @@ const checkSource = (prev: BinaryIO[] | undefined, next: BinaryIO[] | undefined)
 
 export default function WireSelected({wire} : {wire:Wire}){
 	const dispatch = useDispatch();
-	const sourceList = useSelector((state: RootState) => {
+	const sourceList: (BinaryIO | undefined)[] | undefined = useSelector((state: RootState) => {
 		return wire.from?.map(source => {
 			return state.entities.binaryIO[source.id] ?? state.entities.currentComponent.binaryIO[source.id];
 		});
 	}, checkSource);
-	const handleLinkClick = (io: BinaryIO) => {
+	const handleLinkClick = (io: BinaryIO | undefined) => {
+		if(!io) return;
 		dispatch(setSelectedEntity({entity: io, type: 'BinaryIO'}));
 	};
  
 	let list = sourceList?.flatMap(source => source?.to?.map(to => to?.id));
-	
+	const trueSource = sourceList?.find(src => !src?.highImpedance);
 	const handleColorPick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		dispatch(setShowColorPicker({show: true, id: wire.id}));
 	};
@@ -52,7 +55,28 @@ export default function WireSelected({wire} : {wire:Wire}){
 			return state.entities.binaryIO[targetId!] ?? state.entities.currentComponent.binaryIO[targetId!];
 		});
 	}, checkSource);
-
+	const getWireColor = () => {
+		if(wire.color){
+			if(trueSource?.state){
+				return adjustBrightness(wire.color, 20);
+			}else{
+				return wire.color;
+			}
+		}else if(trueSource?.wireColor){
+			if(trueSource?.state){
+				return adjustBrightness(trueSource.wireColor, 20);
+			}else{
+				return trueSource.wireColor;
+			}
+		}else if(!trueSource && sourceList && sourceList.length > 0){
+			return blendColors(sourceList[0]?.wireColor ?? DEFAULT_WIRE_COLOR, DEFAULT_HIGH_IMPEDANCE_COLOR);
+		}else{
+			if(trueSource?.state){
+				return adjustBrightness(DEFAULT_WIRE_COLOR, 20);
+			}
+			return DEFAULT_WIRE_COLOR;
+		}
+	};
 	return (
 		<>
 		
@@ -89,7 +113,7 @@ export default function WireSelected({wire} : {wire:Wire}){
 				</div>
 				<div className="clickable-div" onClick={e => {handleColorPick(e);}}>
 					<span style={{color: 'white'}}>Color: </span>
-					<div style={{width: 20, height: 20, backgroundColor: wire.color ?? DEFAULT_WIRE_COLOR, borderWidth: 1, marginLeft:10, borderStyle: 'solid'}}></div>
+					<div style={{width: 20, height: 20, backgroundColor: getWireColor(), borderWidth: 1, marginLeft:10, borderStyle: 'solid'}}></div>
 				</div>
 			</div>
 		</>

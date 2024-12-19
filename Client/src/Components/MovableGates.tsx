@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Gate } from '@Shared/interfaces';
 import { CustomGate } from './CustomGate';
 import { useSelector } from 'react-redux';
@@ -19,20 +19,25 @@ const checkEquality = (prev:{[key:string]:Gate}, next: {[key:string]:Gate}) => {
 
 export default function MovableGates(){
 	const currentGates = useSelector((state: RootState) => {return state.entities.currentComponent.gates;}, checkEquality);
-	const currentComponentId = useSelector((state:RootState) => {return state.misc.currentComponentId;});
 	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
+	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
+
+	const memoizedGates = useMemo(() => {
+		return Object.entries(currentGates)?.map(([key, gate]) => {
+			return <CustomGate gateId={key} isBluePrint={false} key={gate.id} position='absolute'></CustomGate>;
+		});
+	}, [currentGates]);
+
 	return <>
 		<div style={{
+			'--block-size': `${blockSize}px`,
 			position: 'absolute', 
 			width: '100%', 
 			height: '100%', 
 			transform: `translate(${cameraOffset.x}px, ${cameraOffset.y}px)`, 
 			pointerEvents: 'none',
-			willChange: 'transform',
-			transition: 'transform 0.1 ease'}}>
-			{Object.entries(currentGates)?.map(([key, gate]) => {
-				return <CustomGate gateId={key} isBluePrint={false} key={gate.id} position='absolute'></CustomGate>;
-			})}
+			willChange: 'transform'} as React.CSSProperties}>
+			{memoizedGates}
 		</div>
 		
 	</>;

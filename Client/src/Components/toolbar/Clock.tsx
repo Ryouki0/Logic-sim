@@ -10,7 +10,7 @@ import { setError, setHertz, setIsRunning } from '../../state/slices/clock';
 import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../../Constants/colors';
 import '../../index.css';
 import { textStlye } from '../../Constants/commonStyles';
-
+import { Button } from '@mui/material';
 export class CircularDependencyError extends Error{
 	constructor(){
 		super('Circular dependency');
@@ -36,7 +36,7 @@ export default function Clock() {
 	// const entities = useSelector((state: RootState) => state.entities);
 	const [value, setValue] = useState(`${hertz}`);
 	const running = useSelector((state: RootState) => {return state.clock.isRunning;});
-	const clockPhase = useSelector((state: RootState) => {return state.clock.clockPhase});
+	const clockPhase = useSelector((state: RootState) => {return state.clock.clockPhase;});
 
 	const handleHertzChange = (e:React.ChangeEvent<HTMLInputElement>) => {
 		const number = parseInt(e.target.value);
@@ -115,68 +115,66 @@ export default function Clock() {
 					width: '30%'
 				}}
 			/>
-	  <div className='clickable-div' 
+	  <div className='clickable-div simple-button' 
 	  style={{
-		fontSize: 18,
-		backgroundColor: 'rgb(40 40 40)',
-		borderColor: 'rgb(80 80 80)',
-		display: 'flex',
-		alignItems: 'center',
-		padding: 5,
-		paddingLeft: 10,
-		height: '100%',
-		paddingRight: 10,
-		justifyContent: 'center',
-		borderStyle: 'solid',
-		borderRadius: 5,
-		borderWidth: 1,
+					fontSize: 18,
+					display: 'flex',
+					alignItems: 'center',
+					padding: 5,
+					paddingLeft: 10,
+					height: '100%',
+					paddingRight: 10,
+					justifyContent: 'center',
+					borderStyle: 'solid',
+					borderRadius: 5,
+					borderWidth: 1,
 	  }}
 	  onClick={handleRunChange}>
 	  	<span style={{color: 'white', width: '100%', display: 'inline-block'}}>
 		  {!clockPhase ? (running ? 'Stop' : 'Run') : `${clockPhase}...`}
-			</span>
+				</span>
 	  </div>
 	  <div className='clickable-div'
 	   style={{
-				fontSize: 18,
-				backgroundColor: 'rgb(40 40 40)',
-				borderColor: 'rgb(80 80 80)',
-				display: 'flex',
-				alignItems: 'center',
-				padding: 5,
-				paddingLeft: 10,
-				height: '100%',
-				paddingRight: 10,
-				justifyContent: 'center',
-				borderStyle: 'solid',
-				borderRadius: 5,
-				borderWidth: 1,
-			}} onClick={e => {
-				try{
-					const copiedGates = JSON.parse(JSON.stringify(gates));
-					Object.entries(currentGates).forEach(([key, gate]) => {
-						copiedGates[key] = JSON.parse(JSON.stringify(gate));
-					});
-					const copiedIo = JSON.parse(JSON.stringify(io));
-					Object.entries(currentIo).forEach(([key, io]) => {
-						copiedIo[key] = JSON.parse(JSON.stringify(io));
-					});
-					const {mainDag, SCCOrder} = globalSort(copiedGates, copiedIo);
+					fontSize: 18,
+					backgroundColor: 'rgb(40 40 40)',
+					borderColor: 'rgb(80 80 80)',
+					display: 'flex',
+					alignItems: 'center',
+					padding: 5,
+					paddingLeft: 10,
+					height: '100%',
+					paddingRight: 10,
+					justifyContent: 'center',
+					borderStyle: 'solid',
+					borderRadius: 5,
+					borderWidth: 1,
+				}} onClick={e => {
+					try{
+						const copiedGates = JSON.parse(JSON.stringify(gates));
+						Object.entries(currentGates).forEach(([key, gate]) => {
+							copiedGates[key] = JSON.parse(JSON.stringify(gate));
+						});
+						const copiedIo = JSON.parse(JSON.stringify(io));
+						Object.entries(currentIo).forEach(([key, io]) => {
+							copiedIo[key] = JSON.parse(JSON.stringify(io));
+						});
+						const {mainDag, SCCOrder} = globalSort(copiedGates, copiedIo);
 					
-					const order = [...mainDag, ...SCCOrder];
+						const order = [...mainDag, ...SCCOrder];
 
-					evaluateGates(copiedGates, copiedIo, order);
-					dispatch(updateState({gates: copiedGates, binaryIO: copiedIo}));
-				}catch(err){
-					if(err instanceof CircularDependencyError){
-						dispatch(setError({isError: true, extraInfo: 'Circular dependency!'}));
-					}else{
-						console.error(err);
+						evaluateGates(copiedGates, copiedIo, order);
+						dispatch(updateState({gates: copiedGates, binaryIO: copiedIo}));
+					}catch(err){
+						if(err instanceof CircularDependencyError){
+							dispatch(setError({isError: true, extraInfo: 'Circular dependency!'}));
+						}else{
+							console.error(err);
+						}
 					}
-				}
 				
-			}
-			}><span style={{color: 'white', width: '100%', display: 'inline-block'}}>Tick</span></div>
+				}
+				}><span style={{color: 'white', width: '100%', display: 'inline-block'}}>Tick</span></div>
 		</div>
 		<div style={{
 			display: 'flex',

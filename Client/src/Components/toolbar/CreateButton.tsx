@@ -141,10 +141,10 @@ export default function CreateButton(){
     		alignItems: 'center', 
 		}}>
 			<div className='createButton'
-			style={{
-			backgroundColor: 'rgb(40 40 40)',
-				borderRadius: 30,
-			}}
+				style={{
+					backgroundColor: 'rgb(40 40 40)',
+					borderRadius: 30,
+				}}
 				onClick={handleCreateComponent}>
 				<span style={{
 					fontSize: 20,

@@ -7,6 +7,7 @@ import { Output } from './IO/Output';
 import { Gate } from '../Interfaces/Gate';
 import { RootState } from '../state/store';
 import './../gate.css';
+import './../index.css';
 import { calculateInputTop } from '../utils/Spatial/calculateInputTop';
 import { setDraggingGate, setSelectedEntity } from '../state/slices/mouseEvents';
 import { BinaryIO } from '../Interfaces/BinaryIO';
@@ -14,6 +15,8 @@ import { createSelector } from '@reduxjs/toolkit';
 import { addGate, changeGatePosition, changeIOPosition, changeInputState, deleteComponent } from '../state/slices/entities';
 import calculateGateHeight from '../utils/Spatial/calculateGateHeight';
 import { Root } from 'react-dom/client';
+import { private_excludeVariablesFromRoot } from '@mui/material';
+import { CustomGateJSX } from './CustomGateJSX';
 interface CustomGateProps{
     gateId: string,
 	isBluePrint: boolean,
@@ -89,6 +92,7 @@ export const CustomGate = React.memo(function CustomGate({gateId, isBluePrint, p
 		dispatch(setDraggingGate(null));
 	}
 	const handleMouseDownEvent = (e: MouseEvent) => {
+		e.stopPropagation();
 		if(e.target !== eleRef.current && e.target !== spanRef.current && e.target !== spanDivRef.current) return;
 		if(e.button !== 0) return;
 		if(!isBluePrint){
@@ -104,6 +108,7 @@ export const CustomGate = React.memo(function CustomGate({gateId, isBluePrint, p
 		e.preventDefault();
 		e.stopPropagation();
 		dispatch(deleteComponent(thisGate.id));
+		dispatch(setSelectedEntity({entity: null, type: null}));
 	};
 
 	const handleBluePrintContextMenu = (e:MouseEvent) => {
@@ -113,18 +118,22 @@ export const CustomGate = React.memo(function CustomGate({gateId, isBluePrint, p
 	useEffect(() => {
 		if(!isBluePrint){
 			eleRef.current?.addEventListener('contextmenu', handleContextMenu);
-			eleRef.current?.addEventListener('mousedown', handleMouseDownEvent);
+			eleRef.current?.addEventListener('mousedown', handleMouseDownEvent, {capture: true});
 		}else{
 			eleRef.current?.addEventListener('contextmenu', handleBluePrintContextMenu);
 		}
 
 		return () => {
 			eleRef.current?.removeEventListener('contextmenu', handleContextMenu);
-			eleRef.current?.removeEventListener('mousedown', handleMouseDownEvent);
+			eleRef.current?.removeEventListener('mousedown', handleMouseDownEvent, {capture: true});
 			eleRef.current?.removeEventListener('contextmenu', handleBluePrintContextMenu);
 			
 		};
 	}, [thisGate, blockSize, ioRadius]);
+
+	const heightMultiplier = useMemo(() => {
+		return calculateGateHeight(thisGate);
+	}, [inputs]);
 
 	//When zooming, the old offset would make the gate teleport, so change the offset to the new position
 	useEffect(() => {
@@ -135,66 +144,28 @@ export const CustomGate = React.memo(function CustomGate({gateId, isBluePrint, p
 		offsetRef.current.dy = newPosition.y;
 		prevSize.current = blockSize;
 	}, [blockSize]);
-	const memoizedInputs = useMemo(() => {
-		return inputs;
-	}, [inputs]);
+	
 
-	return	(
-		<>
-			<div ref={eleRef}
-				className='Gate-container'
-				style={{width: 3*blockSize, 
-					height: calculateGateHeight(thisGate, blockSize),
-					position: position ? position : 'relative',
-					top: thisGate?.position ? thisGate.position.y  : 0,
-					left: thisGate?.position ? thisGate.position.x: 0,
-					borderTopRightRadius: 30,
-					borderBottomRightRadius: 30,
-					display: 'inline-block',
-					justifySelf: 'center',
-					borderStyle: 'solid',
-					borderWidth: 1,
-					borderColor: 'black',
-					cursor: 'pointer',
-					pointerEvents: 'auto',
-					backgroundColor: "rgb(117 117 117)"}} 
-				id={gateId}
-			>
-				{memoizedInputs?.map((input, idx, array) => {
-					return <Input binaryInput={{...input, 
-						style: {
-							top: calculateInputTop(idx, array.length, blockSize, ioRadius)
-						}}} 
-					key={input?.id}></Input>;
-				})}
-				<div
-					ref={spanDivRef} 
-					style={{
-						position: "absolute", 
-						left: "50%", 
-						top: "50%", 
-						transform: "translate(-50%, -50%)"
-					}}> 
-					<span ref={spanRef}
-						style={{fontSize: blockSize/2 +4, 
-        				userSelect: 'none', 
-				        color: 'white'}}>
-						{thisGate?.name}
-					</span>
-				</div>
-				{outputs.map((output,idx,array) => {
-					return <Output output={output} style={
-						{
-							top: calculateInputTop(idx, array.length, blockSize, ioRadius) + (idx*ioRadius),
-							position:'absolute',
-							left:3*blockSize - ioRadius/2}} key={output?.id}></Output>;
-				})}
-			</div>
-			
-		</>
-	);
+	return <>
+	<CustomGateJSX 
+		thisGate={thisGate} 
+		eleRef={eleRef} 
+		spanDivRef={spanDivRef} 
+		spanRef={spanRef} 
+		heightMultiplier={heightMultiplier}
+	></CustomGateJSX>
+	{isBluePrint && inputs.map(input => {
+		return <Input binaryInput={input} key={input.id}></Input>
+	})}
+	{isBluePrint && outputs.map(output => {
+		return <Output id={output.id} key={output.id}></Output>
+	})}
+	</>
 }, (prev: CustomGateProps, next: CustomGateProps) => {
-	if(prev.gateId !== next.gateId) return false;
-	if(prev.isBluePrint !== next.isBluePrint) return false;
+	if(prev.gateId !== next.gateId) {
+		return false;
+	};
+	if(prev.isBluePrint !== next.isBluePrint) {
+		return false;};
 	return true;
 });

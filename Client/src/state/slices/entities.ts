@@ -206,8 +206,8 @@ const entities = createSlice({
 		},
 		changeWirePosition: (state,action:PayloadAction<Wire>) => {
 			if(state.currentComponent.wires[action.payload.id]){
-				state.currentComponent.wires[action.payload.id].diagonalLine = action.payload.diagonalLine;
-				state.currentComponent.wires[action.payload.id].linearLine = action.payload.linearLine;
+				state.currentComponent.wires[action.payload.id].diagonalLine = {...action.payload.diagonalLine};
+				state.currentComponent.wires[action.payload.id].linearLine = {...action.payload.linearLine};
 			}else{
 				state.currentComponent.wires[action.payload.id] = {...action.payload};
 			}
@@ -659,7 +659,7 @@ const entities = createSlice({
 				if(io.name === 'test'){
 					console.log(`after connecting test state: ${io.state}  from: ${io.from}`);
 				}
-			})
+			});
 		},
 		deleteWire: (state, action:PayloadAction<string>) => {
 			delete state.currentComponent.wires[action.payload];
@@ -1093,7 +1093,7 @@ const entities = createSlice({
 			});
 		},
 		recalculatePositions: (state, action: PayloadAction<{blockSize: number, prevSize: number, currentComponentId: string, ioRadius: number}>) => {
-			state = recalculatePositionsPure(state, action);
+			state.currentComponent = recalculatePositionsPure(state, action);
 
 		},
 		changeIOStyle: (state, action:PayloadAction<{id: string, top: number, left: number}>) => {
@@ -1127,9 +1127,13 @@ const entities = createSlice({
 			if(applyTo === 'Wire'){
 				state.currentComponent.wires[id].color = color;
 			}else if(applyTo === 'WireTree'){
-				const trueSourceId = findTrueSourcePure(state.currentComponent.wires[id], state.currentComponent.binaryIO);
-				if(!trueSourceId) return;
-				state.currentComponent.binaryIO[trueSourceId].wireColor = color;
+				const wire = state.currentComponent.wires[id];
+				wire.from?.forEach(from => {
+					state.currentComponent.binaryIO[from.id].wireColor = color;
+				});
+				// const trueSourceId = findTrueSourcePure(state.currentComponent.wires[id], state.currentComponent.binaryIO);
+				// if(!trueSourceId) return;
+				// state.currentComponent.binaryIO[trueSourceId].wireColor = color;
 			}
 		}
 	}
@@ -1167,7 +1171,6 @@ export const {fastUpdateRaw} = addRawReducers(entities, {
 
 export const {updateStateRaw} = addRawReducers(entities, {
 	updateStateRaw: (state: entities, action: AnyAction): entities => {
-
 		//All the data from the worker, not up to date
 	  	const {gates, binaryIO} = action.payload;
 		
@@ -1186,7 +1189,7 @@ export const {updateStateRaw} = addRawReducers(entities, {
 			}else{
 				workerGateKeys.delete(id);
 			}
-		})
+		});
 
 		subGateKeys.forEach(id => {
 			if(!workerGateKeys.has(id)){
@@ -1194,12 +1197,12 @@ export const {updateStateRaw} = addRawReducers(entities, {
 			}else{
 				workerGateKeys.delete(id);
 			}
-		})
+		});
 
 		//If there are remaining IDs in the worker, then don't update those too
 		workerGateKeys.forEach(id => {
 			diffGateIds.add(id);
-		})
+		});
 
 
 	  	Object.entries(state.currentComponent.gates).forEach(([key, gate]) => {
@@ -1218,7 +1221,7 @@ export const {updateStateRaw} = addRawReducers(entities, {
 
 			newSubGates[key] = {...newSubGates[key], nextTick: gates[key].nextTick};
 			delete gates[key];
-		})
+		});
 
 		/**
 		 * Checks if `io1` and `io2` is different because of a user action (deletion, addition, moving)
@@ -1238,7 +1241,7 @@ export const {updateStateRaw} = addRawReducers(entities, {
 					isEqual = false;
 				}
 				
-			})
+			});
 			return isEqual;
 		}
 
@@ -1253,7 +1256,7 @@ export const {updateStateRaw} = addRawReducers(entities, {
 				const connectedIos = getAllConnectedIO(io, state.currentComponent.binaryIO, state.binaryIO);
 				connectedIos.forEach(id => {
 					diffIOIds.add(id);
-				})
+				});
 			}else{
 				if(!checkIoEquality(io, binaryIO[key])){
 					if(!io.from || io.from?.length === 0){
@@ -1262,14 +1265,14 @@ export const {updateStateRaw} = addRawReducers(entities, {
 					diffIOIds.add(key);
 				}
 			}
-		})
+		});
 
 		subIOEntires.forEach(([key, io]) => {
 			if(!io.gateId){
 				const connectedIos = getAllConnectedIO(io, state.currentComponent.binaryIO, state.binaryIO);
 				connectedIos.forEach(id => {
 					diffIOIds.add(id);
-				})
+				});
 			}else{
 				if(!checkIoEquality(io, binaryIO[key])){
 					diffIOIds.add(key);
@@ -1278,7 +1281,7 @@ export const {updateStateRaw} = addRawReducers(entities, {
 					noConnectionIo.add(key);
 				}
 			}
-		})
+		});
 
 
 		const newBinaryIO = { ...state.currentComponent.binaryIO };
@@ -1305,16 +1308,16 @@ export const {updateStateRaw} = addRawReducers(entities, {
 
 		Object.entries(state.binaryIO).forEach(([key, io]) => {
 
-		if(diffIOIds.has(key)){
-			return;
-		}
+			if(diffIOIds.has(key)){
+				return;
+			}
 
-		newSubIo[key] = {
-			...newSubIo[key], 
-			state: newSubIo[key].gateId ? binaryIO[key].state : newSubIo[key].state, 
-			highImpedance: newSubIo[key].gateId ? binaryIO[key].highImpedance : newSubIo[key].highImpedance
-		};
-		})
+			newSubIo[key] = {
+				...newSubIo[key], 
+				state: newSubIo[key].gateId ? binaryIO[key].state : newSubIo[key].state, 
+				highImpedance: newSubIo[key].gateId ? binaryIO[key].highImpedance : newSubIo[key].highImpedance
+			};
+		});
 	  	return {
 			...state,
 			currentComponent: {

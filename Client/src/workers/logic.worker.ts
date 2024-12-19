@@ -134,9 +134,13 @@ onmessage = async function (event: MessageEvent<{
 					}catch(err){
 						if(err instanceof ShortCircuitError){
 							this.postMessage({gates: gates, binaryIO: io, actualHertz: actualHertz, error: 'Short circuit'});
+							console.warn(`short circuit inside the worker!`);
+							this.self.close();
 							break;
 						}else if(err instanceof CircularDependencyError){
 							this.postMessage({gates: gates, binaryIO: io, actualHertz: actualHertz, error: 'Circular dependency'});
+							console.log(`circular dependency inside the worker`);
+							this.self.close();
 							break;
 						}
 					}

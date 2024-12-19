@@ -8,29 +8,16 @@ import BackToMenu from './BackToMenu';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../../Constants/colors';
+import Tabs from './Tabs';
 
 export default function Toolbar() {
 
-	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth;});
 
-	return <div style={{
-		left: CANVAS_WIDTH,
-		alignSelf: 'flex-end',
-		justifySelf: 'flex-end',
-		width: window.innerWidth - canvasWidth,
-		height: '100%',
-		display: 'flex',
-		flexDirection: 'column',
-		zIndex: 3,
-		borderWidth: DEFAULT_BORDER_WIDTH,
-		borderStyle: 'solid',
-		borderLeft: 0,
-		borderColor: DEFAULT_BORDER_COLOR,
-		backgroundColor: DEFAULT_BACKGROUND_COLOR,
-	}}>
+	return <>
 		<SelectedComponent></SelectedComponent>
 		<DisplayError></DisplayError>
 		<Clock></Clock>
 		<CreateButton></CreateButton>
-	</div>;
+	</>;
+		
 }

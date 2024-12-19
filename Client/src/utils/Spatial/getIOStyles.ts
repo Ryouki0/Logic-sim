@@ -13,13 +13,12 @@ export const getIOLeftStyle = (type: 'input' | 'output' | undefined, blockSize: 
 export const getLeftStyle = (
 	type: 'input' | 'output' | undefined, 
 	blockSize:number, 
-	cameraOffset: {x: number, y: number}, 
 	position: {x: number, y: number}
 ) => {
 	if(type === 'input'){
-		return position.x - 2*blockSize + cameraOffset.x;
+		return position.x - 2*blockSize;
 	}else if(type === 'output'){
-		return position.x + cameraOffset.x;
+		return position.x;
 	}else{
 		return;
 	}

@@ -5,15 +5,16 @@ import { CANVAS_WIDTH } from '../../Constants/defaultDimensions';
 import '../../index.css';
 export default function DisplayError(){
 	const error = useSelector((state: RootState) => {return state.clock.error;});
+	const canvasWidth = useSelector((state: RootState) => {return state.misc.canvasWidth});
 
-
-	return <>
+	return (
+	<>
 		{error.isError && <div 
 			className='error-container'
 			style={{
 				opacity: 0.8,
 				backgroundColor: 'red',
-				width: window.innerWidth - CANVAS_WIDTH - 15,
+				width: window.innerWidth - canvasWidth - 15,
 				marginLeft: 5,
 				marginTop: 10,
 				height: '10%',
@@ -37,5 +38,5 @@ export default function DisplayError(){
 			</span>
 		</div>
 		}
-	</>;
+	</>)
 }
