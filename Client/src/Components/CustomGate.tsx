@@ -153,6 +153,7 @@ export const CustomGate = React.memo(function CustomGate({gateId, isBluePrint, p
 		spanDivRef={spanDivRef} 
 		spanRef={spanRef} 
 		heightMultiplier={heightMultiplier}
+		isBluePrint={isBluePrint}
 	></CustomGateJSX>
 	{isBluePrint && inputs.map(input => {
 		return <Input binaryInput={input} key={input.id}></Input>

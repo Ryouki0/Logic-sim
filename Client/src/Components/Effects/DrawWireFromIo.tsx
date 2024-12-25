@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import useDrawWire from '../../hooks/useDrawWire';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import isOnIo from '../../utils/Spatial/isOnIo';
+import { setSelectedEntity } from '../../state/slices/mouseEvents';
 
 export default function DrawWireFromIo(){
 	const io = useSelector((state: RootState) => {return state.entities.currentComponent.binaryIO;});
@@ -10,7 +11,7 @@ export default function DrawWireFromIo(){
 	const cameraOffset = useSelector((state: RootState) => {return state.mouseEventsSlice.cameraOffset;});
 	const startDrawing = useDrawWire(cameraOffset);
 	const ioRadius = useSelector((state: RootState) => {return state.misc.ioRadius;});
-
+	const dispatch = useDispatch();
 	useEffect(() => {
 		if(currentComponentId !== 'global') return;
 		const handleMouseDown = (e: MouseEvent) => {
@@ -20,6 +21,8 @@ export default function DrawWireFromIo(){
 					e.preventDefault();
 					e.stopPropagation();
 					startDrawing(e as unknown as React.MouseEvent<any>);
+					dispatch(setSelectedEntity({entity: io, type: 'BinaryIO'}));
+					
 					return;
 				}
 			}

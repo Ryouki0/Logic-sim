@@ -26,6 +26,7 @@ export default function useDrawWire(cameraOffset: {x: number, y:number}) {
 		if (!context) {
 			return;
 		}
+		let hasWireBeenAdded = false;
 		const line: Line = {startX: 0, startY: 0, endX: 0, endY: 0};
 		const lastPosition = {x: 0, y: 0};
 		const thisWireId = uuidv4();
@@ -36,7 +37,6 @@ export default function useDrawWire(cameraOffset: {x: number, y:number}) {
 			parent: 'global',
 			targets: [],
 		};
-		dispatch(setDrawingWire(thisWireId));
 		
 		/**
 		 * It calculates the offset of the main canvas (if there is an offset)
@@ -102,6 +102,10 @@ export default function useDrawWire(cameraOffset: {x: number, y:number}) {
 			y = y - cameraOffset.y;
 			const {roundedX, roundedY} = getClosestBlock(x,y, blockSize);
 			if(lastPosition.x !== roundedX || lastPosition.y !== roundedY){
+				if(!hasWireBeenAdded){
+					dispatch(setDrawingWire(thisWireId));
+					hasWireBeenAdded = true;
+				}
 				line.endX = roundedX;
 				line.endY = roundedY;
 				lastPosition.x = roundedX;

@@ -182,7 +182,7 @@ export default function Clock() {
 		}}>
 			<span style={textStlye}>Actual hz: {actualHertz.toLocaleString('de-DE')}</span>
 			<span style={textStlye}>Actual refresh rate: {actualRefreshRate}</span>
-			{/* {user === 'Superuser' && <button onClick={e => {
+			{user === 'Superuser' && <button onClick={e => {
 				const {user, ...miscBase} = misc;
 				fetch(`http://localhost:3002/api/cpu`, {
 					method: 'PUT',
@@ -200,10 +200,10 @@ export default function Clock() {
 					console.log(`got back data: ${data.message}`);
 				});
 			}}>save</button>}
-			{<div>
+			{user === 'Superuser' && <div>
 				<button style={{width: 200, height: 50}} onClick={handleDownload}>Download</button>
 			</div>}
-			<button onClick={handleLoad}>fetch json</button> */}
+			{user === 'Superuser' && <button onClick={handleLoad}>fetch json</button>}
 		</div>
 		 <div style={{ display: 'flex', alignItems: 'center' }}>
       

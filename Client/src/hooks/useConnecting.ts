@@ -138,9 +138,15 @@ export default function useConnecting(){
 
 	useEffect(() => {
 		const areIOsEqual = checkIOPositions(prevIo.current, io);
+		// console.log(`areIos equal: ${areIOsEqual}`);
 		setAreIOsEqual(areIOsEqual);
 	}, [io])
 
+
+	/**
+	 * Bug: When dropping a gate and immediately clicking away, the `drawingWire` changes, not leaving enough time for the worker
+	 * to rebuild the connections, since the `drawingWire` change terminates the worker.
+	 */
 	useEffect(() => {
 		let shouldRebuild = false;
 		if((draggingGate || drawingWire)) {
@@ -161,9 +167,10 @@ export default function useConnecting(){
 			shouldRebuild = true;
 		};
 
-		if((prevIo.current !== io && !areIOsEqual)){
+		if((prevIo.current !== currentIo.current && !areIOsEqual)){
 			shouldRebuild = true;
 		}
+		
 		if(shouldRebuild){
 			workerRef.current = new importedWorkerRef.current();
 			workerRef.current.postMessage({

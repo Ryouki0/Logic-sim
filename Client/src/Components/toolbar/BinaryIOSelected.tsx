@@ -71,7 +71,7 @@ export default function BinaryIOSelected({io} : {io: BinaryIO}){
 			borderColor: `${DEFAULT_NON_AFFECTING_COLOR}`,
 			borderLeftWidth: 5
 		}}>
-			{io.affectsOutput ? 'This input doesn\'t affect the output on the same tick.': 'This input affects the output on the same tick.'}
+			{io.affectsOutput ? `This ${io.type} doesn\'t affect the output on the same tick.`: `This ${io.type} affects the output on the same tick.`}
 		</span>
 	</>;
 }

@@ -23,7 +23,6 @@ const checkGateEquality = (prev: Gate, next: Gate) => {
 export default function GateSelected({gate}: {gate: Gate}){
 
 	const thisGate = useSelector((state: RootState) => {return state.entities.currentComponent.gates[gate.id];}, checkGateEquality);
-	const blockSize = useSelector((state: RootState) => {return state.misc.blockSize;});
 	const gateChanged = useRef<boolean>(true);
 	const currentText = useRef<string>('');
 	const [text, setText] = useState<string>('');
@@ -106,9 +105,10 @@ export default function GateSelected({gate}: {gate: Gate}){
 							marginLeft: '5px',
 							alignSelf: 'center',
 							marginTop: 10,
+							marginRight: 5,
 							fontSize: 16}}
 					>
-        Description:
+        Description: 
 					</label>
 					<textarea
 						rows={1}

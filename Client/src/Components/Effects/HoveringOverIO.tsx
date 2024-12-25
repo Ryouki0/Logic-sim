@@ -33,20 +33,11 @@ export default function HoveringOverIO(){
 			dispatch(setHoveringOverIo(null));
 		};
 
-		const handleMouseDown = (e:MouseEvent) => {
-			for(const [key, io] of ioEntries){
-                
-				if(isOnIo(e.x, e.y, io, cameraOffset, ioRadius)){
-					dispatch(setSelectedEntity({entity: io, type: 'BinaryIO'}));
-					return;
-				}
-			}
-		};
 		document.addEventListener('mousemove', handleMouseMove);
-		document.addEventListener('mousedown', handleMouseDown);
+		// document.addEventListener('mousedown', handleMouseDown);
 		return () => {
 			document.removeEventListener('mousemove', handleMouseMove);
-			document.removeEventListener('mousedown', handleMouseDown);
+			// document.removeEventListener('mousedown', handleMouseDown);
 		};
 	}, [io, currentlyHoveringOverIo, cameraOffset]);
    

@@ -106,6 +106,9 @@ const SpinningCircle = () => {
 		const target = e.target as HTMLElement;
 		if(target.classList.contains('Gate-container') || target.classList.contains('CircularProgressbar') 
             || target.classList.contains('CircularProgressbar-path') || target.classList.contains('io')){
+			if(target.classList.contains('bluePrint')){
+				return;
+			}
 			setShouldShow(true);
 			return;
 		}else{

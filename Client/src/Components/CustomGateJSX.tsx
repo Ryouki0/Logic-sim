@@ -2,13 +2,14 @@ import { Gate } from '@Shared/interfaces';
 import React from 'react';
 import { MINIMAL_BLOCKSIZE } from '../Constants/defaultDimensions';
 
-export const CustomGateJSX = React.memo(function CustomGateJSX({thisGate, eleRef, spanDivRef, spanRef, heightMultiplier} : 
+export const CustomGateJSX = React.memo(function CustomGateJSX({thisGate, eleRef, spanDivRef, spanRef, heightMultiplier, isBluePrint} : 
     {
         thisGate:Gate,
         eleRef?: React.RefObject<HTMLDivElement>,
         spanDivRef?: React.RefObject<HTMLDivElement>,
         spanRef?: React.RefObject<HTMLSpanElement>,
-        heightMultiplier?: number
+        heightMultiplier?: number,
+		isBluePrint?: boolean,
     }){
 	if(!thisGate){
 		return null;
@@ -18,7 +19,7 @@ export const CustomGateJSX = React.memo(function CustomGateJSX({thisGate, eleRef
 		<>
     
 			<div ref={eleRef ?? null}
-				className='Gate-container displayAllGates'
+				className={isBluePrint ? 'Gate-container bluePrint' : 'Gate-container displayAllGates' }
 				style={{
 					height: `calc(var(--block-size) * ${heightMultiplier})`,
 					width: `calc(var(--block-size) * 3)`,

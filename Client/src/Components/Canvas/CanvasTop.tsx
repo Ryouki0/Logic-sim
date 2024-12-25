@@ -28,6 +28,26 @@ export default function CanvasTop(){
 		backgroundColor: DEFAULT_BACKGROUND_COLOR,
 	}}>
 		<div style={{
+			width: 2*MINIMAL_BLOCKSIZE-2*DEFAULT_BORDER_WIDTH,
+			position: 'absolute',
+			top: MINIMAL_BLOCKSIZE,
+			left: 0,
+			backgroundColor: DEFAULT_BACKGROUND_COLOR,
+			height: 30,
+		}}>
+
+		</div>
+		<div style={{
+			width: 2*MINIMAL_BLOCKSIZE-2*DEFAULT_BORDER_WIDTH,
+			position: 'absolute',
+			top: MINIMAL_BLOCKSIZE,
+			left: canvasWidth - 2*MINIMAL_BLOCKSIZE,
+			backgroundColor: DEFAULT_BACKGROUND_COLOR,
+			height: 30,
+		}}>
+
+		</div>
+		<div style={{
 			width: canvasWidth/2,
 			height: canvasHeight - 2*DEFAULT_BORDER_WIDTH,
 			justifySelf: 'center',
@@ -48,8 +68,8 @@ export default function CanvasTop(){
 		</div>
 		{currentComponent && <div
 			style={{
-				zIndex: 10,
-				height: 2*blockSize,
+				zIndex: 1,
+				height: 2*MINIMAL_BLOCKSIZE,
 				position: 'absolute',
 				display: 'flex',
 				alignSelf: 'flex-start',

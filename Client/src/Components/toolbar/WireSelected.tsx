@@ -81,7 +81,7 @@ export default function WireSelected({wire} : {wire:Wire}){
 		<>
 		
 			<div style={{justifyContent: 'center', display: 'flex', flexDirection: 'column'}}>
-				<div style={{width: 150, height: 10, backgroundColor:ORANGE, alignSelf: 'center', marginTop: '30%'}}>
+				<div style={{width: 150, height: 10, backgroundColor:getWireColor(), alignSelf: 'center', marginTop: '30%'}}>
 
 				</div>
 				<div style={{marginTop: 20, marginLeft: 10}}>
@@ -101,6 +101,19 @@ export default function WireSelected({wire} : {wire:Wire}){
 						</span>;
 					})}
 			
+				</div>
+				<div style={{marginTop: 20, marginLeft: 10}}>
+					<span style={{
+    			color: 'white', 
+    			fontSize: 16,
+    			marginTop: 10
+					}}>
+    			Current source:{' '}</span>
+					<span 
+						onClick={e=>{handleLinkClick(trueSource)}}
+						className="clickable-text">
+							{trueSource?.name}
+					</span>
 				</div>
 				<div style={{marginTop: 10, marginLeft: 10}}>
 					<span style={{color: 'white', fontSize: 16, marginTop: 10}}>Targets:{' '}</span>
