@@ -11,6 +11,7 @@ import { setError } from '../state/slices/clock';
 import isOnIo from '../utils/Spatial/isOnIo';
 import { connectingWorkerEvent } from '../workers/connecting.worker';
 import { transpileModule } from 'typescript';
+import { addNotification } from '../state/slices/mouseEvents';
 
 
 export class ShortCircuitError extends Error{
@@ -187,6 +188,7 @@ export default function useConnecting(){
 				if(event.data.error?.isError){
 					dispatch(raiseShortCircuitError({wireTree: event.data.error!.wireTree}));
 					dispatch(setError({isError: true, extraInfo: 'Short circuit!'}));
+					dispatch(addNotification({id: Math.random().toString(), info: 'Short circuit error!', status: 'error'}));
 				}
 				else {
 					dispatch(setError({isError: false, extraInfo: ''}));

@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../../Constants/colors';
 import Tabs from './Tabs';
+import SaveButton from './SaveButton';
 
 export default function Toolbar() {
 

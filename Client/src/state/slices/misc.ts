@@ -14,6 +14,7 @@ export interface Misc{
 	lineWidth: number,
 	ioRadius: number,
 	selectedElement: string | null,
+	isInitialLoad: boolean,
 }
 
 /**
@@ -42,8 +43,9 @@ const initialState:Misc = {
 	lineWidth: LINE_WIDTH,
 	ioRadius: DEFAULT_INPUT_DIM.width,
 	selectedElement: null,
+	isInitialLoad: false,
 };
-
+console.log(`initial state ran`);
 const misc = createSlice({
 	name: 'misc',
 	initialState: initialState,
@@ -97,14 +99,17 @@ const misc = createSlice({
 			state.lineWidth = lineWidth;
 		},
 		changeMisc: (state, action: PayloadAction<{misc: MiscBase}>) => {
-			return state = {...state, ...action.payload.misc};
+			const newState = {...state, ...action.payload.misc};
+			console.log(`should update the blockSize to ${newState.blockSize}`);
+			return newState;
 		},
 		setSelectedElement: (state, action: PayloadAction<string | null>) => {
 			state.selectedElement = action.payload;
-		}
+		},
+		setIsInitialLoad: (state, action: PayloadAction<boolean>) => {
+			state.isInitialLoad = action.payload;
 	}
-});
-
+}});
 export default misc.reducer;
 export const {
 	setCurrentComponentId,
@@ -115,5 +120,6 @@ export const {
 	changeBlockSize,
 	changeGlobalBlockSize,
 	changeMisc,
-	setSelectedElement
+	setSelectedElement,
+	setIsInitialLoad,
 } = misc.actions;

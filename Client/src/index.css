@@ -280,3 +280,14 @@ svg:not(:root){
   color: whitesmoke;
   background-color: rgb(40 40 40);
 }
+
+.notification {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #fff; /* White text for contrast */
+  background: rgba(0, 0, 0, 0.8); /* Subtle dark overlay */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  min-width: 150px;
+  text-align: center;
+}

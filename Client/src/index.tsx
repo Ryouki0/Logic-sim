@@ -23,6 +23,7 @@ root.render(
 					<Route path='/Simulation' element={<Simulation></Simulation>}></Route>
 				</Routes>
 			</Router>
+			
 		</Provider>
 	</StrictMode>
 	

@@ -136,16 +136,19 @@ export const CustomGate = React.memo(function CustomGate({gateId, isBluePrint, p
 	}, [inputs]);
 
 	//When zooming, the old offset would make the gate teleport, so change the offset to the new position
-	useEffect(() => {
+	// useEffect(() => {
 		
-		const multipliers = {x: (thisGate.position!.x - 2*MINIMAL_BLOCKSIZE) / prevSize.current, y: (thisGate.position!.y - 2*MINIMAL_BLOCKSIZE) / prevSize.current};
-		const newPosition = {x: multipliers.x * blockSize + 2*MINIMAL_BLOCKSIZE, y: multipliers.y * blockSize + 2*MINIMAL_BLOCKSIZE};
-		offsetRef.current.dx = newPosition.x;
-		offsetRef.current.dy = newPosition.y;
-		prevSize.current = blockSize;
-	}, [blockSize]);
+	// 	const multipliers = {x: (thisGate.position!.x - 2*MINIMAL_BLOCKSIZE) / prevSize.current, y: (thisGate.position!.y - 2*MINIMAL_BLOCKSIZE) / prevSize.current};
+	// 	const newPosition = {x: multipliers.x * blockSize + 2*MINIMAL_BLOCKSIZE, y: multipliers.y * blockSize + 2*MINIMAL_BLOCKSIZE};
+	// 	offsetRef.current.dx = newPosition.x;
+	// 	offsetRef.current.dy = newPosition.y;
+	// 	prevSize.current = blockSize;
+	// }, [blockSize]);
 	
-
+	useEffect(() => {
+		offsetRef.current.dx = thisGate.position!.x;
+		offsetRef.current.dy = thisGate.position!.y;
+	}, [thisGate]);
 	return <>
 	<CustomGateJSX 
 		thisGate={thisGate} 

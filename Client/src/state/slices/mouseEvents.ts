@@ -21,6 +21,7 @@ interface MouseEvents {
 	cameraOffset: {x: number, y: number},
 	showColorPicker: {show: boolean, id: string | null},
 	colorPickerOption: 'Wire' | 'WireTree',
+	notifications: {id: string, info: string, status: 'success' | 'error'}[],
 }
 const initialState: MouseEvents = { 
 	entityClicked: {type: null, entity: null}, 
@@ -32,7 +33,8 @@ const initialState: MouseEvents = {
 	hoveringOverIo: null,
 	cameraOffset: {x: 0, y: 0},
 	showColorPicker: {show: false, id: null},
-	colorPickerOption: 'Wire'
+	colorPickerOption: 'Wire',
+	notifications: [],
 };
 
 const mouseEventsSlice = createSlice({
@@ -90,6 +92,12 @@ const mouseEventsSlice = createSlice({
 		setDraggingGate: (state, action: PayloadAction<string | null>) => {
 			state.draggingGate = action.payload;
 		},
+		addNotification: (state, action: PayloadAction<{id: string, info: string, status:'success' | 'error'}>) => {
+			state.notifications = [...state.notifications, action.payload];
+		},
+		removeNotification: (state, action: PayloadAction<{id: string}>) => {
+			state.notifications = state.notifications.filter(notification => notification.id !== action.payload.id);
+		}
 	},
 });
 
@@ -104,6 +112,8 @@ export const {
 	setShowColorPicker,
 	setColorPickerOption,
 	setDraggingGate,
+	addNotification,
+	removeNotification,
 } = mouseEventsSlice.actions;
     
 export default mouseEventsSlice.reducer;

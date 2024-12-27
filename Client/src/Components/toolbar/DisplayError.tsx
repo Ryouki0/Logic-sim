@@ -10,14 +10,15 @@ export default function DisplayError(){
 	return (
 	<>
 		{error.isError && <div 
-			className='error-container'
 			style={{
 				opacity: 0.8,
-				backgroundColor: 'red',
 				width: window.innerWidth - canvasWidth - 15,
 				marginLeft: 5,
+				borderColor: 'red',
+				borderStyle: 'solid',
+				borderRadius: 5,
 				marginTop: 10,
-				height: '10%',
+				height: '9%',
 				display: 'flex',
 				flexDirection: 'column',
 				justifyContent: 'center',

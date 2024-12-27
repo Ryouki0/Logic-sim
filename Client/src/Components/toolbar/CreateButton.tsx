@@ -10,6 +10,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import { Gate } from '@Shared/interfaces';
 import { DEFAULT_BORDER_COLOR } from '../../Constants/colors';
 import { changeBlockSize } from '../../state/slices/misc';
+import SaveButton from './SaveButton';
 export default function CreateButton(){
 	const dispatch = useDispatch();
 	const currentComponentId = useSelector((state: RootState) => {return state.misc.currentComponentId;});
@@ -76,7 +77,6 @@ export default function CreateButton(){
 		display: 'flex',
 		flexDirection: 'column',
 		width: '100%',
-		maxHeight: '30%',
 	}}>
 		<span style={{
 			fontSize: 22,
@@ -117,7 +117,7 @@ export default function CreateButton(){
         			Description:
 			</label>
 			<textarea
-				rows={1}
+				rows={4}
 				className='simple-input'
 				spellCheck={false}
 				ref={textAreaRef}
@@ -133,6 +133,7 @@ export default function CreateButton(){
 
 		</div>
 		<span style={{...textStlye, marginLeft: 10, marginBottom: 20}}>Total complexity: {totalComplexity}</span>
+		<SaveButton></SaveButton>
 
 		<div  style={{
 			width: '100%',
@@ -156,8 +157,6 @@ export default function CreateButton(){
 				}}>➕ Create component</span>
 			</div>
 		</div>
-		
-		<div style={{width: '100%', height: DEFAULT_BORDER_WIDTH, backgroundColor: DEFAULT_BORDER_COLOR, marginTop: 10}}></div>
 		
 	</div>;
 }

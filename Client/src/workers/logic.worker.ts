@@ -90,8 +90,18 @@ onmessage = async function (event: MessageEvent<{
 			}
 		}
 		
-		const {mainDag, SCCOrder} = globalSort(gates!, io);
-		const order = [...mainDag, ...SCCOrder];
+		let {mainDag, SCCOrder}:{mainDag: string[], SCCOrder: string[]} = {mainDag: [], SCCOrder: []};
+		let order:string[] = [];
+		try{
+			({ mainDag, SCCOrder } = globalSort(gates!, io));
+			order = [...mainDag, ...SCCOrder];
+		}catch(error){
+			if(error instanceof CircularDependencyError){
+				this.postMessage({gates: gates, binaryIO: io, actualHertz: actualHertz, error: 'Circular dependency'});
+				console.warn(`circular dependency inside the worker!`);
+				this.self.close();
+			}
+		}
 		
 	
 		const propagatedDelays: Set<string> = new Set();

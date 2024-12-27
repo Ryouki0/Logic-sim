@@ -14,7 +14,7 @@ export default function ControlPanel(){
 
 
 	return <div style={{
-		left: CANVAS_WIDTH,
+		left: canvasWidth,
 		alignSelf: 'flex-end',
 		justifySelf: 'flex-end',
 		width: window.innerWidth - canvasWidth,
@@ -28,7 +28,8 @@ export default function ControlPanel(){
 		borderColor: DEFAULT_BORDER_COLOR,
 		backgroundColor: DEFAULT_BACKGROUND_COLOR,
 	}}>
-		<Tabs setCurrentTab={setCurrentTab}></Tabs>
 		{currentTab === 'general' ? <Toolbar></Toolbar> : <Settings></Settings>}
+		<Tabs setCurrentTab={setCurrentTab}></Tabs>
+
 	</div>;
 }

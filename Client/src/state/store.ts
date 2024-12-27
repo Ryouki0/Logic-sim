@@ -10,7 +10,7 @@ export const store = configureStore({
 		clock,
 		misc
 	},
-	middleware: (getDefaultMiddleWare) => {return new Tuple();},
+	middleware: (getDefaultMiddleWare) => {return new Tuple()},
 });
 
 export type RootState = ReturnType<typeof store.getState>;

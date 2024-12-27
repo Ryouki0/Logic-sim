@@ -11,6 +11,7 @@ import { DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR } from '../../Constants/
 import '../../index.css';
 import { textStlye } from '../../Constants/commonStyles';
 import { Button } from '@mui/material';
+import DisplayError from './DisplayError';
 export class CircularDependencyError extends Error{
 	constructor(){
 		super('Circular dependency');

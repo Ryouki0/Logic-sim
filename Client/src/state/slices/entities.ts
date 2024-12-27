@@ -17,6 +17,7 @@ import { checkSingleIo } from "../../Components/Preview/InputPreview";
 import { ioEquality } from "../../Components/IO/Input";
 import getAllConnectedIO from "../../utils/getAllConnectedIO";
 import { isErrored } from "stream";
+import { getEntities } from "../../localDB";
 
 const ANDInputId1 = uuidv4();
 const ANDInputId2 = uuidv4();
@@ -39,7 +40,6 @@ export interface entities{
 	binaryIO: {[key: string]:BinaryIO};
 	currentComponent: {wires: {[key: string]: Wire}, gates: {[key: string]: Gate}, binaryIO: {[key: string]: BinaryIO}}
 }
-
 const initialState = {wires: {}, gates: {}, currentComponent: {gates: {}, wires: {}, binaryIO: {}},
 	bluePrints: {gates: {
 		[ANDId]: {

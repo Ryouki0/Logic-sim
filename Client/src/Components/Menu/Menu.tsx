@@ -7,7 +7,7 @@ import '../../login.css';
 import useAuth from '../../hooks/useAuth';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
-import { changeMisc, MiscBase, setUser } from '../../state/slices/misc';
+import { changeMisc, MiscBase, setIsInitialLoad, setUser } from '../../state/slices/misc';
 import { changeState } from '../../state/slices/entities';
 import { entities } from '@Shared/interfaces';
 import { textStlye } from '../../Constants/commonStyles';
@@ -70,6 +70,7 @@ export default function Menu(){
 				dispatch(changeState({wires, gates, currentComponent, bluePrints, binaryIO} as entities));
 				navigate('/Simulation');
 				dispatch(changeMisc({misc: miscWithoutUser as MiscBase}));
+				dispatch(setIsInitialLoad(true));
  		})
 			.catch(err => {
 				setLoading(false);

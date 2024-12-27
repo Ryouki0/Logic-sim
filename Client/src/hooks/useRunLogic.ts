@@ -8,6 +8,8 @@ import { WorkerEvent } from '../workers/logic.worker';
 import { parseHue } from '@uiw/react-color';
 import { Gate, Wire } from '@Shared/interfaces';
 import { BinaryIO } from '../Interfaces/BinaryIO';
+import { add } from 'lodash';
+import { addNotification } from '../state/slices/mouseEvents';
 
 export function checkCurrentComponent(
 	prev: {wires: {[key: string]: Wire}, binaryIO: {[key: string]: BinaryIO}, gates: {[key: string]: Gate}},
@@ -145,6 +147,7 @@ export default function useRunLogic(){
 		dispatch(setError({ isError: true, extraInfo: error }));
 		dispatch(setIsRunning(false));
 		dispatch(setPhase(null));
+		dispatch(addNotification({ id: Math.random().toString(), info: `${error}`, status: 'error' }));
 		workerRef.current = null;
 	}
 
